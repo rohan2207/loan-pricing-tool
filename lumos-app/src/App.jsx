@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout } from './components/layout/Layout';
 import { SummaryCards } from './components/dashboard/SummaryCards';
 import { MockScenarios } from './components/dashboard/MockScenarios';
@@ -11,6 +11,8 @@ import { SalesComparablesTab } from './components/dashboard/tabs/SalesComparable
 import { URLATab } from './components/dashboard/tabs/URLATab';
 import { DebtWorksheet } from './components/dashboard/DebtWorksheet';
 import { QuickQuote } from './components/dashboard/QuickQuote';
+import { GoodLeapAssistant } from './components/dashboard/GoodLeapAssistant';
+import { AIPopoutWindow } from './components/dashboard/AIPopoutWindow';
 import { GoodLeapAdvantage } from './components/advantage/GoodLeapAdvantage';
 import { GoodLeapAdvantageV2 } from './components/advantage/GoodLeapAdvantageV2';
 import { GoodLeapAdvantageV3 } from './components/advantage/GoodLeapAdvantageV3';
@@ -32,7 +34,103 @@ const initialAccounts = [
   { id: 9, type: 'Borrower', account: 'XXX...', creditor: 'DISCOVER CARD', accountType: 'Revolving', reported: ['EQ', 'EX'], limit: '$5,000', startDate: '2018-06-01', balance: '$500', payment: '$25', util: '-', rate: '18.99%', willPay: true },
 ];
 
+// Comprehensive borrower data
+const borrowerData = {
+  // Borrower Info
+  borrower: {
+    name: 'John Smith',
+    loanNumber: 'MOCK-LOAN-001',
+    loanAmount: 425000,
+    location: 'Austin, TX'
+  },
+  // Credit Scores
+  creditScores: {
+    borrower: 608,
+    coBorrower: 650,
+    reportDate: '2025-01-14'
+  },
+  // Credit Utilization
+  creditUtilization: {
+    totalLimit: 31500,
+    totalBalance: 13950,
+    available: 17550,
+    utilizationPercent: 44.29,
+    delinquencies: 0
+  },
+  // Consumer Finance / GoodLeap Loan
+  consumerFinance: {
+    product: 'Solar Installation',
+    loanNumber: 'CF-1234567',
+    unpaidBalance: 42000,
+    payment: 0,
+    rate: 6.75,
+    status: 'Active',
+    originationDate: '2022-03-15' // ~3 years ago
+  },
+  // Available Equity
+  availableEquity: {
+    cashOut80: 0,
+    heloc95: 77188
+  },
+  // Property Data
+  property: {
+    address: '2116 Shrewsbury Dr',
+    unit: '',
+    city: 'McKinney',
+    state: 'TX',
+    zip: '75071-4420',
+    county: 'Collin County',
+    apn: 'R-11106-00M-0210-1',
+    fipsCode: '48085',
+    legalDescription: 'AUBURN HILLS PHASE 1A (CMC), BLOCK M, LOT 21',
+    owners: 'John Robert Smith / Jane Marie Smith',
+    ownershipRights: 'Joint Tenancy',
+    // Valuation
+    purchasePrice: 523700,
+    purchaseDate: 'Sep 15, 2017',
+    avmValue: 785000,
+    avmDate: 'May 2025',
+    confidence: 93,
+    stdDeviation: 5,
+    avmLow: 732000,
+    avmHigh: 842000,
+    marketValue: 771565,
+    landValue: 180000,
+    improvementValue: 591565,
+    totalAssessed: 771565,
+    annualTax: 12182.44,
+    taxYear: 2024,
+    // Appreciation
+    appreciation: 49.9,
+    currentEquity: 357500,
+    pricePerSqFt: 204,
+    ownershipYears: 9,
+    // Building Details
+    yearBuilt: 2017,
+    effectiveYear: 2017,
+    livingArea: 3850,
+    totalBuilding: 4258,
+    groundFloor: 2532,
+    garage: 408,
+    bedrooms: 5,
+    bathrooms: 4.5,
+    totalRooms: 11,
+    stories: 2,
+    construction: 'Wood Frame',
+    exterior: 'Brick'
+  },
+  // Sales Comparables
+  comparables: [
+    { address: '2104 Shrewsbury Dr', price: 765000, sqFt: 3720, pricePerSqFt: 206, daysAgo: 15, status: 'Sold' },
+    { address: '2089 Auburn Hills Blvd', price: 798000, sqFt: 3900, pricePerSqFt: 205, daysAgo: 22, status: 'Sold' },
+    { address: '1955 Canyon Creek Dr', price: 749000, sqFt: 3650, pricePerSqFt: 205, daysAgo: 8, status: 'Pending' }
+  ]
+};
+
 function App() {
+  // Check if this is a popout window
+  const isPopout = new URLSearchParams(window.location.search).get('popout') === 'ai';
+
   // Level 1 navigation - which full page view
   const [currentView, setCurrentView] = useState('dashboard');
   
@@ -44,6 +142,11 @@ function App() {
   
   // Shared data
   const [accounts, setAccounts] = useState(initialAccounts);
+
+  // Store data for popout window access
+  useEffect(() => {
+    window.aiPanelData = { accounts, borrowerData };
+  }, [accounts]);
 
   // GoodLeap Advantage proposal state (for flyover previews)
   const [advantageState, setAdvantageState] = useState({
@@ -95,7 +198,7 @@ function App() {
       );
     }
 
-    // Standard Quick Actions
+    // Standard Quick Actions (AI tools moved to floating assistant)
     switch (activeQuickAction) {
       case 'Debt Worksheet':
         return <DebtWorksheet selectedDebts={accounts} />;
@@ -171,16 +274,26 @@ function App() {
     }
   };
 
+  // If this is a popout window, render only the AI panel
+  if (isPopout) {
+    return <AIPopoutWindow />;
+  }
+
   return (
-    <Layout
-      currentView={currentView}
-      onViewChange={setCurrentView}
-      activeQuickAction={activeQuickAction}
-      onQuickActionChange={setActiveQuickAction}
-      rightPanel={getRightPanelContent()}
-    >
-      {renderMainContent()}
-    </Layout>
+    <>
+      <Layout
+        currentView={currentView}
+        onViewChange={setCurrentView}
+        activeQuickAction={activeQuickAction}
+        onQuickActionChange={setActiveQuickAction}
+        rightPanel={getRightPanelContent()}
+      >
+        {renderMainContent()}
+      </Layout>
+      
+      {/* Floating AI Assistant - always visible */}
+      <GoodLeapAssistant accounts={accounts} borrowerData={borrowerData} />
+    </>
   );
 }
 

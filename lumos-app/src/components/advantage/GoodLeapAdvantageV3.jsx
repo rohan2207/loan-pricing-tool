@@ -429,7 +429,7 @@ export function GoodLeapAdvantageV3({ accounts, onOpenFlyover }) {
                                     <Home size={14} className="text-neutral-l1" />
                                     Present Mortgage
                                 </h4>
-                            </div>
+                                </div>
                             
                             <div className="space-y-3 flex-1">
                                 <div className="grid grid-cols-2 gap-2">
@@ -448,8 +448,8 @@ export function GoodLeapAdvantageV3({ accounts, onOpenFlyover }) {
                                         disabled={isPricingComplete && !isEditMode && !hasUnsavedChanges}
                                         isFloat
                                     />
-                                </div>
-                                
+                            </div>
+                            
                                 <div className="grid grid-cols-2 gap-2">
                                     <LabeledInput 
                                         label="Balance" 
@@ -471,10 +471,10 @@ export function GoodLeapAdvantageV3({ accounts, onOpenFlyover }) {
                                         <Shield size={12} />
                                         Include Escrow?
                                     </span>
-                                    <button
+                                <button
                                         onClick={() => updateConfig(setIncludeEscrow, !includeEscrow)}
                                         disabled={isPricingComplete && !isEditMode && !hasUnsavedChanges}
-                                        className={cn(
+                                    className={cn(
                                             "w-10 h-5 rounded-full transition-colors relative",
                                             includeEscrow ? "bg-alternativePrimary" : "bg-neutral-l3"
                                         )}
@@ -483,7 +483,7 @@ export function GoodLeapAdvantageV3({ accounts, onOpenFlyover }) {
                                             "w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform shadow",
                                             includeEscrow ? "translate-x-5" : "translate-x-0.5"
                                         )} />
-                                    </button>
+                                </button>
                                 </div>
                                 
                                 {includeEscrow && (
@@ -511,8 +511,8 @@ export function GoodLeapAdvantageV3({ accounts, onOpenFlyover }) {
                                         <span className="text-danger font-medium">${(debtTotals.totalPayment - currentMortgagePI).toLocaleString()}/mo</span>
                                     </div>
                                 </div>
-                            </div>
-                            
+                        </div>
+                        
                             <div className="border-t border-neutral-l3 pt-3 mt-3">
                                 <div className="flex justify-between items-center">
                                     <span className="text-xs font-semibold text-neutral-d2">Current Payment</span>
@@ -541,29 +541,29 @@ export function GoodLeapAdvantageV3({ accounts, onOpenFlyover }) {
                             
                             <div className="space-y-3 flex-1">
                                 <div className="flex flex-wrap gap-1">
-                                    {programs.map((p) => (
-                                        <PillButton 
-                                            key={p} 
-                                            label={p} 
-                                            active={program === p} 
-                                            onClick={() => updateConfig(setProgram, p)} 
-                                            disabled={isPricingComplete && !isEditMode && !hasUnsavedChanges} 
-                                        />
-                                    ))}
-                                </div>
+                                            {programs.map((p) => (
+                                                <PillButton 
+                                                    key={p} 
+                                                    label={p} 
+                                                    active={program === p} 
+                                                    onClick={() => updateConfig(setProgram, p)} 
+                                                    disabled={isPricingComplete && !isEditMode && !hasUnsavedChanges} 
+                                                />
+                                            ))}
+                                        </div>
                                 
                                 <div className="flex gap-1.5">
-                                    {terms.map((t) => (
-                                        <PillButton 
-                                            key={t} 
-                                            label={`${t}yr`} 
-                                            active={term === t} 
-                                            onClick={() => updateConfig(setTerm, t)} 
-                                            compact 
+                                            {terms.map((t) => (
+                                                <PillButton 
+                                                    key={t} 
+                                                    label={`${t}yr`} 
+                                                    active={term === t} 
+                                                    onClick={() => updateConfig(setTerm, t)} 
+                                                    compact 
                                             disabled={isPricingComplete && !isEditMode && !hasUnsavedChanges} 
-                                        />
-                                    ))}
-                                </div>
+                                                />
+                                            ))}
+                                        </div>
                                 
                                 <div className="grid grid-cols-2 gap-2">
                                     <LabeledInput 
@@ -593,7 +593,7 @@ export function GoodLeapAdvantageV3({ accounts, onOpenFlyover }) {
                                         )}>
                                             {calculatedLTV}%
                                         </span>
-                                    </div>
+                                        </div>
                                     
                                     <div className="relative h-3 rounded-full overflow-hidden mb-1">
                                         <div className="absolute inset-0 bg-gradient-to-r from-success via-warning to-danger" />
@@ -631,12 +631,12 @@ export function GoodLeapAdvantageV3({ accounts, onOpenFlyover }) {
                                         <span>100</span>
                                     </div>
                                 </div>
-                                
+
                                 <div className="grid grid-cols-3 gap-2 text-xs">
                                     <div className="bg-neutral-l5 rounded p-2">
                                         <span className="text-[9px] text-neutral-l1 uppercase">Loan</span>
                                         <p className="font-bold text-neutral-d3">${calculatedLoanAmount.toLocaleString()}</p>
-                                    </div>
+                                        </div>
                                     <div className="bg-neutral-l5 rounded p-2">
                                         <span className="text-[9px] text-neutral-l1 uppercase">Debts</span>
                                         <p className="font-bold text-neutral-d3">${debtTotals.totalBalance.toLocaleString()}</p>
@@ -644,15 +644,15 @@ export function GoodLeapAdvantageV3({ accounts, onOpenFlyover }) {
                                     <div className="bg-neutral-l5 rounded p-2">
                                         <span className="text-[9px] text-neutral-l1 uppercase">Cashout</span>
                                         <p className="font-bold text-alternativePrimary">${cashout.toLocaleString()}</p>
+                                        </div>
                                     </div>
-                                </div>
                                 
                                 {extraCashoutAvailable > 0 && (
                                     <div className="bg-success-l4 border border-success-l2 rounded p-2 flex justify-between items-center">
                                         <span className="text-[10px] text-success-d2">Extra Cashout @ 80%</span>
                                         <span className="text-sm font-bold text-success">${extraCashoutAvailable.toLocaleString()}</span>
-                                    </div>
-                                )}
+                            </div>
+                        )}
                                 
                                 {includeEscrow ? (
                                     <div className="grid grid-cols-2 gap-2">
@@ -668,11 +668,11 @@ export function GoodLeapAdvantageV3({ accounts, onOpenFlyover }) {
                                             value={proposedInsurance} 
                                             onChange={(v) => updateConfig(setProposedInsurance, v)} 
                                         />
-                                    </div>
+                                </div>
                                 ) : (
                                     <div className="py-2 px-3 bg-neutral-l5 border border-neutral-l3 rounded text-[10px] text-neutral-l1">
                                         Escrow excluded (toggle in Present)
-                                    </div>
+                                </div>
                                 )}
                                 
                                 <div className="pt-2 border-t border-neutral-l4">
@@ -708,10 +708,10 @@ export function GoodLeapAdvantageV3({ accounts, onOpenFlyover }) {
                                         )}>
                                             ${Math.abs(paymentDelta).toLocaleString()}/mo
                                         </span>
-                                    </div>
-                                )}
-                                
-                                {!isPricingComplete && (
+                        </div>
+                    )}
+
+                    {!isPricingComplete && (
                                     <button
                                         onClick={handlePriceLoan}
                                         disabled={isRunningPricing}
@@ -729,9 +729,9 @@ export function GoodLeapAdvantageV3({ accounts, onOpenFlyover }) {
                                         )}
                                     </button>
                                 )}
+                                </div>
                             </div>
                         </div>
-                    </div>
                     
                     <div className="text-[10px] text-neutral-l1 text-center py-1">
                         Estimates only. Final terms subject to underwriting approval.
@@ -860,13 +860,13 @@ export function GoodLeapAdvantageV3({ accounts, onOpenFlyover }) {
                                     <div className="text-[10px] text-neutral-l1 mb-2">
                                         Output: {selectedModuleNames.join(', ')}
                                     </div>
-                                    <button
+                                <button
                                         onClick={handleExportProposal}
                                         className="w-full py-2 bg-alternativePrimary text-white rounded text-xs font-medium hover:bg-alternativePrimary-d2 transition-colors flex items-center justify-center gap-1.5"
-                                    >
+                                >
                                         <Download size={12} />
-                                        Generate Proposal
-                                    </button>
+                                    Generate Proposal
+                                </button>
                                 </>
                             ) : (
                                 <p className="text-[10px] text-neutral-l1 text-center">
@@ -1032,3 +1032,4 @@ function ModuleInput({ label, prefix, suffix, value, onChange }) {
         </div>
     );
 }
+

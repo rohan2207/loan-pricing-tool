@@ -620,42 +620,42 @@ export function GoodLeapAdvantageV5({ accounts, onOpenFlyover }) {
                         "flex flex-col gap-3 transition-all overflow-y-auto",
                         isPricingComplete ? "w-1/2" : "flex-1"
                     )}>
-                        
-                        {/* Loan Builder Section */}
-                        <div className="bg-white rounded-lg shadow-sm border border-neutral-l3 p-4">
-                            <div className="flex items-center justify-between mb-3">
+                            
+                            {/* Loan Builder Section */}
+                            <div className="bg-white rounded-lg shadow-sm border border-neutral-l3 p-4">
+                                        <div className="flex items-center justify-between mb-3">
                                 <h3 className="text-sm font-semibold text-neutral-d3 flex items-center gap-2">
                                     <Calculator size={16} className="text-neutral-l1" />
                                     Loan Configuration
                                 </h3>
-                                {hasUnsavedChanges && (
+                                            {hasUnsavedChanges && (
                                     <span className="text-[10px] text-warning-d2 bg-warning-l4 px-1.5 py-0.5 rounded">Re-price needed</span>
-                                )}
-                            </div>
+                                            )}
+                                        </div>
                             
                             {/* Program Selection */}
                             <div className="flex flex-wrap gap-1 mb-3">
-                                {programs.map((p) => (
-                                    <PillButton 
-                                        key={p} 
-                                        label={p} 
-                                        active={program === p} 
-                                        onClick={() => updateConfig(setProgram, p)} 
-                                        disabled={isPricingComplete && !isEditMode && !hasUnsavedChanges} 
-                                    />
-                                ))}
-                            </div>
+                                                {programs.map((p) => (
+                                                    <PillButton 
+                                                        key={p} 
+                                                        label={p} 
+                                                        active={program === p} 
+                                                        onClick={() => updateConfig(setProgram, p)} 
+                                                        disabled={isPricingComplete && !isEditMode && !hasUnsavedChanges} 
+                                                    />
+                                                ))}
+                                            </div>
                             
                             {/* Key Inputs */}
                             <div className="grid grid-cols-3 gap-3 mb-3">
-                                <LabeledInput 
-                                    label="Property Value" 
-                                    prefix="$" 
-                                    value={homeValue} 
-                                    onChange={(v) => updateConfig(setHomeValue, v)} 
-                                    disabled={isPricingComplete && !isEditMode && !hasUnsavedChanges}
-                                />
-                                <LabeledInput 
+                                                <LabeledInput 
+                                                    label="Property Value" 
+                                                    prefix="$" 
+                                                    value={homeValue} 
+                                                    onChange={(v) => updateConfig(setHomeValue, v)} 
+                                                    disabled={isPricingComplete && !isEditMode && !hasUnsavedChanges}
+                                                />
+                                                <LabeledInput 
                                     label="Current P&I" 
                                     prefix="$" 
                                     value={currentMortgagePI} 
@@ -664,13 +664,13 @@ export function GoodLeapAdvantageV5({ accounts, onOpenFlyover }) {
                                 />
                                 <LabeledInput 
                                     label="New Rate" 
-                                    suffix="%" 
-                                    value={interestRate} 
-                                    onChange={(v) => updateConfig(setInterestRate, v)} 
-                                    disabled={isPricingComplete && !isEditMode && !hasUnsavedChanges}
-                                    isFloat
-                                />
-                            </div>
+                                                    suffix="%" 
+                                                    value={interestRate} 
+                                                    onChange={(v) => updateConfig(setInterestRate, v)} 
+                                                    disabled={isPricingComplete && !isEditMode && !hasUnsavedChanges}
+                                                    isFloat
+                                                />
+                                            </div>
                             
                             {/* Escrow Toggle */}
                             <div className="flex items-center justify-between py-2 px-3 bg-neutral-l5 rounded mb-3">
@@ -685,66 +685,66 @@ export function GoodLeapAdvantageV5({ accounts, onOpenFlyover }) {
                                 >
                                     <div className={cn("w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform shadow", includeEscrow ? "translate-x-5" : "translate-x-0.5")} />
                                 </button>
-                            </div>
-                            
+                                </div>
+                                
                             {/* LTV Slider */}
                             <div className="border-t border-neutral-l3 pt-3">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-xs font-medium text-neutral-d2">Build Loan Amount</span>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-xs font-medium text-neutral-d2">Build Loan Amount</span>
                                     <span className="text-xs font-bold text-alternativePrimary">${calculatedLoanAmount.toLocaleString()}</span>
-                                </div>
-                                
+                                    </div>
+                                    
                                 <div className="flex items-center gap-3">
-                                    <div className="flex-1 relative">
-                                        <div className="h-3 rounded-full overflow-hidden bg-gradient-to-r from-success via-warning to-danger">
-                                            <input
-                                                type="range"
-                                                min={Math.max(50, minLTV)}
-                                                max="100"
-                                                value={Math.min(100, Math.max(minLTV, calculatedLTV))}
-                                                onChange={(e) => {
-                                                    const targetLTV = parseInt(e.target.value);
-                                                    const targetLoanAmount = Math.round((targetLTV / 100) * homeValue);
-                                                    const newCashout = Math.max(0, targetLoanAmount - debtTotals.totalBalance);
-                                                    updateConfig(setCashout, newCashout);
-                                                }}
-                                                disabled={isPricingComplete && !isEditMode && !hasUnsavedChanges}
-                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
-                                            />
-                                            <div 
+                                        <div className="flex-1 relative">
+                                            <div className="h-3 rounded-full overflow-hidden bg-gradient-to-r from-success via-warning to-danger">
+                                                <input
+                                                    type="range"
+                                                    min={Math.max(50, minLTV)}
+                                                    max="100"
+                                                    value={Math.min(100, Math.max(minLTV, calculatedLTV))}
+                                                    onChange={(e) => {
+                                                        const targetLTV = parseInt(e.target.value);
+                                                        const targetLoanAmount = Math.round((targetLTV / 100) * homeValue);
+                                                        const newCashout = Math.max(0, targetLoanAmount - debtTotals.totalBalance);
+                                                        updateConfig(setCashout, newCashout);
+                                                    }}
+                                                    disabled={isPricingComplete && !isEditMode && !hasUnsavedChanges}
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                                                />
+                                                <div 
                                                 className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-alternativePrimary border-2 border-white rounded-full shadow-md z-10 pointer-events-none"
                                                 style={{ left: `${Math.min(100, Math.max(0, ((calculatedLTV - 50) / 50) * 100))}%`, marginLeft: '-8px' }}
-                                            />
+                                                />
+                                            </div>
+                                            <div className="flex justify-between text-[9px] text-neutral-l1 mt-1">
+                                                <span>50%</span>
+                                                <span>80%</span>
+                                                <span>100%</span>
+                                            </div>
                                         </div>
-                                        <div className="flex justify-between text-[9px] text-neutral-l1 mt-1">
-                                            <span>50%</span>
-                                            <span>80%</span>
-                                            <span>100%</span>
-                                        </div>
-                                    </div>
-                                    <div className={cn(
+                                        <div className={cn(
                                         "w-14 py-1.5 px-2 border rounded font-bold text-sm text-center",
                                         calculatedLTV > 80 ? "bg-warning-l4 border-warning-l2 text-warning-d2" : "bg-success-l4 border-success-l2 text-success"
-                                    )}>
-                                        {calculatedLTV}%
+                                        )}>
+                                            {calculatedLTV}%
+                                        </div>
                                     </div>
-                                </div>
-                                
+                                    
                                 <div className="flex gap-2 mt-2 text-[10px]">
                                     <div className="flex-1 bg-neutral-l5 rounded p-1.5">
                                         <span className="text-neutral-l1">Debts</span>
                                         <p className="font-semibold text-neutral-d3">${debtTotals.totalBalance.toLocaleString()}</p>
-                                    </div>
+                                        </div>
                                     <div className="flex-1 bg-neutral-l5 rounded p-1.5">
                                         <span className="text-neutral-l1">Cashout</span>
                                         <p className="font-semibold text-alternativePrimary">${cashout.toLocaleString()}</p>
                                     </div>
                                 </div>
+                                </div>
                             </div>
-                        </div>
-                        
+                            
                         {/* Present vs Proposed Breakdown */}
-                        <div className="bg-white rounded-lg shadow-sm border border-neutral-l3 flex-1">
+                            <div className="bg-white rounded-lg shadow-sm border border-neutral-l3 flex-1">
                             <div className="px-3 py-2 border-b border-neutral-l3 bg-neutral-l5">
                                 <div className="grid grid-cols-3 text-[10px] font-semibold uppercase tracking-wide">
                                     <span className="text-neutral-d2">Present</span>
@@ -802,67 +802,67 @@ export function GoodLeapAdvantageV5({ accounts, onOpenFlyover }) {
                             <div className="px-3 py-3 border-t-2 border-neutral-l3 bg-neutral-l5 grid grid-cols-3 items-center">
                                 <div>
                                     <p className="text-[10px] text-neutral-l1 uppercase">Current</p>
-                                    <p className="text-lg font-bold text-neutral-d3">${currentTotal.toLocaleString()}</p>
+                                                <p className="text-lg font-bold text-neutral-d3">${currentTotal.toLocaleString()}</p>
                                 </div>
                                 <div className="text-center">
-                                    <span className="text-[10px] font-semibold text-neutral-d2 uppercase">Total/mo</span>
+                                                <span className="text-[10px] font-semibold text-neutral-d2 uppercase">Total/mo</span>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-[10px] text-alternativePrimary uppercase">Proposed</p>
                                     <p className={cn("text-lg font-bold", isPricingComplete ? "text-alternativePrimary" : "text-neutral-l1")}>
-                                        {isPricingComplete ? `$${proposedTotal.toLocaleString()}` : '—'}
-                                    </p>
+                                                    {isPricingComplete ? `$${proposedTotal.toLocaleString()}` : '—'}
+                                                </p>
                                 </div>
                             </div>
-                            
+                                
                             {/* Savings or Price Button */}
-                            <div className="p-3 border-t border-neutral-l3">
-                                {isPricingComplete ? (
-                                    <div className={cn(
+                                <div className="p-3 border-t border-neutral-l3">
+                                    {isPricingComplete ? (
+                                        <div className={cn(
                                         "p-3 rounded-lg flex items-center justify-center gap-4",
-                                        paymentDelta >= 0 ? "bg-success-l4" : "bg-danger-l4"
-                                    )}>
-                                        <div className="text-center">
+                                            paymentDelta >= 0 ? "bg-success-l4" : "bg-danger-l4"
+                                        )}>
+                                            <div className="text-center">
                                             <p className="text-xs text-neutral-d2">Monthly Savings</p>
                                             <p className={cn("text-2xl font-bold", paymentDelta >= 0 ? "text-success-d2" : "text-danger-d2")}>
-                                                ${Math.abs(paymentDelta).toLocaleString()}
-                                            </p>
-                                        </div>
+                                                    ${Math.abs(paymentDelta).toLocaleString()}
+                                                </p>
+                                            </div>
                                         <div className="h-8 w-px bg-neutral-l3" />
-                                        <div className="text-center">
+                                            <div className="text-center">
                                             <p className="text-xs text-neutral-d2">Annual</p>
                                             <p className={cn("text-lg font-bold", paymentDelta >= 0 ? "text-success-d2" : "text-danger-d2")}>
-                                                ${Math.abs(paymentDelta * 12).toLocaleString()}
-                                            </p>
+                                                    ${Math.abs(paymentDelta * 12).toLocaleString()}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <button
-                                        onClick={handlePriceLoan}
-                                        disabled={isRunningPricing}
-                                        className={cn(
-                                            "w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium text-sm transition-all",
+                                    ) : (
+                                        <button
+                                            onClick={handlePriceLoan}
+                                            disabled={isRunningPricing}
+                                            className={cn(
+                                                "w-full flex items-center justify-center gap-2 py-3 rounded-lg font-medium text-sm transition-all",
                                             isRunningPricing ? "bg-neutral-l3 text-neutral-d1" : "bg-success text-white hover:bg-success-d2"
-                                        )}
-                                    >
-                                        {isRunningPricing ? (
-                                            <><RefreshCw size={16} className="animate-spin" /> Pricing...</>
-                                        ) : (
-                                            <><Play size={16} /> Price Loan</>
-                                        )}
-                                    </button>
-                                )}
+                                            )}
+                                        >
+                                            {isRunningPricing ? (
+                                                <><RefreshCw size={16} className="animate-spin" /> Pricing...</>
+                                            ) : (
+                                                <><Play size={16} /> Price Loan</>
+                                            )}
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
+                        
                     {/* RIGHT COLUMN: Charts & Calculators (50% after pricing) */}
-                    <div className={cn(
+                        <div className={cn(
                         "bg-white rounded-lg shadow-sm border flex flex-col transition-all overflow-hidden",
                         isPricingComplete ? "w-1/2 border-alternativePrimary" : "w-72 border-neutral-l3 opacity-50"
-                    )}>
+                        )}>
                         <div className="p-3 border-b border-neutral-l3 bg-gradient-to-r from-alternativePrimary-l4 to-white">
-                            <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between">
                                 <h3 className={cn(
                                     "font-semibold text-sm flex items-center gap-2",
                                     isPricingComplete ? "text-alternativePrimary" : "text-neutral-d3"
@@ -870,94 +870,94 @@ export function GoodLeapAdvantageV5({ accounts, onOpenFlyover }) {
                                     {!isPricingComplete && <Lock size={14} className="text-neutral-l1" />}
                                     <Sparkles size={16} className={isPricingComplete ? "text-alternativePrimary" : "text-neutral-l1"} />
                                     Value Propositions
-                                </h3>
-                                {isPricingComplete && selectedCount > 0 && (
+                                    </h3>
+                                    {isPricingComplete && selectedCount > 0 && (
                                     <span className="text-xs bg-alternativePrimary text-white px-2 py-0.5 rounded-full font-medium">
                                         {selectedCount} selected
-                                    </span>
-                                )}
-                            </div>
-                            <p className="text-[10px] text-neutral-l1 mt-0.5">
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="text-[10px] text-neutral-l1 mt-0.5">
                                 {isPricingComplete ? "Select benefits to include in proposal" : "Price loan to unlock"}
-                            </p>
-                        </div>
-                        
+                                </p>
+                            </div>
+                            
                         <div className={cn("flex-1 overflow-y-auto p-3", !isPricingComplete && "pointer-events-none")}>
                             {isPricingComplete ? (
                                 <div className="grid grid-cols-2 gap-3">
                                     {/* Debt Consolidation Card */}
                                     <BenefitCard
                                         icon={<Plus size={18} />}
-                                        title="Debt Consolidation"
+                                    title="Debt Consolidation"
                                         value={`-$${debtTotals.totalPayment.toLocaleString()}`}
                                         sublabel={`${selectedDebts.length} accounts paid off`}
-                                        selected={moduleSelections['debt-consolidation']}
-                                        onSelect={() => toggleModuleSelection('debt-consolidation')}
+                                    selected={moduleSelections['debt-consolidation']}
+                                    onSelect={() => toggleModuleSelection('debt-consolidation')}
                                         onViewChart={() => handleViewAnalysis('debt-consolidation')}
-                                        recommended={debtTotals.totalPayment > 500}
+                                    recommended={debtTotals.totalPayment > 500}
                                         color="success"
-                                    />
-                                    
+                                />
+                                
                                     {/* Payment Savings Card */}
                                     <BenefitCard
                                         icon={<FileCheck size={18} />}
                                         title="Payment Savings"
                                         value={`$${Math.abs(paymentDelta).toLocaleString()}/mo`}
                                         sublabel={`$${Math.abs(paymentDelta * 12).toLocaleString()} annually`}
-                                        selected={moduleSelections['payment-delta']}
-                                        onSelect={() => toggleModuleSelection('payment-delta')}
+                                    selected={moduleSelections['payment-delta']}
+                                    onSelect={() => toggleModuleSelection('payment-delta')}
                                         onViewChart={() => handleViewAnalysis('payment-savings')}
-                                        recommended={paymentDelta > 200}
+                                    recommended={paymentDelta > 200}
                                         color={paymentDelta >= 0 ? "success" : "danger"}
-                                    />
-                                    
+                                />
+                                
                                     {/* Break-Even Card */}
                                     <BenefitCard
                                         icon={<Clock size={18} />}
-                                        title="Break-Even"
+                                    title="Break-Even"
                                         value={`${paymentDelta > 0 ? Math.ceil(calculatorInputs.breakEven.closingCosts / paymentDelta) : '—'} months`}
                                         sublabel={`$${calculatorInputs.breakEven.closingCosts.toLocaleString()} closing costs`}
-                                        selected={moduleSelections['break-even']}
-                                        onSelect={() => toggleModuleSelection('break-even')}
+                                    selected={moduleSelections['break-even']}
+                                    onSelect={() => toggleModuleSelection('break-even')}
                                         onViewChart={() => handleViewAnalysis('recoup-costs')}
-                                        recommended={paymentDelta > 0 && Math.ceil(calculatorInputs.breakEven.closingCosts / paymentDelta) <= 36}
+                                    recommended={paymentDelta > 0 && Math.ceil(calculatorInputs.breakEven.closingCosts / paymentDelta) <= 36}
                                         color="primary"
                                     />
-                                    
+                                
                                     {/* Reinvestment Card */}
                                     <BenefitCard
                                         icon={<TrendingUp size={18} />}
-                                        title="Reinvestment"
+                                    title="Reinvestment"
                                         value={`$${paymentDelta > 0 ? paymentDelta.toLocaleString() : 0}/mo`}
                                         sublabel={`@ ${calculatorInputs.reinvestment.annualReturn}% return`}
-                                        selected={moduleSelections['reinvestment']}
-                                        onSelect={() => toggleModuleSelection('reinvestment')}
+                                    selected={moduleSelections['reinvestment']}
+                                    onSelect={() => toggleModuleSelection('reinvestment')}
                                         onViewChart={() => handleViewAnalysis('reinvestment')}
-                                        recommended={paymentDelta > 300}
+                                    recommended={paymentDelta > 300}
                                         color="primary"
                                     />
                                     
                                     {/* Disposable Income Card */}
                                     <BenefitCard
                                         icon={<Wallet size={18} />}
-                                        title="Disposable Income"
+                                    title="Disposable Income"
                                         value={`+$${paymentDelta > 0 ? paymentDelta.toLocaleString() : 0}`}
                                         sublabel="Monthly cash flow"
-                                        selected={moduleSelections['disposable-income']}
-                                        onSelect={() => toggleModuleSelection('disposable-income')}
+                                    selected={moduleSelections['disposable-income']}
+                                    onSelect={() => toggleModuleSelection('disposable-income')}
                                         onViewChart={() => handleViewAnalysis('disposable-income')}
-                                        recommended={paymentDelta > 200}
+                                    recommended={paymentDelta > 200}
                                         color="success"
                                     />
                                     
                                     {/* Cash Flow Window Card */}
                                     <BenefitCard
                                         icon={<Sun size={18} />}
-                                        title="Cash Flow Window"
+                                    title="Cash Flow Window"
                                         value={`$${(currentTotal * 2).toLocaleString()}`}
                                         sublabel={`${calculatorInputs.cashFlow.daysUntilFirstPayment} days deferred`}
-                                        selected={moduleSelections['cash-flow']}
-                                        onSelect={() => toggleModuleSelection('cash-flow')}
+                                    selected={moduleSelections['cash-flow']}
+                                    onSelect={() => toggleModuleSelection('cash-flow')}
                                         onViewChart={() => handleViewAnalysis('cash-flow')}
                                         color="warning"
                                     />
@@ -970,32 +970,32 @@ export function GoodLeapAdvantageV5({ accounts, onOpenFlyover }) {
                                     </div>
                                 </div>
                             )}
-                        </div>
+                            </div>
 
                         {/* Generate Proposal */}
-                        {isPricingComplete && (
-                            <div className="p-3 border-t border-neutral-l3 bg-neutral-l5">
-                                {isProposalReady ? (
-                                    <button
-                                        onClick={handleExportProposal}
+                            {isPricingComplete && (
+                                <div className="p-3 border-t border-neutral-l3 bg-neutral-l5">
+                                    {isProposalReady ? (
+                                            <button
+                                                onClick={handleExportProposal}
                                         className="w-full py-2.5 bg-alternativePrimary text-white rounded-lg text-sm font-medium hover:bg-alternativePrimary-d2 transition-colors flex items-center justify-center gap-2"
-                                    >
+                                            >
                                         <Download size={16} />
                                         Generate Proposal ({selectedCount})
-                                    </button>
-                                ) : (
+                                            </button>
+                                    ) : (
                                     <p className="text-xs text-neutral-l1 text-center py-2">
                                         Select benefits to generate proposal
-                                    </p>
-                                )}
-                            </div>
-                        )}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
-                
-                {/* Compliance disclaimer */}
+                    
+                    {/* Compliance disclaimer */}
                 <div className="text-[10px] text-neutral-l1 text-center absolute bottom-1 left-1/2 -translate-x-1/2">
-                    Estimates only. Final terms subject to underwriting approval.
+                        Estimates only. Final terms subject to underwriting approval.
                 </div>
             </div>
         </div>

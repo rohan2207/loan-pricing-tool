@@ -30,22 +30,22 @@ export function DebtWorksheet({ selectedDebts = [] }) {
                             {debtsToShow.length > 0 ? (
                                 <>
                                     {debtsToShow.map((debt, index) => (
-                                        <WorksheetRow
+                            <WorksheetRow
                                             key={debt.id || index}
                                             creditor={debt.creditor}
                                             type={debt.accountType}
                                             payment={debt.payment}
                                             payoff={debt.balance}
-                                            paidOff="Yes"
+                                paidOff="Yes"
                                             isEven={index % 2 === 0}
                                         />
                                     ))}
                                     <tr className="bg-orange-l2">
-                                        <td className="border border-neutral-l3 p-2 text-right font-bold" colSpan={2}>Total</td>
+                                <td className="border border-neutral-l3 p-2 text-right font-bold" colSpan={2}>Total</td>
                                         <td className="border border-neutral-l3 p-2 text-center font-bold">${totalPayment.toLocaleString()}</td>
                                         <td className="border border-neutral-l3 p-2 text-center font-bold">${totalPayoff.toLocaleString()}</td>
-                                        <td className="border border-neutral-l3 p-2"></td>
-                                    </tr>
+                                <td className="border border-neutral-l3 p-2"></td>
+                            </tr>
                                 </>
                             ) : (
                                 <tr>

@@ -1,0 +1,325 @@
+/* Bento Grid Design System - Apple Inspired */
+
+:root {
+  --bento-bg: #f5f5f7;
+  --bento-card: #ffffff;
+  --bento-border: rgba(0, 0, 0, 0.06);
+  --bento-text: #1d1d1f;
+  --bento-text-secondary: #86868b;
+  --bento-accent-blue: #0071e3;
+  --bento-accent-green: #34c759;
+  --bento-accent-orange: #ff9500;
+  --bento-accent-red: #ff3b30;
+  --bento-accent-purple: #af52de;
+  --bento-accent-teal: #5ac8fa;
+  --bento-radius: 20px;
+  --bento-radius-sm: 12px;
+}
+
+/* Base background */
+.bento-bg {
+  background: var(--bento-bg);
+}
+
+/* Card base */
+.bento-card {
+  background: var(--bento-card);
+  border-radius: var(--bento-radius);
+  border: 1px solid var(--bento-border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bento-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* No hover effect variant */
+.bento-card-static {
+  background: var(--bento-card);
+  border-radius: var(--bento-radius);
+  border: 1px solid var(--bento-border);
+}
+
+/* Small card */
+.bento-card-sm {
+  background: var(--bento-card);
+  border-radius: var(--bento-radius-sm);
+  border: 1px solid var(--bento-border);
+}
+
+/* Gradient accent cards */
+.bento-gradient-blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bento-gradient-green {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.bento-gradient-orange {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.bento-gradient-dark {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.bento-gradient-purple {
+  background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+}
+
+/* Subtle tinted backgrounds */
+.bento-tint-blue {
+  background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+}
+
+.bento-tint-green {
+  background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%);
+}
+
+.bento-tint-orange {
+  background: linear-gradient(135deg, #ffedd5 0%, #fff7ed 100%);
+}
+
+.bento-tint-purple {
+  background: linear-gradient(135deg, #f3e8ff 0%, #faf5ff 100%);
+}
+
+.bento-tint-red {
+  background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%);
+}
+
+/* Icon containers */
+.bento-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bento-icon-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bento-icon-blue { background: linear-gradient(135deg, #0071e3 0%, #5ac8fa 100%); }
+.bento-icon-green { background: linear-gradient(135deg, #34c759 0%, #30d158 100%); }
+.bento-icon-orange { background: linear-gradient(135deg, #ff9500 0%, #ffcc00 100%); }
+.bento-icon-purple { background: linear-gradient(135deg, #af52de 0%, #bf5af2 100%); }
+.bento-icon-red { background: linear-gradient(135deg, #ff3b30 0%, #ff6961 100%); }
+
+/* Typography */
+.bento-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--bento-text);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.bento-subtitle {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--bento-text);
+  letter-spacing: -0.2px;
+}
+
+.bento-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--bento-text-secondary);
+}
+
+.bento-value {
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--bento-text);
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.bento-value-sm {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--bento-text);
+  letter-spacing: -0.5px;
+}
+
+/* Pill badges */
+.bento-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bento-pill-blue {
+  background: rgba(0, 113, 227, 0.1);
+  color: #0071e3;
+}
+
+.bento-pill-green {
+  background: rgba(52, 199, 89, 0.1);
+  color: #248a3d;
+}
+
+.bento-pill-orange {
+  background: rgba(255, 149, 0, 0.1);
+  color: #c93400;
+}
+
+.bento-pill-red {
+  background: rgba(255, 59, 48, 0.1);
+  color: #d70015;
+}
+
+.bento-pill-purple {
+  background: rgba(175, 82, 222, 0.1);
+  color: #8944ab;
+}
+
+.bento-pill-gray {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--bento-text-secondary);
+}
+
+/* Buttons */
+.bento-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.bento-btn-primary {
+  background: var(--bento-accent-blue);
+  color: white;
+}
+
+.bento-btn-primary:hover {
+  background: #0077ed;
+  transform: scale(1.02);
+}
+
+.bento-btn-secondary {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--bento-text);
+}
+
+.bento-btn-secondary:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* Progress bar */
+.bento-progress {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.bento-progress-bar {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.5s ease;
+}
+
+/* Divider */
+.bento-divider {
+  height: 1px;
+  background: var(--bento-border);
+  margin: 16px 0;
+}
+
+/* Grid layouts */
+.bento-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.bento-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.bento-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+/* Stat block */
+.bento-stat {
+  text-align: center;
+  padding: 16px;
+}
+
+.bento-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--bento-text);
+  letter-spacing: -0.5px;
+}
+
+.bento-stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--bento-text-secondary);
+  margin-top: 4px;
+}
+
+/* List item */
+.bento-list-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: var(--bento-radius-sm);
+  transition: background 0.15s ease;
+}
+
+.bento-list-item:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* Animations */
+@keyframes bento-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bento-animate {
+  animation: bento-fade-in 0.4s ease forwards;
+}
+
+.bento-animate-delay-1 { animation-delay: 0.1s; opacity: 0; }
+.bento-animate-delay-2 { animation-delay: 0.2s; opacity: 0; }
+.bento-animate-delay-3 { animation-delay: 0.3s; opacity: 0; }
+.bento-animate-delay-4 { animation-delay: 0.4s; opacity: 0; }
+
+/* Glassmorphism accent */
+.bento-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+

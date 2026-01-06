@@ -14,7 +14,7 @@ export function QuickQuote() {
     return (
         <div className="p-4 bg-neutral-l5 min-h-full">
             <h2 className="text-lg font-bold text-neutral-d3 mb-4">Calculators</h2>
-            
+
             {/* Warning Banner */}
             <div className="bg-warning-l5 border border-warning-l3 rounded-lg p-3 mb-4">
                 <div className="flex items-start gap-2">
@@ -22,7 +22,7 @@ export function QuickQuote() {
                     <div className="text-xs text-neutral-d2">
                         <p className="font-semibold text-warning-d2 mb-1">Important: These are estimates only, not guaranteed rates or pricing.</p>
                         <p>Estimates are based on consumer finance profile data and may not reflect current market conditions or complete borrower information. A formal mortgage application with credit pull is required for accurate pricing.</p>
-                    </div>
+                </div>
                 </div>
             </div>
 
@@ -39,7 +39,7 @@ export function QuickQuote() {
                         <ComparisonRow label="Mortgage Insurance" value="$0" />
                         <div className="border-t border-neutral-l3 pt-2 mt-2">
                             <ComparisonRow label="Current Payment" value="$4,206" bold />
-                        </div>
+                    </div>
                     </div>
                 </div>
 
@@ -53,7 +53,7 @@ export function QuickQuote() {
                         <ComparisonRow label="Remaining Debt" value="$42,000" />
                         <div className="border-t border-neutral-l3 pt-2 mt-2">
                             <ComparisonRow label="New Payment" value="$1,015" bold />
-                        </div>
+                    </div>
                     </div>
                 </div>
 
@@ -87,8 +87,8 @@ export function QuickQuote() {
                             <option value="Refinance">Refinance</option>
                             <option value="Purchase">Purchase</option>
                         </select>
-                    </div>
                 </div>
+            </div>
 
                 {/* Program Selection */}
                 <div className="mb-4">
@@ -132,7 +132,7 @@ export function QuickQuote() {
                             </button>
                         ))}
                     </div>
-                </div>
+                            </div>
 
                 {/* LTV Slider */}
                 <div className="mb-6">
@@ -142,7 +142,7 @@ export function QuickQuote() {
                             <Pencil size={12} className="text-neutral-l1" />
                             <span className="text-sm font-medium text-information">{ltv}%</span>
                         </div>
-                    </div>
+                            </div>
                     <div className="relative">
                         <input
                             type="range"
@@ -205,14 +205,14 @@ export function QuickQuote() {
                             <option value="6.75">6.750%</option>
                             <option value="7.0">7.000%</option>
                         </select>
-                    </div>
                 </div>
+            </div>
 
                 {/* Search Rates Button */}
                 <div className="mt-4 flex justify-end">
                     <button className="bg-success hover:bg-success-d2 text-white font-medium px-4 py-2 rounded text-sm transition-colors">
-                        Search Rates
-                    </button>
+                    Search Rates
+                </button>
                 </div>
             </div>
         </div>
