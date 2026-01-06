@@ -7,13 +7,13 @@ import { AIPanel } from './AIPanel';
 export function AIPopoutWindow() {
     const [accounts, setAccounts] = useState([]);
     const [borrowerData, setBorrowerData] = useState(null);
-    const [defaultTool, setDefaultTool] = useState('call-prep');
+    const [defaultTool, setDefaultTool] = useState(null); // null = show grid
 
     useEffect(() => {
         // Parse URL params
         const params = new URLSearchParams(window.location.search);
-        const tool = params.get('tool') || 'call-prep';
-        setDefaultTool(tool);
+        const tool = params.get('tool'); // null if not specified = show grid
+        setDefaultTool(tool || null);
 
         // Try to get data from opener window
         if (window.opener && window.opener.aiPanelData) {

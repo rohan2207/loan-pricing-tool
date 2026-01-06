@@ -1,27 +1,29 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { 
     X, 
     Minus,
     ExternalLink,
     Sparkles,
-    FileText,
-    CreditCard,
-    Home,
-    RefreshCw,
-    ChevronDown,
+    ChevronLeft,
     ChevronUp
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { AI_TOOLS, getToolById } from '../../config/aiTools.config';
+import { AIToolGrid } from './AIToolGrid';
 import { GoodLeapSummary } from './GoodLeapSummary';
 import { GoodLeapAVM } from './GoodLeapAVM';
 import { LiabilityAI } from './LiabilityAI';
 import '../../styles/bento.css';
 
-const TOOLS = [
-    { id: 'call-prep', label: 'Call Prep', icon: FileText, description: 'Customer briefing' },
-    { id: 'liability', label: 'Liability AI', icon: CreditCard, description: 'Debt consolidation' },
-    { id: 'avm', label: 'Property AVM', icon: Home, description: 'Valuation analysis' }
-];
+// Component registry - maps component names to actual components
+const COMPONENT_MAP = {
+    'GoodLeapSummary': GoodLeapSummary,
+    'LiabilityAI': LiabilityAI,
+    'GoodLeapAVM': GoodLeapAVM,
+    // Add new components here as they're created
+    // 'RateCompare': RateCompare,
+    // 'DTICalculator': DTICalculator,
+};
 
 export function AIPanel({ 
     accounts = [], 
@@ -30,11 +32,24 @@ export function AIPanel({
     onClose,
     onMinimize,
     isMinimized,
-    defaultTool = 'call-prep',
+    defaultTool = null,  // null = show grid, string = show specific tool
     isPopout = false
 }) {
     const [selectedTool, setSelectedTool] = useState(defaultTool);
     const [isDetached, setIsDetached] = useState(false);
+
+    // Get tool config if a tool is selected
+    const toolConfig = selectedTool ? getToolById(selectedTool) : null;
+
+    // Handle tool selection from grid
+    const handleSelectTool = useCallback((tool) => {
+        setSelectedTool(tool.id);
+    }, []);
+
+    // Handle back to grid
+    const handleBackToGrid = useCallback(() => {
+        setSelectedTool(null);
+    }, []);
 
     // Handle popout to new window
     const handlePopout = useCallback(() => {
@@ -43,14 +58,14 @@ export function AIPanel({
         const left = window.screen.width - width - 50;
         const top = 50;
 
+        const toolParam = selectedTool ? `&tool=${selectedTool}` : '';
         const popoutWindow = window.open(
-            `${window.location.origin}/?popout=ai&tool=${selectedTool}`,
+            `${window.location.origin}/?popout=ai${toolParam}`,
             'AIPanel',
             `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
         );
 
         if (popoutWindow) {
-            // Store reference for communication
             window.aiPanelPopout = popoutWindow;
             setIsDetached(true);
             onMinimize?.();
@@ -71,23 +86,38 @@ export function AIPanel({
         }
     }, [isDetached]);
 
-    // Render tool content
+    // Render the selected tool component
     const renderToolContent = () => {
-        switch (selectedTool) {
-            case 'call-prep':
-                return <GoodLeapSummary accounts={accounts} borrowerData={borrowerData} embedded />;
-            case 'liability':
-                return <LiabilityAI accounts={accounts} borrowerData={borrowerData} embedded />;
-            case 'avm':
-                return <GoodLeapAVM borrowerData={borrowerData} embedded />;
-            default:
-                return null;
+        if (!toolConfig) return null;
+
+        const Component = COMPONENT_MAP[toolConfig.component];
+        if (!Component) {
+            return (
+                <div className="flex flex-col items-center justify-center py-20 text-center px-6">
+                    <div className="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mb-4">
+                        <Sparkles size={28} className="text-amber-500" />
+                    </div>
+                    <p className="text-lg font-semibold text-[#1d1d1f]">Coming Soon</p>
+                    <p className="text-sm text-[#86868b] mt-1">
+                        {toolConfig.label} is currently in development
+                    </p>
+                </div>
+            );
         }
+
+        // Pass appropriate props based on the component
+        const props = { embedded: true };
+        if (toolConfig.component !== 'GoodLeapAVM') {
+            props.accounts = accounts;
+        }
+        props.borrowerData = borrowerData;
+
+        return <Component {...props} />;
     };
 
     if (!isOpen && !isPopout) return null;
 
-    // Minimized state - just show the header
+    // Minimized state
     if (isMinimized && !isPopout) {
         return (
             <div className="fixed bottom-4 right-4 z-50">
@@ -114,14 +144,33 @@ export function AIPanel({
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                        <Sparkles size={18} />
-                    </div>
+                    {/* Back button when tool is selected */}
+                    {selectedTool && (
+                        <button
+                            onClick={handleBackToGrid}
+                            className="p-1.5 -ml-1 hover:bg-white/10 rounded-lg transition-colors"
+                            title="Back to tools"
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+                    )}
+                    
+                    {!selectedTool && (
+                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                            <Sparkles size={18} />
+                        </div>
+                    )}
+                    
                     <div>
-                        <h2 className="font-semibold text-sm">AI Assistant</h2>
-                        <p className="text-xs text-white/70">Powered by GPT-4</p>
+                        <h2 className="font-semibold text-sm">
+                            {toolConfig ? toolConfig.label : 'AI Assistant'}
+                        </h2>
+                        <p className="text-xs text-white/70">
+                            {toolConfig ? toolConfig.description : 'Powered by GPT-4'}
+                        </p>
                     </div>
                 </div>
+                
                 <div className="flex items-center gap-1">
                     {!isPopout && (
                         <>
@@ -151,32 +200,13 @@ export function AIPanel({
                 </div>
             </div>
 
-            {/* Tool Selector Tabs */}
-            <div className="flex bg-white border-b border-black/5 px-2 py-2 gap-1">
-                {TOOLS.map((tool) => {
-                    const Icon = tool.icon;
-                    const isActive = selectedTool === tool.id;
-                    return (
-                        <button
-                            key={tool.id}
-                            onClick={() => setSelectedTool(tool.id)}
-                            className={cn(
-                                "flex-1 flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-all",
-                                isActive 
-                                    ? "bg-gradient-to-br from-purple-500 to-indigo-500 text-white shadow-md" 
-                                    : "hover:bg-black/5 text-[#86868b]"
-                            )}
-                        >
-                            <Icon size={18} />
-                            <span className="text-xs font-medium">{tool.label}</span>
-                        </button>
-                    );
-                })}
-            </div>
-
-            {/* Content Area */}
+            {/* Content Area - Grid or Tool */}
             <div className="flex-1 overflow-hidden">
-                {renderToolContent()}
+                {selectedTool ? (
+                    renderToolContent()
+                ) : (
+                    <AIToolGrid onSelectTool={handleSelectTool} />
+                )}
             </div>
 
             {/* Footer */}
@@ -215,4 +245,3 @@ export function AIFloatingButton({ onClick, isOpen, isDetached }) {
         </button>
     );
 }
-

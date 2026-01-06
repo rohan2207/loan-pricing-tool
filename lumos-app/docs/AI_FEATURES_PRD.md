@@ -321,6 +321,153 @@ Remove AI tools from Quick Actions:
 
 ---
 
+## Scalable Tool Registry Architecture
+
+The AI Panel uses a registry-based architecture that allows adding new tools without modifying the panel code.
+
+### Tool Registry (`src/config/aiTools.config.js`)
+
+All AI tools are defined in a central registry:
+
+```javascript
+export const AI_TOOLS = [
+  {
+    id: 'call-prep',           // Unique identifier
+    label: 'Call Prep',        // Display name
+    description: 'Customer briefing for calls',
+    icon: Phone,               // Lucide icon component
+    category: 'conversation',  // For filtering
+    component: 'GoodLeapSummary', // Component name in COMPONENT_MAP
+    apiEndpoint: '/api/ai/call-prep',
+    keywords: ['call', 'prep', 'brief']  // For search
+  },
+  // ... more tools
+];
+
+export const CATEGORIES = [
+  { id: 'conversation', label: 'Conversation', color: 'blue' },
+  { id: 'analysis', label: 'Analysis', color: 'purple' },
+  { id: 'valuation', label: 'Valuation', color: 'green' },
+  { id: 'compliance', label: 'Compliance', color: 'amber' }
+];
+```
+
+### Component Map (`AIPanel.jsx`)
+
+Components are mapped by name for dynamic rendering:
+
+```javascript
+const COMPONENT_MAP = {
+  'GoodLeapSummary': GoodLeapSummary,
+  'LiabilityAI': LiabilityAI,
+  'GoodLeapAVM': GoodLeapAVM,
+  // Add new components here
+};
+```
+
+### Grid UI (`AIToolGrid.jsx`)
+
+The tool selection interface features:
+- **Search bar** - Filters by label, description, and keywords
+- **Category pills** - Filter by tool category
+- **Responsive grid** - 3-column layout with hover effects
+- **Category badges** - Color-coded by tool type
+
+```
+┌─────────────────────────────────────────────┐
+│  🔍 Search AI tools...              [Filter]│
+├─────────────────────────────────────────────┤
+│  [All] [Conversation] [Analysis] [Valuation]│
+├─────────────────────────────────────────────┤
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐       │
+│  │   📞    │ │   💳    │ │   🏠    │       │
+│  │  Call   │ │Liability│ │Property │       │
+│  │  Prep   │ │   AI    │ │  AVM    │       │
+│  └─────────┘ └─────────┘ └─────────┘       │
+└─────────────────────────────────────────────┘
+```
+
+### Adding a New AI Tool
+
+**Step 1:** Create the component
+
+```bash
+# Create file
+touch src/components/dashboard/NewTool.jsx
+```
+
+```jsx
+// src/components/dashboard/NewTool.jsx
+export function NewTool({ accounts, borrowerData, embedded = false }) {
+  // Tool implementation
+}
+```
+
+**Step 2:** Create the API endpoint
+
+```bash
+# Create file
+touch api/ai/new-tool.js
+```
+
+**Step 3:** Add to registry
+
+```javascript
+// src/config/aiTools.config.js
+{
+  id: 'new-tool',
+  label: 'New Tool',
+  description: 'What this tool does',
+  icon: IconName,
+  category: 'analysis',
+  component: 'NewTool',
+  apiEndpoint: '/api/ai/new-tool',
+  keywords: ['keyword1', 'keyword2']
+}
+```
+
+**Step 4:** Register component
+
+```javascript
+// src/components/dashboard/AIPanel.jsx
+import { NewTool } from './NewTool';
+
+const COMPONENT_MAP = {
+  // ... existing
+  'NewTool': NewTool,
+};
+```
+
+**Done!** The tool will automatically appear in the grid.
+
+### Helper Functions
+
+```javascript
+import { 
+  AI_TOOLS,
+  CATEGORIES,
+  getToolById,
+  filterTools,
+  filterByCategory,
+  getCategoryColorClass
+} from '../config/aiTools.config';
+
+// Get tool by ID
+const tool = getToolById('liability');
+
+// Filter by search query
+const results = filterTools(AI_TOOLS, 'debt');
+
+// Filter by category
+const analysisTools = filterByCategory(AI_TOOLS, 'analysis');
+
+// Get Tailwind classes for category badge
+const colorClass = getCategoryColorClass('analysis'); 
+// → 'bg-purple-100 text-purple-700'
+```
+
+---
+
 ## Environment Variables
 
 ### Server (required)
