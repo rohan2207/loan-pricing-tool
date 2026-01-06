@@ -23,6 +23,7 @@ import { GoodLeapAdvantageV4 } from './components/advantage/GoodLeapAdvantageV4'
 import { GoodLeapAdvantageV5 } from './components/advantage/GoodLeapAdvantageV5';
 import { ChartPreview } from './components/advantage/ChartPreview';
 import { ProposalPreview } from './components/advantage/ProposalPreview';
+import { GoodLeapAdvantageTabs } from './components/dashboard/GoodLeapAdvantageTabs';
 
 // Initial accounts data
 const initialAccounts = [
@@ -143,6 +144,9 @@ function App() {
   // Quick Actions flyovers
   const [activeQuickAction, setActiveQuickAction] = useState(null);
   
+  // Pricing mode - transforms liabilities view into GoodLeap Advantage
+  const [pricingMode, setPricingMode] = useState(false);
+  
   // Shared data
   const [accounts, setAccounts] = useState(initialAccounts);
 
@@ -169,6 +173,36 @@ function App() {
 
   const handleToggleAll = (checked) => {
     setAccounts(prev => prev.map(acc => ({ ...acc, willPay: checked })));
+  };
+
+  const handleAccountUpdate = (accountId, field, value) => {
+    setAccounts(prev => prev.map(acc => 
+      acc.id === accountId ? { ...acc, [field]: value } : acc
+    ));
+  };
+
+  // Enter/Exit pricing mode
+  const handleEnterPricingMode = () => {
+    setPricingMode(true);
+  };
+
+  const handleExitPricingMode = () => {
+    setPricingMode(false);
+  };
+
+  const handleViewChart = (chartType, chartData = null) => {
+    // Use provided chartData or build basic data from accounts
+    const data = chartData || {
+      accounts: accounts.filter(a => a.willPay),
+      debtsPayoff: accounts.filter(a => a.willPay).reduce((s, a) => s + (parseFloat(String(a.balance).replace(/[$,]/g, '')) || 0), 0),
+      debtsMonthlyPayment: accounts.filter(a => a.willPay).reduce((s, a) => s + (parseFloat(String(a.payment).replace(/[$,]/g, '')) || 0), 0),
+      debtsCount: accounts.filter(a => a.willPay).length,
+    };
+    handleAdvantageFlyover(`ChartPreview:${chartType}`, data);
+  };
+
+  const handleGenerateProposal = (selectedCharts, chartData) => {
+    handleAdvantageFlyover('ProposalPreview', { selectedCharts, chartData });
   };
 
   // Handle flyover from GoodLeap Advantage (now accepts analysis data)
@@ -260,6 +294,25 @@ function App() {
         );
       case 'dashboard':
       default:
+        // Check if we're in pricing mode on the Liabilities tab
+        if (pricingMode && activeTab === 'Liabilities') {
+          return (
+            <div className="h-[calc(100vh-80px)]">
+              <GoodLeapAdvantageTabs
+                accounts={accounts}
+                borrowerData={borrowerData}
+                onExit={handleExitPricingMode}
+                onViewChart={handleViewChart}
+                onGenerateProposal={handleGenerateProposal}
+                onAccountToggle={handleAccountToggle}
+                onToggleAll={handleToggleAll}
+                onAccountUpdate={handleAccountUpdate}
+              />
+            </div>
+          );
+        }
+
+        // Normal dashboard view
         return (
           <>
             <MockScenarios />
@@ -271,6 +324,8 @@ function App() {
                     accounts={accounts}
                     onAccountToggle={handleAccountToggle}
                     onToggleAll={handleToggleAll}
+                    isPricingMode={false}
+                    onEnterPricingMode={handleEnterPricingMode}
                   />
                 )}
                 {activeTab === 'Property' && <PropertyTab />}

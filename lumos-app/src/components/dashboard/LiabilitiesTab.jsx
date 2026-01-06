@@ -1,11 +1,75 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
-import { ChevronDown, ChevronRight, Home, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronRight, Home, ChevronUp, TrendingUp } from 'lucide-react';
 
-export function LiabilitiesTab({ accounts, onAccountToggle, onToggleAll }) {
+export function LiabilitiesTab({ 
+    accounts, 
+    onAccountToggle, 
+    onToggleAll,
+    isPricingMode = false,
+    onEnterPricingMode
+}) {
     const allSelected = accounts.every(acc => acc.willPay);
     const someSelected = accounts.some(acc => acc.willPay);
 
+    // Calculate summary for pricing mode header
+    const selectedAccounts = accounts.filter(acc => acc.willPay);
+    const totalSelectedBalance = selectedAccounts.reduce((sum, acc) => {
+        const balance = typeof acc.balance === 'string' 
+            ? parseFloat(acc.balance.replace(/[$,]/g, '')) || 0 
+            : acc.balance || 0;
+        return sum + balance;
+    }, 0);
+    const totalSelectedPayment = selectedAccounts.reduce((sum, acc) => {
+        const payment = typeof acc.payment === 'string' 
+            ? parseFloat(acc.payment.replace(/[$,]/g, '')) || 0 
+            : acc.payment || 0;
+        return sum + payment;
+    }, 0);
+
+    // In pricing mode, show simplified view
+    if (isPricingMode) {
+        return (
+            <div className="h-full flex flex-col">
+                {/* Pricing Mode Header */}
+                <div className="px-5 py-3 bg-gradient-to-r from-slate-800 to-slate-700 rounded-t-xl">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h3 className="text-white font-medium text-sm">Select Debts to Consolidate</h3>
+                            <p className="text-slate-400 text-xs">Check debts to include in payoff</p>
+                        </div>
+                        <div className="flex items-center gap-6 text-xs">
+                            <div className="text-right">
+                                <p className="text-slate-400">Selected</p>
+                                <p className="text-white font-semibold">{selectedAccounts.length}</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-slate-400">Total Payoff</p>
+                                <p className="text-emerald-400 font-semibold">${totalSelectedBalance.toLocaleString()}</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-slate-400">Payment Eliminated</p>
+                                <p className="text-emerald-400 font-semibold">${totalSelectedPayment.toLocaleString()}/mo</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Simplified Table */}
+                <div className="flex-1 overflow-auto bg-white rounded-b-xl border border-t-0 border-slate-200">
+                    <PricingModeTable 
+                        accounts={accounts} 
+                        onAccountToggle={onAccountToggle}
+                        onToggleAll={onToggleAll}
+                        allSelected={allSelected}
+                        someSelected={someSelected}
+                    />
+                </div>
+            </div>
+        );
+    }
+
+    // Normal mode
     return (
         <div className="space-y-4">
             {/* Filters Section */}
@@ -20,10 +84,21 @@ export function LiabilitiesTab({ accounts, onAccountToggle, onToggleAll }) {
                 </div>
             </div>
 
-            {/* Header */}
+            {/* Header with GoodLeap Advantage Button */}
             <div className="flex justify-between items-center px-6 mt-6">
                 <h3 className="text-default font-medium">Merged Credit Report - All Bureaus</h3>
-                <p className="text-sm font-normal text-neutral-l1">Select debts to pay off at closing</p>
+                <div className="flex items-center gap-4">
+                    <p className="text-sm font-normal text-neutral-l1">Select debts to pay off at closing</p>
+                    {onEnterPricingMode && (
+                        <button
+                            onClick={onEnterPricingMode}
+                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all"
+                        >
+                            <TrendingUp size={16} />
+                            GoodLeap Advantage
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Utilization and Current Loan */}
@@ -168,6 +243,70 @@ function CurrentGoodLeapLoan() {
             </div>
         </div>
     )
+}
+
+// Simplified table for pricing mode - only shows key columns
+function PricingModeTable({ accounts, onAccountToggle, onToggleAll, allSelected, someSelected }) {
+    return (
+        <table className="w-full text-sm">
+            <thead className="bg-slate-50 sticky top-0 z-10">
+                <tr>
+                    <th className="w-12 px-3 py-2.5 text-left">
+                        <input 
+                            type="checkbox" 
+                            checked={allSelected}
+                            ref={el => {
+                                if (el) el.indeterminate = someSelected && !allSelected;
+                            }}
+                            onChange={(e) => onToggleAll(e.target.checked)}
+                            className="h-4 w-4 rounded cursor-pointer accent-indigo-600" 
+                        />
+                    </th>
+                    <th className="px-3 py-2.5 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Creditor</th>
+                    <th className="px-3 py-2.5 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Balance</th>
+                    <th className="px-3 py-2.5 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Payment</th>
+                    <th className="px-3 py-2.5 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Rate</th>
+                </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+                {accounts.map((acc) => (
+                    <tr 
+                        key={acc.id} 
+                        className={cn(
+                            "transition-colors cursor-pointer",
+                            acc.willPay ? "bg-indigo-50/50" : "bg-white hover:bg-slate-50"
+                        )}
+                        onClick={() => onAccountToggle(acc.id)}
+                    >
+                        <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
+                            <input 
+                                type="checkbox" 
+                                checked={acc.willPay}
+                                onChange={() => onAccountToggle(acc.id)}
+                                className="h-4 w-4 rounded cursor-pointer accent-indigo-600" 
+                            />
+                        </td>
+                        <td className="px-3 py-2.5">
+                            <p className="font-medium text-slate-800">{acc.creditor}</p>
+                            <p className="text-xs text-slate-400">{acc.accountType}</p>
+                        </td>
+                        <td className="px-3 py-2.5 text-right">
+                            <span className="font-medium text-slate-700">{acc.balance}</span>
+                        </td>
+                        <td className="px-3 py-2.5 text-right">
+                            <span className={cn(
+                                "font-medium",
+                                acc.willPay ? "text-emerald-600" : "text-slate-700"
+                            )}>{acc.payment}</span>
+                        </td>
+                        <td className="px-3 py-2.5 text-right">
+                            <span className="text-slate-500">{acc.rate || '—'}</span>
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    );
 }
 
 function OpenAccountsTable({ accounts, onAccountToggle, onToggleAll, allSelected, someSelected }) {
