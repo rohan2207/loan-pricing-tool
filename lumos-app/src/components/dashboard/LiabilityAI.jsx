@@ -34,9 +34,9 @@ import '../../styles/bento.css';
 const fmt = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0);
 const fmtK = (n) => n ? `$${(n / 1000).toFixed(0)}K` : '$0';
 
-export function LiabilityAI({ accounts = [], borrowerData, onClose, embedded = false }) {
+export function LiabilityAI({ accounts = [], borrowerData, onClose, embedded = false, autoLoad = true, cachedData = null }) {
     const [isLoading, setIsLoading] = useState(false);
-    const [analysis, setAnalysis] = useState(null);
+    const [analysis, setAnalysis] = useState(cachedData);
     const [error, setError] = useState(null);
     const [copied, setCopied] = useState(false);
     const [showAccounts, setShowAccounts] = useState(false);
@@ -115,8 +115,11 @@ export function LiabilityAI({ accounts = [], borrowerData, onClose, embedded = f
     }, [formattedAccounts, propertyValue]);
 
     useEffect(() => {
-        handleRefresh();
-    }, []);
+        // Only auto-load if enabled and no cached data
+        if (autoLoad && !cachedData) {
+            handleRefresh();
+        }
+    }, [autoLoad, cachedData]);
 
     const handleCopy = useCallback(() => {
         if (!analysis) return;
@@ -191,7 +194,7 @@ export function LiabilityAI({ accounts = [], borrowerData, onClose, embedded = f
                 ) : analysis && (
                     <div className="space-y-4 max-w-2xl mx-auto">
                         {/* Equity Snapshot - Bento Grid */}
-                        <div className="bento-grid-4 bento-animate">
+                        <div className="grid grid-cols-3 gap-3 bento-animate">
                             <div className="bento-card p-4">
                                 <div className="bento-icon-sm bento-icon-blue mb-2">
                                     <Home size={14} className="text-white" />
@@ -213,31 +216,10 @@ export function LiabilityAI({ accounts = [], borrowerData, onClose, embedded = f
                                 <p className="bento-value-sm text-green-600">{fmtK(equityCalc.estimatedEquity)}</p>
                                 <p className="bento-label mt-1 text-green-700">Equity</p>
                             </div>
-                            <div className="bento-card p-4 bento-tint-purple">
-                                <div className="bento-icon-sm bento-icon-purple mb-2">
-                                    <PiggyBank size={14} className="text-white" />
-                                </div>
-                                <p className="bento-value-sm text-purple-600">{fmtK(equityCalc.consolidationBudget)}</p>
-                                <p className="bento-label mt-1 text-purple-700">Budget</p>
-                            </div>
-                        </div>
-
-                        {/* Budget Progress */}
-                        <div className="bento-card p-5 bento-animate bento-animate-delay-1">
-                            <div className="flex items-center justify-between mb-3">
-                                <span className="text-sm font-medium text-[#1d1d1f]">Consolidation Budget</span>
-                                <span className="text-sm text-[#86868b]">{fmtK(analysis.payoff_assessment?.total_balance_to_payoff || 0)} of {fmtK(equityCalc.consolidationBudget)}</span>
-                            </div>
-                            <div className="bento-progress">
-                                <div 
-                                    className="bento-progress-bar bg-gradient-to-r from-purple-500 to-indigo-500"
-                                    style={{ width: `${Math.min(100, ((analysis.payoff_assessment?.total_balance_to_payoff || 0) / equityCalc.consolidationBudget) * 100)}%` }}
-                                />
-                            </div>
                         </div>
 
                         {/* Today vs After - Side by Side */}
-                        <div className="bento-grid-2 bento-animate bento-animate-delay-2">
+                        <div className="bento-grid-2 bento-animate bento-animate-delay-1">
                             <div className="bento-card p-5">
                                 <p className="bento-label mb-4">Today</p>
                                 <div className="space-y-3">
@@ -255,19 +237,19 @@ export function LiabilityAI({ accounts = [], borrowerData, onClose, embedded = f
                                 <p className="bento-label text-green-600 mb-4">After Refinance</p>
                                 <div className="space-y-3">
                                     <div className="flex justify-between">
-                                        <span className="text-sm text-green-700">Remaining debts</span>
+                                        <span className="text-sm text-green-700">Debts remaining</span>
                                         <span className="text-lg font-bold text-green-600">{analysis.payoff_assessment?.debts_excluded?.length || 0}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-sm text-green-700">Payment reduction</span>
-                                        <span className="text-lg font-bold text-green-600">-{fmt(savings)}/mo</span>
+                                        <span className="text-sm text-green-700">Payments eliminated</span>
+                                        <span className="text-lg font-bold text-green-600">{fmt(savings)}/mo</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Consolidation Summary - Task 4: No hallucinated savings */}
-                        <div className="bento-card overflow-hidden bento-animate bento-animate-delay-3">
+                        <div className="bento-card overflow-hidden bento-animate bento-animate-delay-2">
                             <div className="p-6 bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
                                 <div className="grid grid-cols-2 gap-6 text-center">
                                     <div>

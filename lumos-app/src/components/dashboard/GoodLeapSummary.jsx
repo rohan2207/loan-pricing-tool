@@ -106,10 +106,10 @@ function buildInput(accounts, borrowerData) {
     };
 }
 
-export function GoodLeapSummary({ accounts = [], borrowerData, onClose, embedded = false }) {
+export function GoodLeapSummary({ accounts = [], borrowerData, onClose, embedded = false, autoLoad = true, cachedData = null }) {
     const [isLoading, setIsLoading] = useState(false);
-    const [brief, setBrief] = useState(null);
-    const [localContext, setLocalContext] = useState(null);
+    const [brief, setBrief] = useState(cachedData?.brief || null);
+    const [localContext, setLocalContext] = useState(cachedData?.localContext || null);
     const [error, setError] = useState(null);
     const [copied, setCopied] = useState(false);
     const [showTalkTrack, setShowTalkTrack] = useState(true);
@@ -140,8 +140,11 @@ export function GoodLeapSummary({ accounts = [], borrowerData, onClose, embedded
     }, [input]);
 
     useEffect(() => {
-        handleRefresh();
-    }, []);
+        // Only auto-load if enabled and no cached data
+        if (autoLoad && !cachedData) {
+            handleRefresh();
+        }
+    }, [autoLoad, cachedData]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {

@@ -29,10 +29,10 @@ import '../../styles/bento.css';
 const fmt = (n) => n ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n) : 'N/A';
 const fmtK = (n) => n ? `$${(n / 1000).toFixed(0)}K` : 'N/A';
 
-export function GoodLeapAVM({ borrowerData, onClose, onValueChange, embedded = false }) {
+export function GoodLeapAVM({ borrowerData, onClose, onValueChange, embedded = false, autoLoad = true, cachedData = null }) {
     const [copied, setCopied] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const [avmData, setAvmData] = useState(null);
+    const [isLoading, setIsLoading] = useState(!cachedData);
+    const [avmData, setAvmData] = useState(cachedData);
     const [error, setError] = useState(null);
     const [selectedOption, setSelectedOption] = useState('recommended');
     const [showWhy, setShowWhy] = useState(false);
@@ -57,8 +57,11 @@ export function GoodLeapAVM({ borrowerData, onClose, onValueChange, embedded = f
     }, [property]);
 
     useEffect(() => {
-        handleRefresh();
-    }, []);
+        // Only auto-load if enabled and no cached data
+        if (autoLoad && !cachedData) {
+            handleRefresh();
+        }
+    }, [autoLoad, cachedData]);
 
     const handleOptionChange = (option) => {
         setSelectedOption(option);

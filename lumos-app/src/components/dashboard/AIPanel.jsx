@@ -33,10 +33,12 @@ export function AIPanel({
     onMinimize,
     isMinimized,
     defaultTool = null,  // null = show grid, string = show specific tool
-    isPopout = false
+    isPopout = false,
+    cachedToolData = null  // Cached data from parent/popout window
 }) {
     const [selectedTool, setSelectedTool] = useState(defaultTool);
     const [isDetached, setIsDetached] = useState(false);
+    const [toolCache, setToolCache] = useState(cachedToolData || {});
 
     // Get tool config if a tool is selected
     const toolConfig = selectedTool ? getToolById(selectedTool) : null;
@@ -58,6 +60,9 @@ export function AIPanel({
         const left = window.screen.width - width - 50;
         const top = 50;
 
+        // Store cached tool data for the popout window
+        window.aiPanelToolCache = toolCache;
+
         const toolParam = selectedTool ? `&tool=${selectedTool}` : '';
         const popoutWindow = window.open(
             `${window.location.origin}/?popout=ai${toolParam}`,
@@ -70,7 +75,7 @@ export function AIPanel({
             setIsDetached(true);
             onMinimize?.();
         }
-    }, [selectedTool, onMinimize]);
+    }, [selectedTool, onMinimize, toolCache]);
 
     // Listen for popout window close
     useEffect(() => {
@@ -106,7 +111,12 @@ export function AIPanel({
         }
 
         // Pass appropriate props based on the component
-        const props = { embedded: true };
+        const props = { 
+            embedded: true,
+            // In popout mode, don't auto-load if there's no cached data (user can click refresh)
+            autoLoad: !isPopout || !!toolCache[selectedTool],
+            cachedData: toolCache[selectedTool] || null
+        };
         if (toolConfig.component !== 'GoodLeapAVM') {
             props.accounts = accounts;
         }
