@@ -11,7 +11,11 @@ import {
     BarChart3,
     FileSearch,
     Send,
-    FileCheck
+    FileCheck,
+    Phone,
+    CreditCard,
+    Home,
+    Bot
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -47,6 +51,33 @@ export function Sidebar({ currentView, onViewChange, activeQuickAction, onQuickA
                 <NavItem icon={<BarChart3 size={18} />} label="Sales Comparables" active={activeQuickAction === 'Sales Comparables'} onClick={() => handleQuickActionClick('Sales Comparables')} />
                 <NavItem icon={<FileSearch size={18} />} label="Property Lien Report" active={activeQuickAction === 'Property Lien Report'} onClick={() => handleQuickActionClick('Property Lien Report')} />
                 <NavItem icon={<DollarSign size={18} />} label="Quick Quote" active={activeQuickAction === 'Quick Quote'} onClick={() => handleQuickActionClick('Quick Quote')} />
+
+                {/* AI Assistant Section */}
+                <div className="px-4 pt-4 pb-2 flex items-center gap-2">
+                    <Bot size={14} className="text-purple-400" />
+                    <span className="text-xs font-medium text-purple-400 uppercase tracking-wider">AI Assistant</span>
+                </div>
+                <NavItem 
+                    icon={<Phone size={18} />} 
+                    label="Call Prep Brief" 
+                    active={activeQuickAction === 'Call Prep Brief'} 
+                    onClick={() => handleQuickActionClick('Call Prep Brief')} 
+                    highlight 
+                />
+                <NavItem 
+                    icon={<CreditCard size={18} />} 
+                    label="Liability AI" 
+                    active={activeQuickAction === 'Liability AI'} 
+                    onClick={() => handleQuickActionClick('Liability AI')} 
+                    highlight 
+                />
+                <NavItem 
+                    icon={<Home size={18} />} 
+                    label="Property AVM" 
+                    active={activeQuickAction === 'Property AVM'} 
+                    onClick={() => handleQuickActionClick('Property AVM')} 
+                    highlight 
+                />
 
                 {/* Divider */}
                 <div className="my-3 mx-4 border-t border-neutral-d2" />

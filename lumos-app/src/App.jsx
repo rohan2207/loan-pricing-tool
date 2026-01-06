@@ -13,6 +13,9 @@ import { DebtWorksheet } from './components/dashboard/DebtWorksheet';
 import { QuickQuote } from './components/dashboard/QuickQuote';
 import { GoodLeapAssistant } from './components/dashboard/GoodLeapAssistant';
 import { AIPopoutWindow } from './components/dashboard/AIPopoutWindow';
+import { GoodLeapSummary } from './components/dashboard/GoodLeapSummary';
+import { LiabilityAI } from './components/dashboard/LiabilityAI';
+import { GoodLeapAVM } from './components/dashboard/GoodLeapAVM';
 import { GoodLeapAdvantage } from './components/advantage/GoodLeapAdvantage';
 import { GoodLeapAdvantageV2 } from './components/advantage/GoodLeapAdvantageV2';
 import { GoodLeapAdvantageV3 } from './components/advantage/GoodLeapAdvantageV3';
@@ -198,12 +201,19 @@ function App() {
       );
     }
 
-    // Standard Quick Actions (AI tools moved to floating assistant)
+    // Standard Quick Actions
     switch (activeQuickAction) {
       case 'Debt Worksheet':
         return <DebtWorksheet selectedDebts={accounts} />;
       case 'Quick Quote':
         return <QuickQuote />;
+      // AI Assistant tools - open in flyout
+      case 'Call Prep Brief':
+        return <GoodLeapSummary accounts={accounts} borrowerData={borrowerData} onClose={() => setActiveQuickAction(null)} />;
+      case 'Liability AI':
+        return <LiabilityAI accounts={accounts} borrowerData={borrowerData} onClose={() => setActiveQuickAction(null)} />;
+      case 'Property AVM':
+        return <GoodLeapAVM borrowerData={borrowerData} onClose={() => setActiveQuickAction(null)} />;
       default:
         return null;
     }
