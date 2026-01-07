@@ -1240,24 +1240,27 @@ function Card({ icon, title, value, sub, sel, onToggle, onView, rec, top, c = "a
             const taxPresets = [20, 25, 30, 35];
             return (
                 <div className="flex flex-col gap-1.5 mt-1" onClick={(e) => e.stopPropagation()}>
-                    {/* Income slider with common presets */}
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs text-stone-400">$</span>
-                        <input 
-                            type="range" 
-                            min={3000} 
-                            max={25000} 
-                            step={500}
-                            value={config.grossIncome}
-                            onChange={(e) => config.setGrossIncome(parseInt(e.target.value))}
-                            className="w-24 h-1.5 bg-stone-200 rounded-full appearance-none cursor-pointer accent-indigo-500"
-                        />
-                        <span className="text-xs font-bold text-indigo-600">{(config.grossIncome / 1000).toFixed(0)}k</span>
+                    {/* Income input - easy to type */}
+                    <div className="flex items-center gap-1.5">
+                        <div className="flex items-center bg-white border border-stone-300 rounded-lg px-2 py-1 focus-within:border-indigo-400 focus-within:ring-1 focus-within:ring-indigo-200">
+                            <span className="text-xs text-stone-400">$</span>
+                            <input 
+                                type="text" 
+                                inputMode="numeric"
+                                value={config.grossIncome.toLocaleString()}
+                                onChange={(e) => {
+                                    const val = parseInt(e.target.value.replace(/,/g, '')) || 0;
+                                    config.setGrossIncome(Math.min(50000, Math.max(0, val)));
+                                }}
+                                className="w-16 text-xs font-semibold text-right text-indigo-600 bg-transparent outline-none"
+                                placeholder="12,000"
+                            />
+                        </div>
                         <span className="text-xs text-stone-400">/mo</span>
                     </div>
                     {/* Tax rate preset buttons */}
                     <div className="flex items-center gap-1">
-                        <span className="text-xs text-stone-400 mr-1">Tax:</span>
+                        <span className="text-[10px] text-stone-400 mr-0.5">Tax:</span>
                         {taxPresets.map(rate => (
                             <button
                                 key={rate}
