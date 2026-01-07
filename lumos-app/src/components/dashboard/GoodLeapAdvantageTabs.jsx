@@ -300,8 +300,8 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
         // Totals
         currentTotal: calc.currentTotal,
         proposedTotal: loan.proposed + debtsNotPaidPayment, // Include remaining debts in proposed
-        monthlySavings: loan.savings - debtsNotPaidPayment, // Adjust savings for remaining debts
-        annualSavings: (loan.savings - debtsNotPaidPayment) * 12,
+        monthlySavings: loan.savings,  // Direct savings (currentTotal - proposed) for compound growth
+        annualSavings: loan.savings * 12,
         
         // Loan details
         newLoanAmount: loan.amt,

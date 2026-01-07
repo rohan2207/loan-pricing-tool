@@ -692,7 +692,8 @@ export function ChartPreview({ chartType, data }) {
             
             case 'compound-growth':
                 // Calculate compound growth at different intervals with configurable rate
-                const monthlyInvestment = analysisData.monthlySavings || 657;
+                // Use absolute value to ensure positive display, fallback to 657
+                const monthlyInvestment = Math.max(0, analysisData.monthlySavings) || 657;
                 const annualReturnRate = compoundRate / 100;
                 const monthlyReturnRate = annualReturnRate / 12;
                 
