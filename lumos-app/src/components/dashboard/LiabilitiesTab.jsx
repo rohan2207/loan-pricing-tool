@@ -101,7 +101,7 @@ export function LiabilitiesTab({
                         <span className="text-xl tracking-wide">✨ TBD NAME TBD ✨</span>
                         <TrendingUp size={24} />
                     </button>
-                    <p className="text-center text-xs text-neutral-l1 mt-2">Consolidate debts • Lower payments • Cash out equity</p>
+                    <p className="text-center text-sm text-neutral-l1 mt-2">👆 Click here for pricing experience • Consolidate debts • Lower payments • Cash out equity</p>
                 </div>
             )}
 
