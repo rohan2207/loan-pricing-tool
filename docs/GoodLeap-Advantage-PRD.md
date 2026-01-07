@@ -466,12 +466,15 @@ After pricing, show rate options with lender credits/discount points:
 | MI/MIP | Yes | Direct input (for existing MI) |
 | Other Debts | No | Sum of selected non-mortgage debts |
 
-### 6.3 Calculate P&I from Balance
+### 6.3 Calculate P&I from Balance (Bidirectional)
 
 **UI Layout:**
 ```
 ┌────────────────────────────────────────────────────────────────────┐
 │ Calculate P&I from: $[247,500] @ [3.75] % for [30 yr ▼] [Calc]    │
+└────────────────────────────────────────────────────────────────────┘
+│                                                                    │
+│ $ [1,710]                                              P&I         │
 └────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -481,33 +484,62 @@ After pricing, show rate options with lender credits/discount points:
 | Balance | Number input | $247,500 | Any positive number |
 | Rate | Number input | 3.75% | Step: 0.125% |
 | Term | Dropdown | 30 yr | 10 yr, 15 yr, 20 yr, 30 yr |
+| P&I | Number input | $1,710 | Editable |
 
-**State Variable:**
+**Bidirectional Sync:**
+The P&I and Balance fields are synced bidirectionally:
+
+1. **Balance → P&I (via Calc button):**
+   - User enters Balance, Rate, Term
+   - Clicks "Calc" button
+   - P&I is calculated and updated
+
+2. **P&I → Balance (auto-update):**
+   - User manually edits P&I field
+   - Balance automatically recalculates based on current Rate/Term
+   - Useful when liability payment includes escrows
+
+**Why Bidirectional Matters:**
+- Liability payments may include escrows (taxes + insurance)
+- Example: Liability shows $1,710/mo but that includes $570 escrow
+- True P&I = $1,140
+- LO can enter $1,140 as P&I → Balance recalculates → "Debts Being Paid Off" updates correctly
+
+**State Variables:**
 ```javascript
+const [currentBalance, setCurrentBalance] = useState(247500);
+const [currentRate, setCurrentRate] = useState(3.75);
 const [currentTerm, setCurrentTerm] = useState(30);  // 10, 15, 20, or 30 years
+const [currentPI, setCurrentPI] = useState(1710);
 ```
 
-**Term Selector Styling:**
-```jsx
-<select 
-  value={currentTerm}
-  onChange={(e) => setCurrentTerm(parseInt(e.target.value))}
-  className="px-1.5 py-1 border border-stone-200 rounded-lg text-xs bg-white focus:border-amber-400 focus:outline-none"
->
-  <option value={10}>10 yr</option>
-  <option value={15}>15 yr</option>
-  <option value={20}>20 yr</option>
-  <option value={30}>30 yr</option>
-</select>
-```
-
-**Amortization Formula:**
+**Formulas:**
 ```javascript
+// Balance → P&I
 function calculatePI(balance, annualRate, termYears = 30) {
   const r = annualRate / 100 / 12;  // Monthly rate
   const n = termYears * 12;          // Total payments
   return balance * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
 }
+
+// P&I → Balance (reverse calculation)
+function calculateBalanceFromPI(pi, annualRate, termYears = 30) {
+  const r = annualRate / 100 / 12;
+  const n = termYears * 12;
+  return pi * (Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n));
+}
+```
+
+**P&I Input Handler:**
+```javascript
+onChange={(e) => {
+  const newPI = parseInt(e.target.value) || 0;
+  setCurrentPI(newPI);
+  // Auto-update balance from P&I
+  if (newPI > 0 && currentRate > 0) {
+    setCurrentBalance(calculateBalanceFromPI(newPI, currentRate, currentTerm));
+  }
+}}
 ```
 
 **Why Term Matters:**
@@ -1252,6 +1284,47 @@ const [taxRate, setTaxRate] = useState(25);
 3. When chart flyover opens, it receives config values via `chartConfig` prop in `buildChartData()`
 4. Chart flyover uses `useEffect` to sync its local state when `chartConfig` changes
 5. **Important:** Rankings use ORIGINAL values (not adjusted) so they stay fixed
+
+**Real-Time Chart Sync (GoodLeapAdvantageTabs.jsx):**
+
+When inline controls change and a chart flyover is open, the chart updates automatically without refresh:
+
+```javascript
+// Props from App.jsx
+const { onUpdateFlyoverData, openChartType } = props;
+
+// Real-time sync effect
+useEffect(() => {
+    if (openChartType && onUpdateFlyoverData && isPriced) {
+        const chartsWithConfig = ['accelerated-payoff', 'compound-growth', 'cash-flow-window', 'disposable-income'];
+        if (chartsWithConfig.includes(openChartType)) {
+            onUpdateFlyoverData(buildChartData());
+        }
+    }
+}, [openChartType, acceleratedPercent, compoundRate, cashFlowDays, grossIncome, taxRate, isPriced]);
+```
+
+**App.jsx Integration:**
+```javascript
+// Track which chart is open
+const openChartType = activeQuickAction?.startsWith('ChartPreview:') 
+  ? activeQuickAction.replace('ChartPreview:', '') 
+  : null;
+
+// Update flyover data when chart config changes
+const handleUpdateFlyoverData = (chartData) => {
+  if (activeQuickAction?.startsWith('ChartPreview:')) {
+    setFlyoverData(chartData);
+  }
+};
+
+// Pass to GoodLeapAdvantageTabs
+<GoodLeapAdvantageTabs
+  onUpdateFlyoverData={handleUpdateFlyoverData}
+  openChartType={openChartType}
+  // ... other props
+/>
+```
 
 **Chart Sync Implementation (ChartPreview.jsx):**
 ```javascript

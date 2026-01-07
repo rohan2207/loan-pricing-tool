@@ -27,7 +27,7 @@ const RATE_OPTIONS = [
     { rate: 7.375, points: -1.0, cost: -5250, label: '$5,250 Credit', type: 'credit' },
 ];
 
-export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onViewChart, onGenerateProposal, onAccountToggle, onToggleAll, onAccountUpdate }) {
+export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onViewChart, onGenerateProposal, onAccountToggle, onToggleAll, onAccountUpdate, onUpdateFlyoverData, openChartType }) {
     const [isPriced, setIsPriced] = useState(false);
     const [isRunningPricing, setIsRunningPricing] = useState(false);
     const [program, setProgram] = useState('Conventional');
@@ -144,6 +144,14 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
         const n = termYears * 12;
         return Math.round(balance * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1));
     };
+    
+    // Reverse calculation: given P&I, calculate Balance
+    const calculateBalanceFromPI = (pi, rate, termYears = 30) => {
+        const r = rate / 100 / 12;
+        const n = termYears * 12;
+        // Balance = P&I × ((1+r)^n - 1) / (r × (1+r)^n)
+        return Math.round(pi * (Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n)));
+    };
     const goodLeapLoan = { product: 'Solar Installation', loanNumber: 'CF-1234567', balance: glBalance, payment: glPayment, rate: glRate };
     
     const parseAmount = (val) => typeof val === 'number' ? val : parseFloat(String(val).replace(/[$,]/g, '')) || 0;
@@ -154,14 +162,10 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
         let totalPmt = sel.reduce((s, a) => s + parseAmount(a.payment), 0);
         if (goodLeapSelected) { totalBal += goodLeapLoan.balance; totalPmt += goodLeapLoan.payment; }
         
-        // Calculate "other debts" as non-mortgage selected payments
-        // This is independent of the editable currentPI value
-        const nonMortgageSelected = sel.filter(a => 
-            a.accountType?.toLowerCase() !== 'mortgage' && 
-            a.accountType?.toLowerCase() !== 'heloc'
-        );
-        const other = nonMortgageSelected.reduce((s, a) => s + parseAmount(a.payment), 0) + 
-            (goodLeapSelected ? goodLeapLoan.payment : 0);
+        // "Other debts" = ALL selected payments MINUS the primary mortgage P&I
+        // This includes secondary mortgages, HELOCs, and all other debts being paid off
+        // The primary mortgage P&I is shown separately in the comparison table
+        const other = totalPmt - currentPI;
         
         const currentEscrow = includeEscrow ? currentTaxes + currentInsurance : 0;
         const proposedEscrow = includeEscrow ? currentTaxes + currentInsurance : 0;
@@ -304,7 +308,7 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
         ltv: loan.ltv,
         cashout: loan.cashout,
         rate: loan.rate,
-        term: term,                                      // Proposed term (15 or 30)
+        term: 30,                                        // Proposed term (30 years)
         breakEvenMonths: loan.breakEven,
         closingCosts: closingCosts + Math.max(0, loan.pointsCost),
         
@@ -326,6 +330,17 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
     const handleViewChart = (chartType) => {
         onViewChart?.(chartType, buildChartData());
     };
+    
+    // Real-time sync: update flyover data when inline controls change
+    useEffect(() => {
+        if (openChartType && onUpdateFlyoverData && isPriced) {
+            // Only sync if the open chart has inline controls that changed
+            const chartsWithConfig = ['accelerated-payoff', 'compound-growth', 'cash-flow-window', 'disposable-income'];
+            if (chartsWithConfig.includes(openChartType)) {
+                onUpdateFlyoverData(buildChartData());
+            }
+        }
+    }, [openChartType, acceleratedPercent, compoundRate, cashFlowDays, grossIncome, taxRate, isPriced]);
 
     return (
         <div className="h-full flex flex-col bg-stone-50">
@@ -788,7 +803,14 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                         <input 
                                             type="number" 
                                             value={currentPI} 
-                                            onChange={(e) => setCurrentPI(parseInt(e.target.value) || 0)}
+                                            onChange={(e) => {
+                                                const newPI = parseInt(e.target.value) || 0;
+                                                setCurrentPI(newPI);
+                                                // Reverse calculate balance from P&I at current rate/term
+                                                if (newPI > 0 && currentRate > 0) {
+                                                    setCurrentBalance(calculateBalanceFromPI(newPI, currentRate, currentTerm));
+                                                }
+                                            }}
                                             className="w-20 pl-3 pr-1 py-1 border border-stone-200 rounded-lg text-sm font-medium text-right focus:border-amber-400 focus:outline-none"
                                         />
                                     </div>

@@ -218,6 +218,18 @@ function App() {
       setFlyoverData(analysisData);
     }
   };
+  
+  // Update flyover data in real-time when chart config changes (for inline controls)
+  const handleUpdateFlyoverData = (chartData) => {
+    if (activeQuickAction?.startsWith('ChartPreview:')) {
+      setFlyoverData(chartData);
+    }
+  };
+  
+  // Get the currently open chart type (for real-time sync)
+  const openChartType = activeQuickAction?.startsWith('ChartPreview:') 
+    ? activeQuickAction.replace('ChartPreview:', '') 
+    : null;
 
   // Handle quick action change - supports AI tool IDs from config
   const handleQuickActionChange = (action) => {
@@ -320,6 +332,8 @@ function App() {
                 onAccountToggle={handleAccountToggle}
                 onToggleAll={handleToggleAll}
                 onAccountUpdate={handleAccountUpdate}
+                onUpdateFlyoverData={handleUpdateFlyoverData}
+                openChartType={openChartType}
               />
             </div>
           );
