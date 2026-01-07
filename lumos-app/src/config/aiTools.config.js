@@ -135,3 +135,5 @@ export const getCategoryColorClass = (categoryId) => {
     return colors[category.color] || 'bg-gray-100 text-gray-600';
 };
 
+
+

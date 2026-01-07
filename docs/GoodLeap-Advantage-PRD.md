@@ -401,23 +401,31 @@ Display: Teal background callout showing potential additional cashout
 
 ### 5.7 Rate Options (Post-Pricing)
 
-After pricing, show rate options with lender credits/discount points:
+After pricing, show rate options with **payment prominently displayed first**, followed by rate and cost/credit details. This "rate stack" design prioritizes what matters most to borrowers - the monthly payment.
 
 ```
-┌─────────────────────────────────────────────────────┐
-│ Select Rate                                          │
-│ ○ 7.250% (+$2,500 credit)                           │
-│ ○ 7.125% (+$1,200 credit)                           │
-│ ● 7.000% (Par rate)                 ← Default       │
-│ ○ 6.875% (-$1,800 points)                           │
-│ ○ 6.750% (-$3,200 points)                           │
-└─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│ Select Your Rate                                 [Step 2 of 3]  │
+├─────────────────────────────────────────────────────────────────┤
+│ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐    │
+│ │ $3,365  │ │ $3,447  │ │●$3,499 ●│ │ $3,530  │ │ $3,592  │    │
+│ │ 6.625%  │ │ 6.875%  │ │ 7.000%  │ │ 7.125%  │ │ 7.375%  │    │
+│ │─────────│ │─────────│ │─────────│ │─────────│ │─────────│    │
+│ │ 1 Pts   │ │ 0.5 Pts │ │Par Rate │ │0.5 Pts  │ │ 1 Pts   │    │
+│ │ -$5,250 │ │ -$2,625 │ │         │ │ Credit  │ │ Credit  │    │
+│ │         │ │         │ │         │ │ +$2,625 │ │ +$5,250 │    │
+│ └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘    │
+│                          (selected)                             │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 **Requirements:**
-- Radio button selection
-- Show credit as positive (lender pays)
-- Show points as negative (borrower pays)
+- Button selection (5 options in a row)
+- **Payment shown first** (largest, boldest text) - calculated dynamically for each rate
+- Rate shown below payment
+- Points/Credit shown with both percentage AND dollar amount
+- Show credit as positive with `+` prefix (lender pays)
+- Show points as negative with `-` prefix (borrower pays)
 - Points cost appears in closing costs and comparison table
 
 ---
@@ -966,7 +974,7 @@ const showExtraCashout = extraCashout > 0 && currentLTV < 80;
 
 #### Rate Options (Post-Pricing) - Prominent UI
 
-When the loan is priced, the rate selection area becomes visually prominent to guide the LO to the next step:
+When the loan is priced, the rate selection area becomes visually prominent to guide the LO to the next step. **Payment is shown first** (most important to sales), followed by rate, then cost/credit in both points and dollars.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -974,12 +982,24 @@ When the loan is priced, the rate selection area becomes visually prominent to g
 │    (amber gradient background)                               │
 ├──────────────────────────────────────────────────────────────┤
 │ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────┐│
-│ │  6.625%  │ │  6.875%  │ │ ●7.000%● │ │  7.125%  │ │7.375%││
-│ │ 1 Point  │ │0.5 Point │ │ Par Rate │ │  Credit  │ │Credit││
+│ │  $3,365  │ │  $3,447  │ │ ●$3,499● │ │  $3,530  │ │$3,592││
+│ │  6.625%  │ │  6.875%  │ │  7.000%  │ │  7.125%  │ │7.375%││
+│ │ ──────── │ │ ──────── │ │ ──────── │ │ ──────── │ │──────││
+│ │ 1 Pts    │ │ 0.5 Pts  │ │ Par Rate │ │ 0.5 Pts  │ │1 Pts ││
+│ │ -$5,250  │ │ -$2,625  │ │          │ │  Credit  │ │Credit││
+│ │          │ │          │ │          │ │ +$2,625  │ │+$5250││
 │ └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────┘│
 │                            (selected)                        │
 └──────────────────────────────────────────────────────────────┘
 ```
+
+**Rate Stack Layout (per button, top to bottom):**
+| Row | Content | Styling |
+|-----|---------|---------|
+| 1. Payment | Monthly P&I (e.g., $3,447) | `text-base font-bold` - Most prominent |
+| 2. Rate | Interest rate (e.g., 6.875%) | `text-sm font-semibold` |
+| 3. Points | Points label (e.g., "1 Pts" or "0.5 Pts Credit") | `text-[10px]` with separator line above |
+| 4. Cost/Credit | Dollar amount (e.g., "-$5,250" or "+$2,625") | `text-[9px]` - Only shown for non-par rates |
 
 **Container Styling (Post-Pricing):**
 ```jsx
@@ -998,24 +1018,54 @@ When the loan is priced, the rate selection area becomes visually prominent to g
   
   {/* Rate buttons grid */}
   <div className="grid grid-cols-5 gap-1.5">
-    {/* ... rate options ... */}
+    {RATE_OPTIONS.map((opt, i) => {
+      // Calculate P&I payment for this rate option
+      const r = opt.rate / 100 / 12;
+      const n = 360;
+      const payment = Math.round(loan.amt * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1));
+      
+      return (
+        <button className="p-2 rounded-lg border-2 text-center transition-all ...">
+          {/* Payment - Most important, shown first */}
+          <p className="text-base font-bold mb-0.5">${payment.toLocaleString()}</p>
+          {/* Rate */}
+          <p className="text-sm font-semibold">{opt.rate.toFixed(3)}%</p>
+          {/* Points/Credit - Both % and $ */}
+          <div className="mt-1 pt-1 border-t border-stone-200/50">
+            <p className="text-[10px] font-medium">
+              {opt.type === 'points' && `${opt.points} Pts`}
+              {opt.type === 'credit' && `${Math.abs(opt.points)} Pts Credit`}
+              {opt.type === 'par' && 'Par Rate'}
+            </p>
+            {opt.type !== 'par' && (
+              <p className="text-[9px] font-medium">
+                {opt.type === 'credit' ? '+' : '-'}${Math.abs(opt.cost).toLocaleString()}
+              </p>
+            )}
+          </div>
+        </button>
+      );
+    })}
   </div>
 </div>
 ```
 
 **Rate Button States:**
-| State | Border | Background | Rate Text |
-|-------|--------|------------|-----------|
-| Default | `border-transparent` | `bg-white/80` | `text-stone-700` |
-| Hover | `border-amber-200` | `bg-white` | `text-stone-700` |
-| Selected | `border-amber-500` + `ring-2` | `bg-white` | `text-amber-600` |
+| State | Border | Background | Payment Text | Rate Text |
+|-------|--------|------------|--------------|-----------|
+| Default | `border-transparent` | `bg-white/80` | `text-stone-800` | `text-stone-600` |
+| Hover | `border-amber-200` | `bg-white` | `text-stone-800` | `text-stone-600` |
+| Selected | `border-amber-500` + `ring-2` | `bg-white` | `text-amber-700` | `text-amber-600` |
 
 **Credit vs Points Display:**
-| Type | Text Color | Format |
-|------|------------|--------|
-| Credit (lender pays) | `text-teal-600` | `$2,625 Credit` |
-| Par rate | `text-stone-400` | `Par Rate` |
-| Points (borrower pays) | `text-rose-500` | `1 Point` |
+| Type | Points Text Color | Cost Text Color | Format |
+|------|-------------------|-----------------|--------|
+| Credit (lender pays) | `text-teal-600` | `text-teal-500` | `0.5 Pts Credit` / `+$2,625` |
+| Par rate | `text-stone-400` | — | `Par Rate` |
+| Points (borrower pays) | `text-rose-500` | `text-rose-400` | `1 Pts` / `-$5,250` |
+
+**Why Payment First?**
+Sales feedback: "Rate doesn't matter - payment is more important." Showing the monthly payment prominently allows LOs to quickly see the impact of each rate option on the borrower's bottom line.
 
 ---
 

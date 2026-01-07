@@ -609,23 +609,59 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                         <span className="text-xs bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full">Step 2 of 3</span>
                                     </div>
                                     <div className="grid grid-cols-5 gap-1.5">
-                                        {RATE_OPTIONS.map((opt, i) => (
-                                            <button
-                                                key={i}
-                                                onClick={() => setSelectedRateOption(i)}
-                                                className={cn(
-                                                    "p-2.5 rounded-lg border-2 text-center transition-all",
-                                                    selectedRateOption === i 
-                                                        ? "border-amber-500 bg-white ring-2 ring-amber-200 shadow-md" 
-                                                        : "border-transparent bg-white/80 hover:bg-white hover:border-amber-200"
-                                                )}
-                                            >
-                                                <p className={cn("text-sm font-bold", selectedRateOption === i ? "text-amber-600" : "text-stone-700")}>{opt.rate.toFixed(3)}%</p>
-                                                <p className={cn("text-[10px] font-medium", opt.type === 'credit' ? "text-teal-600" : opt.type === 'points' ? "text-rose-500" : "text-stone-400")}>
-                                                    {opt.label}
-                                                </p>
-                                            </button>
-                                        ))}
+                                        {RATE_OPTIONS.map((opt, i) => {
+                                            // Calculate P&I payment for this rate option
+                                            const r = opt.rate / 100 / 12;
+                                            const n = 360;
+                                            const payment = Math.round(loan.amt * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1));
+                                            
+                                            return (
+                                                <button
+                                                    key={i}
+                                                    onClick={() => setSelectedRateOption(i)}
+                                                    className={cn(
+                                                        "p-2 rounded-lg border-2 text-center transition-all",
+                                                        selectedRateOption === i 
+                                                            ? "border-amber-500 bg-white ring-2 ring-amber-200 shadow-md" 
+                                                            : "border-transparent bg-white/80 hover:bg-white hover:border-amber-200"
+                                                    )}
+                                                >
+                                                    {/* Payment - Most important, shown first */}
+                                                    <p className={cn(
+                                                        "text-base font-bold mb-0.5",
+                                                        selectedRateOption === i ? "text-amber-700" : "text-stone-800"
+                                                    )}>
+                                                        ${payment.toLocaleString()}
+                                                    </p>
+                                                    {/* Rate */}
+                                                    <p className={cn(
+                                                        "text-sm font-semibold",
+                                                        selectedRateOption === i ? "text-amber-600" : "text-stone-600"
+                                                    )}>
+                                                        {opt.rate.toFixed(3)}%
+                                                    </p>
+                                                    {/* Points/Credit - Both % and $ */}
+                                                    <div className="mt-1 pt-1 border-t border-stone-200/50">
+                                                        <p className={cn(
+                                                            "text-[10px] font-medium leading-tight",
+                                                            opt.type === 'credit' ? "text-teal-600" : opt.type === 'points' ? "text-rose-500" : "text-stone-400"
+                                                        )}>
+                                                            {opt.type === 'points' && `${opt.points} Pts`}
+                                                            {opt.type === 'credit' && `${Math.abs(opt.points)} Pts Credit`}
+                                                            {opt.type === 'par' && 'Par Rate'}
+                                                        </p>
+                                                        {opt.type !== 'par' && (
+                                                            <p className={cn(
+                                                                "text-[9px] font-medium",
+                                                                opt.type === 'credit' ? "text-teal-500" : "text-rose-400"
+                                                            )}>
+                                                                {opt.type === 'credit' ? '+' : '-'}${Math.abs(opt.cost).toLocaleString()}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
