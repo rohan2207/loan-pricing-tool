@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
     Calculator, X, Play, RefreshCw, Check, TrendingUp, ChevronRight, ExternalLink,
-    FileText, Clock, Plus, Download, Lock, Sparkles, Home, DollarSign, Calendar
+    FileText, Clock, Plus, Download, Lock, Sparkles, Home, DollarSign, Calendar,
+    ChevronDown, ChevronUp, ListChecks, Wallet
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -41,9 +42,27 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
     const [currentInsurance, setCurrentInsurance] = useState(120);
     const [currentBalance, setCurrentBalance] = useState(247500);
     const [currentRate, setCurrentRate] = useState(3.75);
+    const [currentTerm, setCurrentTerm] = useState(30); // 15, 20, or 30 years
+    const [propertyValue, setPropertyValue] = useState(borrowerData?.property?.avmValue || 950000);
+    
+    // GoodLeap loan fields (editable)
+    const [glBalance, setGlBalance] = useState(42000);
+    const [glPayment, setGlPayment] = useState(350);
+    const [glRate, setGlRate] = useState(6.75);
+    
     const [moduleSelections, setModuleSelections] = useState({
-        'debt-consolidation': false, 'payment-savings': false, 'cash-back': false, 'break-even': false, 'accelerated-payoff': false, 'compound-growth': false, 'cash-flow-window': false,
+        'debt-consolidation': false, 'payment-savings': false, 'cash-back': false, 'break-even': false, 'accelerated-payoff': false, 'compound-growth': false, 'cash-flow-window': false, 'disposable-income': false,
     });
+    
+    // Chart configurable parameters - inline adjustable
+    const [compoundRate, setCompoundRate] = useState(7);
+    const [acceleratedPercent, setAcceleratedPercent] = useState(100);
+    const [cashFlowDays, setCashFlowDays] = useState(60);
+    const [grossIncome, setGrossIncome] = useState(12000);
+    const [taxRate, setTaxRate] = useState(25);
+    
+    // Debts section collapsed state - collapses when pricing is complete
+    const [isDebtsCollapsed, setIsDebtsCollapsed] = useState(false);
     
     // Track if initial render to avoid resetting on mount
     const isInitialMount = useRef(true);
@@ -53,12 +72,20 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
     const resetPricing = () => {
         if (isPriced) {
             setIsPriced(false);
+            setIsDebtsCollapsed(false); // Expand debts when pricing is reset
             setModuleSelections({
                 'debt-consolidation': false, 'payment-savings': false, 'cash-back': false, 
-                'break-even': false, 'accelerated-payoff': false, 'compound-growth': false, 'cash-flow-window': false,
+                'break-even': false, 'accelerated-payoff': false, 'compound-growth': false, 'cash-flow-window': false, 'disposable-income': false,
             });
         }
     };
+    
+    // Auto-collapse debts section when pricing completes
+    useEffect(() => {
+        if (isPriced) {
+            setIsDebtsCollapsed(true);
+        }
+    }, [isPriced]);
     
     // Detect account selection changes (willPay changes from parent)
     useEffect(() => {
@@ -109,16 +136,15 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
         resetPricing();
     };
 
-    const propertyValue = borrowerData?.property?.avmValue || 950000;
     const closingCosts = 8057;
     const maxLTV = MAX_LTV[program] || 80;
     
-    const calculatePIFromBalance = (balance, rate) => {
+    const calculatePIFromBalance = (balance, rate, termYears = 30) => {
         const r = rate / 100 / 12;
-        const n = 360;
+        const n = termYears * 12;
         return Math.round(balance * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1));
     };
-    const goodLeapLoan = { product: 'Solar Installation', loanNumber: 'CF-1234567', balance: 42000, payment: 0, rate: '6.750%' };
+    const goodLeapLoan = { product: 'Solar Installation', loanNumber: 'CF-1234567', balance: glBalance, payment: glPayment, rate: glRate };
     
     const parseAmount = (val) => typeof val === 'number' ? val : parseFloat(String(val).replace(/[$,]/g, '')) || 0;
 
@@ -127,7 +153,16 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
         let totalBal = sel.reduce((s, a) => s + parseAmount(a.balance), 0);
         let totalPmt = sel.reduce((s, a) => s + parseAmount(a.payment), 0);
         if (goodLeapSelected) { totalBal += goodLeapLoan.balance; totalPmt += goodLeapLoan.payment; }
-        const other = Math.max(0, totalPmt - currentPI);
+        
+        // Calculate "other debts" as non-mortgage selected payments
+        // This is independent of the editable currentPI value
+        const nonMortgageSelected = sel.filter(a => 
+            a.accountType?.toLowerCase() !== 'mortgage' && 
+            a.accountType?.toLowerCase() !== 'heloc'
+        );
+        const other = nonMortgageSelected.reduce((s, a) => s + parseAmount(a.payment), 0) + 
+            (goodLeapSelected ? goodLeapLoan.payment : 0);
+        
         const currentEscrow = includeEscrow ? currentTaxes + currentInsurance : 0;
         const proposedEscrow = includeEscrow ? currentTaxes + currentInsurance : 0;
         return { 
@@ -142,7 +177,7 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
             currentTaxes,
             currentInsurance
         };
-    }, [accounts, goodLeapSelected, includeEscrow, currentMIP, currentPI, currentTaxes, currentInsurance]);
+    }, [accounts, goodLeapSelected, includeEscrow, currentMIP, currentPI, currentTaxes, currentInsurance, glBalance, glPayment]);
 
     const selectedRateData = RATE_OPTIONS[selectedRateOption];
     const minLTV = Math.max(50, Math.ceil((calc.totalBal / propertyValue) * 100));
@@ -249,6 +284,10 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
         debtsPaidOff: calc.other,                        // Other debts being paid off (e.g., $2,446) = totalPmt - currentPI
         debtsRemaining: debtsNotPaidPayment,             // Debts NOT selected for payoff
         
+        // Current loan info
+        currentRate: currentRate,
+        currentTerm: currentTerm,                        // 10, 15, 20, or 30 years
+        
         // Proposed breakdown
         proposedPI: loan.pi,
         proposedEscrow: calc.escrow,
@@ -265,6 +304,7 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
         ltv: loan.ltv,
         cashout: loan.cashout,
         rate: loan.rate,
+        term: term,                                      // Proposed term (15 or 30)
         breakEvenMonths: loan.breakEven,
         closingCosts: closingCosts + Math.max(0, loan.pointsCost),
         
@@ -272,6 +312,15 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
         debtsCount: calc.count,
         debtsPayoff: calc.totalBal,
         debtsMonthlyPayment: calc.totalPmt,
+        
+        // Chart configuration - inline adjustable values
+        chartConfig: {
+            compoundRate,
+            acceleratedPercent,
+            cashFlowDays,
+            grossIncome,
+            taxRate,
+        }
     });
     
     const handleViewChart = (chartType) => {
@@ -304,102 +353,174 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
 
             {/* 3-Column Layout */}
             <div className="flex-1 flex overflow-hidden">
-                {/* LEFT: Debts Table */}
-                <div className="flex-1 border-r border-stone-200 bg-white overflow-auto">
+                {/* LEFT: Debts Table - Collapsible */}
+                <div className={cn(
+                    "border-r border-stone-200 bg-white overflow-auto transition-all duration-300",
+                    isDebtsCollapsed ? "w-[200px] flex-shrink-0" : "flex-1"
+                )}>
                     <div className="p-4">
+                        {/* Header with collapse toggle */}
                         <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-stone-800 font-medium">Debts to Pay Off</h4>
+                            <button 
+                                onClick={() => setIsDebtsCollapsed(!isDebtsCollapsed)}
+                                className="flex items-center gap-2 hover:bg-stone-100 rounded-lg px-2 py-1 -ml-2 transition-colors"
+                            >
+                                {isDebtsCollapsed ? <ChevronDown size={16} className="text-stone-500" /> : <ChevronUp size={16} className="text-stone-500" />}
+                                <h4 className="text-stone-800 font-medium">Debts to Pay Off</h4>
+                            </button>
                             <span className="bg-amber-100 text-amber-700 text-xs font-semibold px-2.5 py-1 rounded-full">{calc.count} Selected</span>
                         </div>
 
-                        {/* GoodLeap Loan */}
-                        <div className="border border-sky-200 rounded-xl overflow-hidden bg-white mb-3">
-                            <div className="flex items-center gap-2 px-3 py-2 bg-sky-50 text-sky-700">
-                                <Home size={14} />
-                                <p className="font-medium text-sm">GoodLeap Loan</p>
-                            </div>
-                            <div className={cn("flex items-center justify-between px-3 py-2.5 text-sm transition-colors", goodLeapSelected && "bg-amber-50/50")}>
-                                <div>
-                                    <p className="font-medium text-stone-800">{goodLeapLoan.loanNumber}</p>
-                                    <p className="text-xs text-stone-500">{goodLeapLoan.product}</p>
+                        {/* Collapsed View - Summary Only */}
+                        {isDebtsCollapsed ? (
+                            <div className="space-y-3">
+                                {/* Mini Summary */}
+                                <div className="p-3 bg-stone-100 rounded-xl">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <ListChecks size={14} className="text-stone-500" />
+                                        <span className="text-xs text-stone-500 font-medium">Selected Debts</span>
+                                    </div>
+                                    <p className="text-lg font-bold text-stone-800">{fmt(calc.totalBal)}</p>
+                                    <p className="text-sm text-teal-600 font-medium">-{fmt(calc.totalPmt)}/mo</p>
                                 </div>
-                                <div className="flex items-center gap-4">
-                                    <span className="font-medium text-stone-700">${goodLeapLoan.balance.toLocaleString()}</span>
-                                    <span className="text-stone-500">{goodLeapLoan.rate}</span>
-                                    <input type="checkbox" checked={goodLeapSelected} onChange={() => updateGoodLeapSelected(!goodLeapSelected)} className="h-4 w-4 rounded cursor-pointer accent-amber-500" />
-                                </div>
+                                
+                                {/* Expand Button */}
+                                <button 
+                                    onClick={() => setIsDebtsCollapsed(false)}
+                                    className="w-full py-2 text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors flex items-center justify-center gap-1"
+                                >
+                                    <ChevronDown size={14} />
+                                    View All Debts
+                                </button>
                             </div>
-                        </div>
-
-                        {/* Accounts Table */}
-                        <div className="rounded-xl bg-white border border-stone-200 overflow-hidden">
-                            <table className="w-full text-sm">
-                                <thead className="bg-stone-50">
-                                    <tr>
-                                        <th className="px-3 py-2.5 text-left text-sm font-medium text-stone-600">Creditor</th>
-                                        <th className="px-2 py-2.5 text-right text-sm font-medium text-stone-600">Balance</th>
-                                        <th className="px-2 py-2.5 text-right text-sm font-medium text-stone-600">Payment</th>
-                                        <th className="px-2 py-2.5 text-right text-sm font-medium text-stone-600">Rate</th>
-                                        <th className="px-2 py-2.5 text-center text-sm font-medium text-stone-600">
-                                            <div className="flex items-center justify-center gap-1">
-                                                Pay
-                                                <input type="checkbox" checked={allSel} ref={el => { if (el) el.indeterminate = someSel && !allSel; }} onChange={(e) => onToggleAll(e.target.checked)} className="h-4 w-4 rounded cursor-pointer accent-amber-500" />
+                        ) : (
+                            <>
+                                {/* GoodLeap Loan - Editable */}
+                                <div className="border border-sky-200 rounded-xl overflow-hidden bg-white mb-3">
+                                    <div className="flex items-center gap-2 px-3 py-2 bg-sky-50 text-sky-700">
+                                        <Home size={14} />
+                                        <p className="font-medium text-sm">GoodLeap Loan</p>
+                                    </div>
+                                    <div className={cn("px-3 py-2.5 text-sm transition-colors", goodLeapSelected && "bg-amber-50/50")}>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div>
+                                                <p className="font-medium text-stone-800">{goodLeapLoan.loanNumber}</p>
+                                                <p className="text-xs text-stone-500">{goodLeapLoan.product}</p>
                                             </div>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {accounts.map((acc) => (
-                                        <tr key={acc.id} className={cn("border-t border-stone-100 hover:bg-stone-50 transition-colors", acc.willPay && "bg-amber-50/50")}>
-                                            <td className="px-3 py-2.5 cursor-pointer" onClick={() => onAccountToggle(acc.id)}>
-                                                <p className="font-medium text-stone-800">{acc.creditor}</p>
-                                                <p className="text-xs text-stone-500">{acc.accountType}</p>
-                                            </td>
-                                            <td className="px-1 py-1.5 text-right" onClick={e => e.stopPropagation()}>
-                                                <input 
-                                                    type="text"
-                                                    value={acc.balance}
-                                                    onChange={(e) => onAccountUpdate?.(acc.id, 'balance', e.target.value)}
-                                                    className="w-20 px-1.5 py-1 text-right text-sm font-medium text-stone-700 bg-white border border-stone-200 rounded focus:border-amber-400 focus:outline-none hover:border-stone-300"
-                                                />
-                                            </td>
-                                            <td className="px-1 py-1.5 text-right" onClick={e => e.stopPropagation()}>
-                                                <input 
-                                                    type="text"
-                                                    value={acc.payment}
-                                                    onChange={(e) => onAccountUpdate?.(acc.id, 'payment', e.target.value)}
-                                                    className="w-16 px-1.5 py-1 text-right text-sm font-medium text-stone-700 bg-white border border-stone-200 rounded focus:border-amber-400 focus:outline-none hover:border-stone-300"
-                                                />
-                                            </td>
-                                            <td className="px-1 py-1.5 text-right" onClick={e => e.stopPropagation()}>
-                                                <input 
-                                                    type="text"
-                                                    value={acc.rate || ''}
-                                                    placeholder="—"
-                                                    onChange={(e) => onAccountUpdate?.(acc.id, 'rate', e.target.value)}
-                                                    className="w-14 px-1.5 py-1 text-right text-sm text-stone-500 bg-white border border-stone-200 rounded focus:border-amber-400 focus:outline-none hover:border-stone-300"
-                                                />
-                                            </td>
-                                            <td className="px-2 py-2.5 text-center" onClick={e => e.stopPropagation()}>
-                                                <input type="checkbox" checked={acc.willPay} onChange={() => onAccountToggle(acc.id)} className="h-4 w-4 rounded cursor-pointer accent-amber-500" />
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                            <input type="checkbox" checked={goodLeapSelected} onChange={() => updateGoodLeapSelected(!goodLeapSelected)} className="h-4 w-4 rounded cursor-pointer accent-amber-500" />
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-2 text-xs">
+                                            <div>
+                                                <label className="text-stone-400 block mb-0.5">Balance</label>
+                                                <div className="flex items-center">
+                                                    <span className="text-stone-400 mr-0.5">$</span>
+                                                    <input 
+                                                        type="text" 
+                                                        value={glBalance.toLocaleString()}
+                                                        onChange={(e) => { setGlBalance(parseInt(e.target.value.replace(/,/g, '')) || 0); resetPricing(); }}
+                                                        className="w-full px-1.5 py-1 border border-stone-200 rounded text-right text-xs font-medium focus:border-amber-400 focus:outline-none"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="text-stone-400 block mb-0.5">Payment</label>
+                                                <div className="flex items-center">
+                                                    <span className="text-stone-400 mr-0.5">$</span>
+                                                    <input 
+                                                        type="text" 
+                                                        value={glPayment.toLocaleString()}
+                                                        onChange={(e) => { setGlPayment(parseInt(e.target.value.replace(/,/g, '')) || 0); resetPricing(); }}
+                                                        className="w-full px-1.5 py-1 border border-stone-200 rounded text-right text-xs font-medium focus:border-amber-400 focus:outline-none"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="text-stone-400 block mb-0.5">Rate</label>
+                                                <div className="flex items-center">
+                                                    <input 
+                                                        type="text" 
+                                                        value={glRate}
+                                                        onChange={(e) => { setGlRate(parseFloat(e.target.value) || 0); resetPricing(); }}
+                                                        className="w-full px-1.5 py-1 border border-stone-200 rounded text-right text-xs font-medium focus:border-amber-400 focus:outline-none"
+                                                    />
+                                                    <span className="text-stone-400 ml-0.5">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                        {/* Summary */}
-                        <div className="mt-3 p-3 bg-stone-100 rounded-xl flex items-center justify-between">
-                            <div>
-                                <p className="text-xs text-stone-500">Total Payoff</p>
-                                <p className="text-lg font-bold text-stone-800">{fmt(calc.totalBal)}</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-xs text-stone-500">Eliminated</p>
-                                <p className="text-lg font-bold text-teal-600">-{fmt(calc.totalPmt)}/mo</p>
-                            </div>
-                        </div>
+                                {/* Accounts Table */}
+                                <div className="rounded-xl bg-white border border-stone-200 overflow-hidden">
+                                    <table className="w-full text-sm">
+                                        <thead className="bg-stone-50">
+                                            <tr>
+                                                <th className="px-3 py-2.5 text-left text-sm font-medium text-stone-600">Creditor</th>
+                                                <th className="px-2 py-2.5 text-right text-sm font-medium text-stone-600">Balance</th>
+                                                <th className="px-2 py-2.5 text-right text-sm font-medium text-stone-600">Payment</th>
+                                                <th className="px-2 py-2.5 text-right text-sm font-medium text-stone-600">Rate</th>
+                                                <th className="px-2 py-2.5 text-center text-sm font-medium text-stone-600">
+                                                    <div className="flex items-center justify-center gap-1">
+                                                        Pay
+                                                        <input type="checkbox" checked={allSel} ref={el => { if (el) el.indeterminate = someSel && !allSel; }} onChange={(e) => onToggleAll(e.target.checked)} className="h-4 w-4 rounded cursor-pointer accent-amber-500" />
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {accounts.map((acc) => (
+                                                <tr key={acc.id} className={cn("border-t border-stone-100 hover:bg-stone-50 transition-colors", acc.willPay && "bg-amber-50/50")}>
+                                                    <td className="px-3 py-2.5 cursor-pointer" onClick={() => onAccountToggle(acc.id)}>
+                                                        <p className="font-medium text-stone-800">{acc.creditor}</p>
+                                                        <p className="text-xs text-stone-500">{acc.accountType}</p>
+                                                    </td>
+                                                    <td className="px-1 py-1.5 text-right" onClick={e => e.stopPropagation()}>
+                                                        <input 
+                                                            type="text"
+                                                            value={acc.balance}
+                                                            onChange={(e) => onAccountUpdate?.(acc.id, 'balance', e.target.value)}
+                                                            className="w-20 px-1.5 py-1 text-right text-sm font-medium text-stone-700 bg-white border border-stone-200 rounded focus:border-amber-400 focus:outline-none hover:border-stone-300"
+                                                        />
+                                                    </td>
+                                                    <td className="px-1 py-1.5 text-right" onClick={e => e.stopPropagation()}>
+                                                        <input 
+                                                            type="text"
+                                                            value={acc.payment}
+                                                            onChange={(e) => onAccountUpdate?.(acc.id, 'payment', e.target.value)}
+                                                            className="w-16 px-1.5 py-1 text-right text-sm font-medium text-stone-700 bg-white border border-stone-200 rounded focus:border-amber-400 focus:outline-none hover:border-stone-300"
+                                                        />
+                                                    </td>
+                                                    <td className="px-1 py-1.5 text-right" onClick={e => e.stopPropagation()}>
+                                                        <input 
+                                                            type="text"
+                                                            value={acc.rate || ''}
+                                                            placeholder="—"
+                                                            onChange={(e) => onAccountUpdate?.(acc.id, 'rate', e.target.value)}
+                                                            className="w-14 px-1.5 py-1 text-right text-sm text-stone-500 bg-white border border-stone-200 rounded focus:border-amber-400 focus:outline-none hover:border-stone-300"
+                                                        />
+                                                    </td>
+                                                    <td className="px-2 py-2.5 text-center" onClick={e => e.stopPropagation()}>
+                                                        <input type="checkbox" checked={acc.willPay} onChange={() => onAccountToggle(acc.id)} className="h-4 w-4 rounded cursor-pointer accent-amber-500" />
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Summary */}
+                                <div className="mt-3 p-3 bg-stone-100 rounded-xl flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs text-stone-500">Total Payoff</p>
+                                        <p className="text-lg font-bold text-stone-800">{fmt(calc.totalBal)}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-xs text-stone-500">Eliminated</p>
+                                        <p className="text-lg font-bold text-teal-600">-{fmt(calc.totalPmt)}/mo</p>
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -411,6 +532,26 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                             <div className="flex items-center gap-2 mb-3">
                                 <Calculator size={16} className="text-stone-500" />
                                 <span className="font-medium text-stone-800">Loan Configuration</span>
+                            </div>
+                            
+                            {/* Property Value - Editable */}
+                            <div className="mb-3 p-2.5 bg-stone-50 rounded-lg border border-stone-200">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs text-stone-500 font-medium">Property Value (AVM)</label>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-stone-400 text-sm">$</span>
+                                        <input 
+                                            type="text"
+                                            value={propertyValue.toLocaleString()}
+                                            onChange={(e) => {
+                                                const val = parseInt(e.target.value.replace(/,/g, '')) || 0;
+                                                setPropertyValue(val);
+                                                resetPricing();
+                                            }}
+                                            className="w-28 px-2 py-1 text-right text-sm font-bold text-stone-800 border border-stone-200 rounded-lg focus:border-amber-400 focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                             
                             {/* Programs - Warm pill style */}
@@ -442,23 +583,29 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                 </div>
                             </div>
 
-                            {/* Rate Options - After pricing */}
+                            {/* Rate Options - After pricing - Clear UI */}
                             {isPriced && (
-                                <div className="border-t border-stone-100 pt-3 mb-3">
-                                    <label className="text-xs text-stone-500 font-medium mb-2 block">Select Rate Option</label>
+                                <div className="mt-3 -mx-4 -mb-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border-t-2 border-amber-300 rounded-b-xl">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                                            <label className="text-sm font-semibold text-amber-800">Select Your Rate</label>
+                                        </div>
+                                        <span className="text-xs bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full">Step 2 of 3</span>
+                                    </div>
                                     <div className="grid grid-cols-5 gap-1.5">
                                         {RATE_OPTIONS.map((opt, i) => (
                                             <button
                                                 key={i}
                                                 onClick={() => setSelectedRateOption(i)}
                                                 className={cn(
-                                                    "p-2 rounded-lg border text-center transition-all",
+                                                    "p-2.5 rounded-lg border-2 text-center transition-all",
                                                     selectedRateOption === i 
-                                                        ? "border-amber-400 bg-amber-50 ring-1 ring-amber-200" 
-                                                        : "border-stone-200 hover:border-stone-300 bg-white"
+                                                        ? "border-amber-500 bg-white ring-2 ring-amber-200 shadow-md" 
+                                                        : "border-transparent bg-white/80 hover:bg-white hover:border-amber-200"
                                                 )}
                                             >
-                                                <p className="text-sm font-bold text-stone-800">{opt.rate.toFixed(3)}%</p>
+                                                <p className={cn("text-sm font-bold", selectedRateOption === i ? "text-amber-600" : "text-stone-700")}>{opt.rate.toFixed(3)}%</p>
                                                 <p className={cn("text-[10px] font-medium", opt.type === 'credit' ? "text-teal-600" : opt.type === 'points' ? "text-rose-500" : "text-stone-400")}>
                                                     {opt.label}
                                                 </p>
@@ -591,7 +738,7 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                             
                             {/* Calculate from Balance */}
                             <div className="px-4 py-2 bg-stone-50/50 border-b border-stone-100">
-                                <div className="flex items-center gap-2 text-xs">
+                                <div className="flex items-center gap-2 text-xs flex-wrap">
                                     <span className="text-stone-500">Calculate P&I from:</span>
                                     <div className="flex items-center gap-1">
                                         <span className="text-stone-400">$</span>
@@ -613,8 +760,19 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                         />
                                         <span className="text-stone-400">%</span>
                                     </div>
+                                    <span className="text-stone-400">for</span>
+                                    <select 
+                                        value={currentTerm}
+                                        onChange={(e) => setCurrentTerm(parseInt(e.target.value))}
+                                        className="px-1.5 py-1 border border-stone-200 rounded-lg text-xs bg-white focus:border-amber-400 focus:outline-none"
+                                    >
+                                        <option value={10}>10 yr</option>
+                                        <option value={15}>15 yr</option>
+                                        <option value={20}>20 yr</option>
+                                        <option value={30}>30 yr</option>
+                                    </select>
                                     <button 
-                                        onClick={() => setCurrentPI(calculatePIFromBalance(currentBalance, currentRate))}
+                                        onClick={() => setCurrentPI(calculatePIFromBalance(currentBalance, currentRate, currentTerm))}
                                         className="px-2.5 py-1 bg-stone-800 text-white rounded-lg text-xs hover:bg-stone-700 transition-colors"
                                     >
                                         Calc
@@ -728,29 +886,53 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                     </div>
                                 )}
                                 
-                                <Row l={fmt(calc.other)} c="Other Debts" r="$0" lc="text-rose-500" rc="text-teal-600" />
+                                {/* Debts Being Paid Off - Present shows payment, Proposed shows $0 */}
+                                <Row 
+                                    l={fmt(calc.other)} 
+                                    c="Debts Being Paid Off" 
+                                    r={isPriced ? "$0" : "—"} 
+                                    lc="text-stone-700" 
+                                    rc={isPriced ? "text-teal-600" : "text-stone-300"} 
+                                />
+                                
+                                {/* Other Debts (Not Paid) - Same on both sides */}
+                                {debtsNotPaidPayment > 0 && (
+                                    <Row 
+                                        l={fmt(debtsNotPaidPayment)} 
+                                        c="Other Debts (Not Paid)" 
+                                        r={fmt(debtsNotPaidPayment)} 
+                                        lc="text-stone-500" 
+                                        rc="text-stone-500" 
+                                    />
+                                )}
                             </div>
                             
                             <div className="grid grid-cols-3 items-center px-4 py-3 bg-stone-50 border-t border-stone-200">
-                                <div><p className="text-xs text-stone-500">CURRENT</p><p className="text-xl font-bold text-stone-800">{fmt(calc.currentTotal)}</p></div>
+                                <div><p className="text-xs text-stone-500">CURRENT</p><p className="text-xl font-bold text-stone-800">{fmt(calc.currentTotal + debtsNotPaidPayment)}</p></div>
                                 <p className="text-xs text-stone-500 text-center">TOTAL/MO</p>
-                                <div className="text-right"><p className="text-xs text-amber-600">PROPOSED</p><p className={cn("text-xl font-bold", isPriced ? "text-amber-600" : "text-stone-300")}>{isPriced ? fmt(loan.proposed) : '—'}</p></div>
+                                <div className="text-right"><p className="text-xs text-amber-600">PROPOSED</p><p className={cn("text-xl font-bold", isPriced ? "text-amber-600" : "text-stone-300")}>{isPriced ? fmt(loan.proposed + debtsNotPaidPayment) : '—'}</p></div>
                             </div>
                         </div>
 
                         {/* Savings or Price Button */}
                         {isPriced ? (
-                            <div className={cn("rounded-xl p-4 flex items-center justify-center gap-6", loan.savings >= 0 ? "bg-gradient-to-r from-teal-50 to-amber-50 border border-teal-200" : "bg-rose-50 border border-rose-200")}>
-                                <div className="text-center">
-                                    <p className="text-sm text-stone-600">Monthly Savings</p>
-                                    <p className={cn("text-3xl font-bold", loan.savings >= 0 ? "text-teal-600" : "text-rose-600")}>{loan.savings >= 0 ? '+' : ''}{fmt(loan.savings)}</p>
-                                </div>
-                                <div className="w-px h-12 bg-stone-200" />
-                                <div className="text-center">
-                                    <p className="text-sm text-stone-600">Annual</p>
-                                    <p className={cn("text-xl font-bold", loan.savings >= 0 ? "text-teal-600" : "text-rose-600")}>{fmt(loan.savings * 12)}</p>
-                                </div>
-                            </div>
+                            (() => {
+                                // Calculate actual savings including debts not paid off (same on both sides, so they cancel out)
+                                const actualSavings = (calc.currentTotal + debtsNotPaidPayment) - (loan.proposed + debtsNotPaidPayment);
+                                return (
+                                    <div className={cn("rounded-xl p-4 flex items-center justify-center gap-6", actualSavings >= 0 ? "bg-gradient-to-r from-teal-50 to-amber-50 border border-teal-200" : "bg-rose-50 border border-rose-200")}>
+                                        <div className="text-center">
+                                            <p className="text-sm text-stone-600">Monthly Savings</p>
+                                            <p className={cn("text-3xl font-bold", actualSavings >= 0 ? "text-teal-600" : "text-rose-600")}>{actualSavings >= 0 ? '+' : ''}{fmt(actualSavings)}</p>
+                                        </div>
+                                        <div className="w-px h-12 bg-stone-200" />
+                                        <div className="text-center">
+                                            <p className="text-sm text-stone-600">Annual</p>
+                                            <p className={cn("text-xl font-bold", actualSavings >= 0 ? "text-teal-600" : "text-rose-600")}>{fmt(actualSavings * 12)}</p>
+                                        </div>
+                                    </div>
+                                );
+                            })()
                         ) : (
                             <button onClick={handlePrice} disabled={isRunningPricing} className="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition-all">
                                 {isRunningPricing ? <><RefreshCw size={16} className="animate-spin" /> Pricing...</> : <><Play size={16} /> Price Loan</>}
@@ -776,14 +958,63 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                             <div className="space-y-3">
                                 {/* Recommendation Engine - grouped by value */}
                                 {(() => {
+                                    // Calculate values based on configurable parameters
+                                    const cashFlowMonths = Math.floor(cashFlowDays / 30);
+                                    const cashFlowValue = calc.currentTotal * cashFlowMonths;
+                                    const acceleratedPayment = Math.round((acceleratedPercent / 100) * loan.savings);
+                                    const incomeAfterTax = Math.round(grossIncome * (1 - taxRate / 100));
+                                    const currentDebtPmts = calc.other; // debts being paid off
+                                    const currentDisposable = incomeAfterTax - currentPI - currentDebtPmts;
+                                    const proposedDisposable = incomeAfterTax - loan.pi;
+                                    const disposableIncrease = proposedDisposable - currentDisposable;
+                                    
                                     const cards = [
                                         { id: 'debt-consolidation', icon: <Plus size={16} />, title: 'Debt Consolidation', value: `-${fmt(calc.totalPmt)}`, sub: `${calc.count} accounts paid off`, impact: calc.totalPmt, providesValue: calc.count > 0 && calc.totalPmt > 0, chart: 'debt-consolidation' },
                                         { id: 'payment-savings', icon: <FileText size={16} />, title: 'Payment Savings', value: `${loan.savings >= 0 ? '' : '-'}${fmt(Math.abs(loan.savings))}/mo`, sub: `${fmt(loan.savings * 12)} annually`, impact: Math.abs(loan.savings * 12), providesValue: loan.savings > 0, chart: 'payment-savings', negative: loan.savings < 0 },
                                         { id: 'cash-back', icon: <DollarSign size={16} />, title: 'Cash Back', value: fmt(loan.cashout), sub: 'In your pocket at closing', impact: loan.cashout, providesValue: loan.cashout > 0, chart: 'cash-back' },
-                                        { id: 'cash-flow-window', icon: <Calendar size={16} />, title: 'Cash Flow Window', value: fmt(calc.currentTotal * 2), sub: '60 days payment-free', impact: calc.currentTotal * 2, providesValue: calc.currentTotal > 0, chart: 'cash-flow-window' },
+                                        { 
+                                            id: 'cash-flow-window', 
+                                            icon: <Calendar size={16} />, 
+                                            title: 'Cash Flow Window', 
+                                            value: fmt(cashFlowValue), 
+                                            impact: cashFlowValue, 
+                                            providesValue: calc.currentTotal > 0, 
+                                            chart: 'cash-flow-window',
+                                            config: { type: 'days', value: cashFlowDays, setValue: setCashFlowDays, min: 30, max: 90, step: 15, label: 'days' }
+                                        },
                                         { id: 'break-even', icon: <Clock size={16} />, title: 'Break-Even', value: loan.savings > 0 ? `${loan.breakEven} mo` : '—', sub: loan.savings > 0 ? (loan.breakEven <= 24 ? '✓ Under 2 years' : `${fmt(closingCosts + Math.max(0, loan.pointsCost))} to recoup`) : 'No savings to recoup', impact: loan.savings > 0 ? Math.max(0, 60 - loan.breakEven) : 0, providesValue: loan.savings > 0 && loan.breakEven <= 36, chart: 'recoup-costs', warning: loan.savings > 0 && loan.breakEven > 24 },
-                                        { id: 'accelerated-payoff', icon: <Home size={16} />, title: 'Accelerated Payoff', value: loan.savings > 0 ? `${fmt(loan.savings)}/mo` : '$0/mo', sub: loan.savings > 0 ? 'Extra principal payments' : 'No savings to apply', impact: loan.savings > 0 ? loan.savings * 60 : 0, providesValue: loan.savings > 0, chart: 'accelerated-payoff' },
-                                        { id: 'compound-growth', icon: <TrendingUp size={16} />, title: 'Compound Growth', value: loan.savings > 0 ? `${fmt(loan.savings)}/mo` : '$0/mo', sub: loan.savings > 0 ? 'Invest @ 7% return' : 'No savings to invest', impact: loan.savings > 0 ? loan.savings * 84 : 0, providesValue: loan.savings > 0, chart: 'compound-growth' },
+                                        { 
+                                            id: 'accelerated-payoff', 
+                                            icon: <Home size={16} />, 
+                                            title: 'Accelerated Payoff', 
+                                            value: loan.savings > 0 ? fmt(acceleratedPayment) : '$0', 
+                                            sub: loan.savings > 0 ? 'extra to principal' : 'No savings to apply',
+                                            // Impact uses ORIGINAL savings (not adjusted) so ranking stays fixed
+                                            impact: loan.savings > 0 ? loan.savings * 60 : 0, 
+                                            providesValue: loan.savings > 0, 
+                                            chart: 'accelerated-payoff',
+                                            config: loan.savings > 0 ? { type: 'percent', value: acceleratedPercent, setValue: setAcceleratedPercent, min: 0, max: 100, step: 10, label: '%', maxLabel: fmt(loan.savings) } : null
+                                        },
+                                        { 
+                                            id: 'compound-growth', 
+                                            icon: <TrendingUp size={16} />, 
+                                            title: 'Compound Growth', 
+                                            value: loan.savings > 0 ? `${fmt(loan.savings)}/mo` : '$0/mo', 
+                                            impact: loan.savings > 0 ? loan.savings * 84 : 0, 
+                                            providesValue: loan.savings > 0, 
+                                            chart: 'compound-growth',
+                                            config: loan.savings > 0 ? { type: 'rate', value: compoundRate, setValue: setCompoundRate, min: 3, max: 12, step: 0.5, label: '% return' } : null
+                                        },
+                                        { 
+                                            id: 'disposable-income', 
+                                            icon: <Wallet size={16} />, 
+                                            title: 'Disposable Income', 
+                                            value: isPriced && disposableIncrease > 0 ? `+${fmt(disposableIncrease)}/mo` : '$0/mo', 
+                                            impact: disposableIncrease > 0 ? disposableIncrease * 48 : 0, 
+                                            providesValue: true, 
+                                            chart: 'disposable-income',
+                                            config: { type: 'income', grossIncome, setGrossIncome, taxRate, setTaxRate }
+                                        },
                                     ];
                                     
                                     const valueCards = cards.filter(c => c.providesValue);
@@ -809,6 +1040,7 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                             c={card.negative ? "rose" : card.warning ? "amber" : !card.providesValue ? "gray" : "teal"}
                                             disabled={false}
                                             warning={card.warning}
+                                            config={card.config}
                                         />
                                     );
                                     
@@ -907,7 +1139,7 @@ function Row({ l, c, r, lc = "text-stone-700", rc = "text-amber-600" }) {
 }
 
 // Card - Now fully clickable for chart, checkbox toggles selection
-function Card({ icon, title, value, sub, sel, onToggle, onView, rec, top, c = "amber", disabled, warning }) {
+function Card({ icon, title, value, sub, sel, onToggle, onView, rec, top, c = "amber", disabled, warning, config }) {
     const colors = { 
         teal: { b: "border-teal-200", bg: "bg-teal-50", t: "text-teal-700", ch: "bg-teal-500", hover: "hover:border-teal-300 hover:shadow-md" }, 
         amber: { b: "border-amber-200", bg: "bg-amber-50", t: "text-amber-700", ch: "bg-amber-500", hover: "hover:border-amber-300 hover:shadow-md" }, 
@@ -917,6 +1149,94 @@ function Card({ icon, title, value, sub, sel, onToggle, onView, rec, top, c = "a
     };
     const s = colors[c] || colors.gray;
     const isGray = c === 'gray';
+    
+    // Render inline control based on config type
+    const renderInlineControl = () => {
+        if (!config) return sub ? <p className={cn("text-xs", isGray ? "text-stone-400" : "text-stone-400")}>{sub}</p> : null;
+        
+        if (config.type === 'rate') {
+            return (
+                <div className="flex items-center gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
+                    <span className="text-xs text-stone-400">Invest @</span>
+                    <input 
+                        type="number" 
+                        min={config.min} 
+                        max={config.max} 
+                        step={config.step}
+                        value={config.value}
+                        onChange={(e) => config.setValue(parseFloat(e.target.value) || config.min)}
+                        className="w-12 px-1.5 py-0.5 text-xs font-semibold text-center border border-stone-300 rounded-md focus:border-teal-400 focus:outline-none"
+                    />
+                    <span className="text-xs text-stone-400">{config.label}</span>
+                </div>
+            );
+        }
+        
+        if (config.type === 'percent') {
+            return (
+                <div className="flex items-center gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
+                    <input 
+                        type="range" 
+                        min={config.min} 
+                        max={config.max} 
+                        step={config.step}
+                        value={config.value}
+                        onChange={(e) => config.setValue(parseInt(e.target.value))}
+                        className="w-16 h-1.5 bg-stone-200 rounded-full appearance-none cursor-pointer accent-teal-500"
+                    />
+                    <span className="text-xs font-semibold text-stone-600 w-8">{config.value}%</span>
+                    <span className="text-xs text-stone-400">of {config.maxLabel}</span>
+                </div>
+            );
+        }
+        
+        if (config.type === 'days') {
+            return (
+                <div className="flex items-center gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
+                    <input 
+                        type="number" 
+                        min={config.min} 
+                        max={config.max} 
+                        step={config.step}
+                        value={config.value}
+                        onChange={(e) => config.setValue(parseInt(e.target.value) || config.min)}
+                        className="w-12 px-1.5 py-0.5 text-xs font-semibold text-center border border-stone-300 rounded-md focus:border-teal-400 focus:outline-none"
+                    />
+                    <span className="text-xs text-stone-400">{config.label} payment-free</span>
+                </div>
+            );
+        }
+        
+        if (config.type === 'income') {
+            return (
+                <div className="flex items-center gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
+                    <span className="text-xs text-stone-400">$</span>
+                    <input 
+                        type="number" 
+                        min={1000} 
+                        max={100000} 
+                        step={500}
+                        value={config.grossIncome}
+                        onChange={(e) => config.setGrossIncome(parseInt(e.target.value) || 8000)}
+                        className="w-20 px-1.5 py-0.5 text-xs font-semibold text-center border border-stone-300 rounded-md focus:border-teal-400 focus:outline-none"
+                    />
+                    <span className="text-xs text-stone-400">@</span>
+                    <input 
+                        type="number" 
+                        min={10} 
+                        max={50} 
+                        step={1}
+                        value={config.taxRate}
+                        onChange={(e) => config.setTaxRate(parseInt(e.target.value) || 25)}
+                        className="w-12 px-1.5 py-0.5 text-xs font-semibold text-center border border-stone-300 rounded-md focus:border-teal-400 focus:outline-none"
+                    />
+                    <span className="text-xs text-stone-400">% tax</span>
+                </div>
+            );
+        }
+        
+        return sub ? <p className={cn("text-xs", isGray ? "text-stone-400" : "text-stone-400")}>{sub}</p> : null;
+    };
     
     return (
         <div 
@@ -961,7 +1281,7 @@ function Card({ icon, title, value, sub, sel, onToggle, onView, rec, top, c = "a
                 <div className="flex-1 min-w-0 pr-6">
                     <p className={cn("text-xs font-medium", isGray ? "text-stone-400" : "text-stone-500")}>{title}</p>
                     <p className={cn("text-xl font-bold", isGray ? "text-stone-500" : sel ? s.t : "text-stone-800")}>{value}</p>
-                    <p className={cn("text-xs", isGray ? "text-stone-400" : "text-stone-400")}>{sub}</p>
+                    {renderInlineControl()}
                 </div>
             </div>
         </div>

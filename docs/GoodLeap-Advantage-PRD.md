@@ -97,10 +97,20 @@ Dashboard → Click "GoodLeap Advantage" →
 
 ## 4. Column 1: Debts Table
 
-### 4.1 Layout
+### 4.1 Collapsible Behavior
+
+**The Debts column is collapsible:**
+- **Before Pricing:** Expanded by default (full table visible)
+- **After Pricing:** Automatically collapses to show summary only
+- **User Control:** Click header to toggle expand/collapse at any time
+- **Re-pricing Trigger:** Collapses auto-expand when pricing is reset
+
+**Rationale:** Once pricing is complete, the loan officer's focus shifts to Value Propositions. Collapsing the debts table gives more screen space to the important comparison and benefits sections.
+
+### 4.2 Expanded Layout
 ```
 ┌────────────────────────────────────────────┐
-│ Debts to Consolidate          [Select All] │
+│ [▼] Debts to Pay Off        [8 Selected]   │
 ├────────────────────────────────────────────┤
 │ GOODLEAP LOAN                              │
 │ ┌────────────────────────────────────────┐ │
@@ -118,6 +128,55 @@ Dashboard → Click "GoodLeap Advantage" →
 │ Total Payoff: $525,314    Payment: $4,156  │
 └────────────────────────────────────────────┘
 ```
+
+### 4.3 Collapsed Layout (After Pricing)
+```
+┌─────────────────────┐
+│ [▶] Debts to Pay Off│
+│     [8 Selected]    │
+├─────────────────────┤
+│  📋 Selected Debts  │
+│                     │
+│    $525,314         │
+│   -$4,156/mo        │
+│                     │
+│  [View All Debts]   │
+└─────────────────────┘
+       200px width
+```
+
+### 4.4 State Management
+
+```javascript
+// Collapse state
+const [isDebtsCollapsed, setIsDebtsCollapsed] = useState(false);
+
+// Auto-collapse when pricing completes
+useEffect(() => {
+  if (isPriced) {
+    setIsDebtsCollapsed(true);
+  }
+}, [isPriced]);
+
+// Expand when pricing is reset
+const resetPricing = () => {
+  setIsPriced(false);
+  setIsDebtsCollapsed(false);  // Auto-expand
+  // ... reset other state
+};
+```
+
+### 4.5 Styling
+
+```jsx
+// Column container - dynamic width
+<div className={cn(
+  "border-r border-stone-200 bg-white overflow-auto transition-all duration-300",
+  isDebtsCollapsed ? "w-[200px] flex-shrink-0" : "flex-1"
+)}>
+```
+
+### 4.6 Full Layout
 
 ### 4.2 Table Columns
 
@@ -161,6 +220,36 @@ Dashboard → Click "GoodLeap Advantage" →
 - Pre-selected by default
 - Toggleable
 
+**Editable Fields:**
+| Field | Default | State Variable |
+|-------|---------|----------------|
+| Balance | $42,000 | `glBalance` |
+| Payment | $350 | `glPayment` |
+| Rate | 6.75% | `glRate` |
+
+**State Variables:**
+```javascript
+const [glBalance, setGlBalance] = useState(42000);
+const [glPayment, setGlPayment] = useState(350);
+const [glRate, setGlRate] = useState(6.75);
+```
+
+**UI Layout:**
+```
+┌─────────────────────────────────────────────────────────┐
+│ 🏠 GoodLeap Loan                                        │
+├─────────────────────────────────────────────────────────┤
+│ CF-1234567                                          [✓] │
+│ Solar Installation                                      │
+│ ┌─────────────┬─────────────┬─────────────┐            │
+│ │   Balance   │   Payment   │    Rate     │            │
+│ │ $[42,000]   │  $[350]     │  [6.75]%    │            │
+│ └─────────────┴─────────────┴─────────────┘            │
+└─────────────────────────────────────────────────────────┘
+```
+
+- Changing any field triggers `resetPricing()` (requires re-pricing)
+
 ### 4.5 Summary Footer
 ```
 Total Payoff: $525,314    Monthly Payments: $4,156/mo
@@ -175,6 +264,9 @@ Total Payoff: $525,314    Monthly Payments: $4,156/mo
 ```
 ┌────────────────────────────────────────────┐
 │ LOAN CONFIGURATION                         │
+│                                            │
+│ Property Value (AVM)          $[950,000]   │
+│ (editable - defaults from AVM)             │
 │                                            │
 │ Program: [Conv] [FHA] [VA] [FHA-S] [VA-I]  │
 │ Term:    [15 Year] [30 Year]               │
@@ -200,7 +292,54 @@ Total Payoff: $525,314    Monthly Payments: $4,156/mo
 └────────────────────────────────────────────┘
 ```
 
-### 5.2 Program Selection
+### 5.2 Property Value (Editable)
+
+**Purpose:** Allow LO to adjust property value if AVM seems incorrect or they have a better estimate.
+
+**State Variable:**
+```javascript
+const [propertyValue, setPropertyValue] = useState(borrowerData?.property?.avmValue || 950000);
+```
+
+**UI Layout:**
+```
+┌────────────────────────────────────────────────────┐
+│ Property Value (AVM)                  $[950,000]   │
+│ (label, left)                    (editable, right) │
+└────────────────────────────────────────────────────┘
+```
+
+**Styling:**
+```jsx
+<div className="p-2.5 bg-stone-50 rounded-lg border border-stone-200">
+  <div className="flex items-center justify-between">
+    <label className="text-xs text-stone-500 font-medium">Property Value (AVM)</label>
+    <div className="flex items-center gap-1">
+      <span className="text-stone-400">$</span>
+      <input 
+        type="text"
+        value={propertyValue.toLocaleString()}
+        onChange={(e) => {
+          const val = parseInt(e.target.value.replace(/,/g, '')) || 0;
+          setPropertyValue(val);
+          resetPricing();  // Trigger re-pricing requirement
+        }}
+        className="w-28 px-2 py-1 text-right text-sm font-bold text-stone-800 border border-stone-200 rounded-lg"
+      />
+    </div>
+  </div>
+</div>
+```
+
+**Behavior:**
+- Defaults to AVM value from `borrowerData.property.avmValue`
+- Formatted with commas for readability
+- Changing value triggers `resetPricing()` (requires re-pricing)
+- Affects: LTV calculation, max loan amount, Extra Cashout @ 80%, equity calculations
+
+---
+
+### 5.3 Program Selection
 
 | Program | Max LTV | MI/MIP | Notes |
 |---------|---------|--------|-------|
@@ -210,7 +349,7 @@ Total Payoff: $525,314    Monthly Payments: $4,156/mo
 | FHA Streamline | 96.5% | UFMIP + MIP | Existing FHA |
 | VA IRRRL | 100% | None | Existing VA |
 
-### 5.3 LTV Preset Buttons
+### 5.4 LTV Preset Buttons
 
 ```
 ┌────┬────┬────┬────┬────┬────┬────┬─────┐
@@ -226,7 +365,7 @@ Total Payoff: $525,314    Monthly Payments: $4,156/mo
 - Active button: Amber background, white text
 - Disabled: Gray, no hover
 
-### 5.4 Loan/Debts/Cashout Breakdown
+### 5.5 Loan/Debts/Cashout Breakdown
 
 **Bidirectional Sync:**
 ```
@@ -247,7 +386,7 @@ Debts: Always locked (from selection)
 - Debts: Darker background, "From selection" label, locked
 - Cashout: Amber highlight, editable (most common adjustment)
 
-### 5.5 Extra Cashout @ 80%
+### 5.6 Extra Cashout @ 80%
 
 ```javascript
 const maxLoanAt80 = propertyValue * 0.80;
@@ -260,7 +399,7 @@ const extraCashout = maxLoanAt80 - currentLoanAmount;
 
 Display: Teal background callout showing potential additional cashout
 
-### 5.6 Rate Options (Post-Pricing)
+### 5.7 Rate Options (Post-Pricing)
 
 After pricing, show rate options with lender credits/discount points:
 
@@ -287,22 +426,35 @@ After pricing, show rate options with lender credits/discount points:
 
 ### 6.1 Layout
 ```
-┌────────────────────────────────────────────┐
-│      Present              Proposed         │
-├────────────────────────────────────────────┤
-│ Calculate P&I from: [$247,500] @ [3.75%]   │
-├────────────────────────────────────────────┤
-│ P&I        $1,710    →    $3,447          │
-│ Taxes      $450      →    $450            │
-│ Insurance  $120      →    $120            │
-│ MI/MIP     $0        →    $125            │
-│ Other Debts $2,446   →    $0 (Paid Off)   │
-├────────────────────────────────────────────┤
-│ TOTAL      $4,726    →    $4,142          │
-│                                            │
-│ Monthly Savings: $584  │  Annual: $7,008   │
-└────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│      Present                               Proposed             │
+├─────────────────────────────────────────────────────────────────┤
+│ Calculate P&I from: [$247,500] @ [3.75%] for [30 yr ▼] [Calc]  │
+├─────────────────────────────────────────────────────────────────┤
+│ P&I              $1,710    →    $3,447                          │
+│ [✓] Include Escrow                                              │
+│ Taxes            $450      →    $450                            │
+│ Insurance        $120      →    $120                            │
+│ MI/MIP           $0        →    $125                            │
+│ Points/Credit    —         →    ($2,625)                        │
+│ Debts Being      $2,446    →    $0 (Paid Off)                   │
+│   Paid Off                                                      │
+│ Other Debts      $154      →    $154                            │
+│   (Not Paid)                                                    │
+├─────────────────────────────────────────────────────────────────┤
+│ TOTAL            $4,880    →    $4,296                          │
+│                                                                 │
+│ Monthly Savings: $584    │    Annual: $7,008                    │
+└─────────────────────────────────────────────────────────────────┘
 ```
+
+**Note:** The term dropdown (10, 15, 20, 30 years) allows accurate P&I calculation for the borrower's existing mortgage. This flows to the proposal document for an accurate "X Year Fixed" display.
+
+**Key Row Types:**
+| Row | Present | Proposed | Notes |
+|-----|---------|----------|-------|
+| Debts Being Paid Off | Payment amount | $0 | Teal text for proposed |
+| Other Debts (Not Paid) | Payment amount | Same amount | Gray text, only shown if > $0 |
 
 ### 6.2 Editable Present Values
 
@@ -316,14 +468,52 @@ After pricing, show rate options with lender credits/discount points:
 
 ### 6.3 Calculate P&I from Balance
 
+**UI Layout:**
+```
+┌────────────────────────────────────────────────────────────────────┐
+│ Calculate P&I from: $[247,500] @ [3.75] % for [30 yr ▼] [Calc]    │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+**Components:**
+| Field | Type | Default | Options |
+|-------|------|---------|---------|
+| Balance | Number input | $247,500 | Any positive number |
+| Rate | Number input | 3.75% | Step: 0.125% |
+| Term | Dropdown | 30 yr | 10 yr, 15 yr, 20 yr, 30 yr |
+
+**State Variable:**
 ```javascript
-// Amortization formula
+const [currentTerm, setCurrentTerm] = useState(30);  // 10, 15, 20, or 30 years
+```
+
+**Term Selector Styling:**
+```jsx
+<select 
+  value={currentTerm}
+  onChange={(e) => setCurrentTerm(parseInt(e.target.value))}
+  className="px-1.5 py-1 border border-stone-200 rounded-lg text-xs bg-white focus:border-amber-400 focus:outline-none"
+>
+  <option value={10}>10 yr</option>
+  <option value={15}>15 yr</option>
+  <option value={20}>20 yr</option>
+  <option value={30}>30 yr</option>
+</select>
+```
+
+**Amortization Formula:**
+```javascript
 function calculatePI(balance, annualRate, termYears = 30) {
   const r = annualRate / 100 / 12;  // Monthly rate
   const n = termYears * 12;          // Total payments
   return balance * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
 }
 ```
+
+**Why Term Matters:**
+- A 15-year mortgage has higher P&I than 30-year for same balance
+- Correctly calculating present P&I ensures accurate savings comparison
+- Term flows to Proposal document for accurate "Current vs Proposed" display
 
 ### 6.4 Escrow Toggle
 
@@ -336,7 +526,52 @@ function calculatePI(balance, annualRate, termYears = 30) {
 - Show note: "Taxes & Insurance paid separately"
 - Adjust totals accordingly
 
-### 6.5 Proposed Calculations
+### 6.5 Debts Breakdown Rows
+
+The comparison table shows two debt-related rows:
+
+**Debts Being Paid Off:**
+- Present: Sum of monthly payments for selected **non-mortgage** debts
+- Calculation: Filter selected accounts where `accountType !== 'Mortgage'` and `accountType !== 'HELOC'`, then sum their payments
+- This is independent of the editable `currentPI` value (so changing P&I updates the total correctly)
+- Proposed: $0 (all selected debts are paid off at closing)
+- Visual: Present in normal text, Proposed in teal (positive outcome)
+
+**Calculation Logic:**
+```javascript
+// Calculate "other debts" from non-mortgage selected accounts
+const nonMortgageSelected = sel.filter(a => 
+  a.accountType?.toLowerCase() !== 'mortgage' && 
+  a.accountType?.toLowerCase() !== 'heloc'
+);
+const other = nonMortgageSelected.reduce((s, a) => s + parseAmount(a.payment), 0) + 
+  (goodLeapSelected ? goodLeapLoan.payment : 0);
+
+// Current total = P&I + Escrow + MIP + Other Debts
+currentTotal: currentPI + currentEscrow + currentMIP + other
+```
+
+**Other Debts (Not Paid):**
+- Present: Sum of monthly payments for debts NOT selected for payoff
+- Proposed: Same amount (these debts continue to be paid)
+- Visual: Both sides in muted gray text
+- Note: Only shown if there are debts not being paid off
+
+```
+┌─────────────────────────────────────────────────┐
+│ Present           │           │      Proposed   │
+├───────────────────┼───────────┼─────────────────┤
+│ $2,446            │ Debts     │      $0         │
+│                   │ Being     │   (Paid Off)    │
+│                   │ Paid Off  │                 │
+├───────────────────┼───────────┼─────────────────┤
+│ $154              │ Other     │      $154       │
+│                   │ Debts     │                 │
+│                   │(Not Paid) │                 │
+└─────────────────────────────────────────────────┘
+```
+
+### 6.6 Proposed Calculations
 
 ```javascript
 // Principal & Interest (30-year amortization)
@@ -356,10 +591,16 @@ if (program === 'FHA') {
   proposedMI = (baseLoanAmount * pmiRate) / 12;
 }
 
-// Total
-const proposedTotal = proposedPI + proposedEscrow + proposedMI;
+// Debts not being paid off (continue to be paid)
+const debtsNotPaidPayment = accounts
+  .filter(a => !a.willPay)
+  .reduce((sum, a) => sum + parseAmount(a.payment), 0);
 
-// Savings
+// Total (including debts not being paid)
+const proposedTotal = proposedPI + proposedEscrow + proposedMI + debtsNotPaidPayment;
+const currentTotal = currentPI + currentEscrow + currentMI + debtsPaidOff + debtsNotPaidPayment;
+
+// Savings (debts not paid cancel out since they're on both sides)
 const monthlySavings = currentTotal - proposedTotal;
 const annualSavings = monthlySavings * 12;
 ```
@@ -691,46 +932,58 @@ const showExtraCashout = extraCashout > 0 && currentLTV < 80;
 | Disabled | `bg-stone-100` | `text-stone-400` | not-allowed |
 | Loading | `bg-amber-400` | `text-white` | wait |
 
-#### Rate Options (Post-Pricing)
+#### Rate Options (Post-Pricing) - Prominent UI
+
+When the loan is priced, the rate selection area becomes visually prominent to guide the LO to the next step:
+
 ```
-┌────────────────────────────────────────────────────┐
-│ Select Rate                                        │
-├────────────────────────────────────────────────────┤
-│ ○ 7.250%              +$2,500 credit              │
-│ ○ 7.125%              +$1,200 credit              │
-│ ● 7.000%              Par rate          [DEFAULT] │
-│ ○ 6.875%              -$1,800 points              │
-│ ○ 6.750%              -$3,200 points              │
-└────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  ● Select Your Rate                          [Step 2 of 3]  │
+│    (amber gradient background)                               │
+├──────────────────────────────────────────────────────────────┤
+│ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────┐│
+│ │  6.625%  │ │  6.875%  │ │ ●7.000%● │ │  7.125%  │ │7.375%││
+│ │ 1 Point  │ │0.5 Point │ │ Par Rate │ │  Credit  │ │Credit││
+│ └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────┘│
+│                            (selected)                        │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-**Radio Option Styling:**
+**Container Styling (Post-Pricing):**
 ```jsx
-<label className="
-  flex items-center justify-between
-  p-3 rounded-lg cursor-pointer
-  border transition-all
-  
-  /* Default */
-  border-stone-200 bg-white hover:border-stone-300
-  
-  /* Selected */
-  border-amber-300 bg-amber-50
+<div className="
+  mt-3 -mx-4 -mb-4 p-4 
+  bg-gradient-to-r from-amber-50 to-orange-50 
+  border-t-2 border-amber-300 
+  rounded-b-xl
 ">
-  <div className="flex items-center gap-3">
-    <input type="radio" className="accent-amber-500" />
-    <span className="font-semibold text-stone-800">7.000%</span>
+  {/* Header with pulsing indicator */}
+  <div className="flex items-center gap-2 mb-3">
+    <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+    <label className="text-sm font-semibold text-amber-800">Select Your Rate</label>
+    <span className="text-xs bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full">Step 2 of 3</span>
   </div>
-  <span className="text-sm text-stone-500">Par rate</span>
-</label>
+  
+  {/* Rate buttons grid */}
+  <div className="grid grid-cols-5 gap-1.5">
+    {/* ... rate options ... */}
+  </div>
+</div>
 ```
+
+**Rate Button States:**
+| State | Border | Background | Rate Text |
+|-------|--------|------------|-----------|
+| Default | `border-transparent` | `bg-white/80` | `text-stone-700` |
+| Hover | `border-amber-200` | `bg-white` | `text-stone-700` |
+| Selected | `border-amber-500` + `ring-2` | `bg-white` | `text-amber-600` |
 
 **Credit vs Points Display:**
 | Type | Text Color | Format |
 |------|------------|--------|
-| Credit (lender pays) | `text-teal-600` | `+$2,500 credit` |
-| Par rate | `text-stone-500` | `Par rate` |
-| Points (borrower pays) | `text-rose-600` | `-$1,800 points` |
+| Credit (lender pays) | `text-teal-600` | `$2,625 Credit` |
+| Par rate | `text-stone-400` | `Par Rate` |
+| Points (borrower pays) | `text-rose-500` | `1 Point` |
 
 ---
 
@@ -775,17 +1028,30 @@ const showExtraCashout = extraCashout > 0 && currentLTV < 80;
 
 ### 7.2 Value Proposition Cards
 
-**All 7 Cards:**
+**All 8 Cards:**
 
-| ID | Icon | Title | Value | Subtitle |
-|----|------|-------|-------|----------|
-| debt-consolidation | ➕ | Debt Consolidation | `-$X/mo` | N accounts paid off |
-| payment-savings | 📄 | Payment Savings | `$X/mo` | $X annually |
-| cash-back | 💵 | Cash Back | `$X` | In your pocket at closing |
-| cash-flow-window | 📅 | Cash Flow Window | `$X` | 60 days payment-free |
-| break-even | ⏱️ | Break-Even | `X mo` | $X to recoup |
-| accelerated-payoff | 🏠 | Accelerated Payoff | `$X/mo` | Extra principal payments |
-| compound-growth | 📈 | Compound Growth | `$X/mo` | Invest @ 7% return |
+| ID | Icon | Title | Value | Inline Control |
+|----|------|-------|-------|----------------|
+| debt-consolidation | ➕ | Debt Consolidation | `-$X/mo` | Static: "N accounts paid off" |
+| payment-savings | 📄 | Payment Savings | `$X/mo` | Static: "$X annually" |
+| cash-back | 💵 | Cash Back | `$X` | Static: "In your pocket" |
+| cash-flow-window | 📅 | Cash Flow Window | `$X` | Input: `[60] days payment-free` |
+| break-even | ⏱️ | Break-Even | `X mo` | Static: "✓ Under 2 years" |
+| accelerated-payoff | 🏠 | Accelerated Payoff | `$X` | Slider: `──●── 100% of $657` |
+| compound-growth | 📈 | Compound Growth | `$X/mo` | Input: `Invest @ [7] % return` |
+| disposable-income | 👛 | Disposable Income | `+$X/mo` | Inputs: `$[12000] gross @ [25]% tax` |
+
+**Card Layout with Inline Control:**
+```
+┌─────────────────────────────────────────────────────────┐
+│ [Top Benefit]                                      [☑]  │
+│                                                         │
+│  ┌────┐  Compound Growth                               │
+│  │ 📈 │  $657/mo                                       │
+│  └────┘  Invest @ [7] % return  ← inline input        │
+│                                                    [↗] │
+└─────────────────────────────────────────────────────────┘
+```
 
 ### 7.3 Card Component
 
@@ -821,6 +1087,13 @@ const showExtraCashout = extraCashout > 0 && currentLTV < 80;
 
 ### 7.5 Recommendation Engine
 
+**Important: Rankings are FIXED based on original benefit values**
+
+The recommendation engine uses the **original/full** savings amounts for impact calculation, NOT the user-adjusted values from inline controls. This ensures:
+- Rankings stay consistent regardless of slider/input adjustments
+- "Top Benefit" and "Recommended" badges don't jump around when user explores options
+- User can adjust values to see different scenarios without affecting the recommendation order
+
 ```javascript
 const cards = [
   {
@@ -841,7 +1114,7 @@ const cards = [
   },
   {
     id: 'cash-flow-window',
-    impact: currentTotalPayment * 2,  // 2 months of payments
+    impact: currentTotalPayment * 2,  // 2 months of payments (fixed)
     providesValue: currentTotalPayment > 0
   },
   {
@@ -852,11 +1125,13 @@ const cards = [
   },
   {
     id: 'accelerated-payoff',
+    // Uses ORIGINAL monthlySavings (not adjusted) to keep ranking fixed
     impact: monthlySavings > 0 ? monthlySavings * 60 : 0,
     providesValue: monthlySavings > 0
   },
   {
     id: 'compound-growth',
+    // Uses ORIGINAL monthlySavings (not adjusted) to keep ranking fixed
     impact: monthlySavings > 0 ? monthlySavings * 84 : 0,  // 7 years weighted
     providesValue: monthlySavings > 0
   }
@@ -915,6 +1190,83 @@ const toggle = (id) => {
 ---
 
 ## 8. Chart Specifications
+
+### 8.0 Interactive Chart Controls (Inline in Cards)
+
+**Design Philosophy:** Controls are embedded directly in the Value Proposition cards themselves, eliminating the disconnect between the card display and the chart configuration. Users can adjust parameters without opening the chart flyover.
+
+| Chart | Control | Default | Range | Inline Display |
+|-------|---------|---------|-------|----------------|
+| Compound Growth | Interest Rate | 7% | 3-12% | "Invest @ [7] % return" |
+| Accelerated Payoff | Extra Payment % | 100% | 0-100% | Slider with "X% of $657" |
+| Cash Flow Window | Days | 60 | 30-90 | "[60] days payment-free" |
+| Disposable Income | Gross Income | $12,000 | $1k-100k | "$ [12000] gross @ [25] % tax" |
+| Disposable Income | Tax Rate | 25% | 10-45% | Combined with income |
+
+**State Management (in GoodLeapAdvantageTabs.jsx):**
+```javascript
+// Chart configurable parameters - inline adjustable
+const [compoundRate, setCompoundRate] = useState(7);
+const [acceleratedPercent, setAcceleratedPercent] = useState(100);
+const [cashFlowDays, setCashFlowDays] = useState(60);
+const [grossIncome, setGrossIncome] = useState(12000);
+const [taxRate, setTaxRate] = useState(25);
+```
+
+**Inline Control Patterns:**
+
+```jsx
+// Rate input (Compound Growth)
+<div className="flex items-center gap-2 mt-1">
+  <span className="text-xs text-stone-400">Invest @</span>
+  <input type="number" value={7} className="w-12 text-xs text-center border rounded" />
+  <span className="text-xs text-stone-400">% return</span>
+</div>
+
+// Slider with percentage (Accelerated Payoff)
+<div className="flex items-center gap-2 mt-1">
+  <input type="range" min="0" max="100" value={100} className="w-16 h-1.5 accent-teal-500" />
+  <span className="text-xs font-semibold">100%</span>
+  <span className="text-xs text-stone-400">of $657</span>
+</div>
+
+// Days input (Cash Flow Window)
+<div className="flex items-center gap-2 mt-1">
+  <input type="number" value={60} className="w-12 text-xs text-center border rounded" />
+  <span className="text-xs text-stone-400">days payment-free</span>
+</div>
+
+// Income + Tax (Disposable Income)
+<div className="flex items-center gap-1.5 mt-1">
+  <span className="text-[10px]">$</span>
+  <input type="number" value={12000} className="w-16 text-[10px] border rounded" />
+  <span className="text-[10px]">gross @</span>
+  <input type="number" value={25} className="w-8 text-[10px] border rounded" />
+  <span className="text-[10px]">% tax</span>
+</div>
+```
+
+**Data Flow:**
+1. User adjusts value in card → State updates in parent (`GoodLeapAdvantageTabs.jsx`)
+2. Card display value recalculates immediately
+3. When chart flyover opens, it receives config values via `chartConfig` prop in `buildChartData()`
+4. Chart flyover uses `useEffect` to sync its local state when `chartConfig` changes
+5. **Important:** Rankings use ORIGINAL values (not adjusted) so they stay fixed
+
+**Chart Sync Implementation (ChartPreview.jsx):**
+```javascript
+// Sync local state with chartConfig when it changes from main UI
+useEffect(() => {
+  if (chartConfig.compoundRate !== undefined) setCompoundRate(chartConfig.compoundRate);
+  if (chartConfig.acceleratedPercent !== undefined) setAcceleratedPaymentPercent(chartConfig.acceleratedPercent);
+  if (chartConfig.cashFlowDays !== undefined) setCashFlowDays(chartConfig.cashFlowDays);
+  if (chartConfig.taxRate !== undefined) setTaxRate(chartConfig.taxRate);
+  if (chartConfig.grossIncome !== undefined) setGrossMonthlyIncome(chartConfig.grossIncome);
+}, [chartConfig.compoundRate, chartConfig.acceleratedPercent, chartConfig.cashFlowDays, 
+    chartConfig.taxRate, chartConfig.grossIncome]);
+```
+
+---
 
 ### 8.1 Payment Savings Comparison
 
@@ -1078,13 +1430,25 @@ const currentEscrowHeight = currentEscrow * scale;
 
 ### 8.4 Cash Flow Window
 
-**Purpose:** Show 60-day payment-free period
+**Purpose:** Show configurable payment-free period (30-90 days)
+
+**Interactive Control:**
+- Days slider (30 to 90 days, step 15)
+- Number input for precise entry
+- Default: 60 days
 
 **Layout:**
 ```
 ┌─────────────────────────────────────────────────────┐
 │               CASH FLOW WINDOW                      │
+│            60 days payment-free period              │
 ├─────────────────────────────────────────────────────┤
+│ ┌─────────────────────────────────────────────────┐ │
+│ │ 📅 Adjust Payment-Free Period                   │ │
+│ │ Days until first payment:                        │ │
+│ │ ─────────────●───────────────────  [60] days    │ │
+│ │ 30 days (1 mo)   60 days (2 mo)   90 days (3 mo)│ │
+│ └─────────────────────────────────────────────────┘ │
 │                                                     │
 │              ╭─────────────╮                        │
 │              │             │                        │
@@ -1095,7 +1459,7 @@ const currentEscrowHeight = currentEscrow * scale;
 │                                                     │
 │   2 months × $4,656/mo = $9,312                    │
 │                                                     │
-│  How It Works:                                      │
+│  How It Works (60 Day Window):                      │
 │  ✓ Loan closes: All existing payments stop         │
 │  ✓ Month 1 & 2: No payments due ($0)              │
 │  ✓ Month 3: First new payment ($3,447)            │
@@ -1163,13 +1527,23 @@ const breakEvenMonths = monthlySavings > 0
 
 **Purpose:** Show mortgage payoff acceleration with extra payments
 
+**Interactive Control:**
+- Slider to adjust extra payment amount (0% to 100% of savings)
+- Default: 100% (full savings applied)
+
 **Layout:**
 ```
 ┌─────────────────────────────────────────────────────┐
 │             ACCELERATED PAYOFF                      │
 ├─────────────────────────────────────────────────────┤
+│ ┌─────────────────────────────────────────────────┐ │
+│ │ ⚙️ Adjust Extra Payment Amount                  │ │
+│ │ Apply from savings: $657 / $657                 │ │
+│ │ ──────────────●───────────────────────────────  │ │
+│ │ $0 (None)           100%         $657 (Max)    │ │
+│ └─────────────────────────────────────────────────┘ │
 │                                                     │
-│  Apply $401/mo extra to principal                   │
+│  Apply $657/mo extra to principal                   │
 │                                                     │
 │  ╭──────────╮          ╭──────────╮                │
 │  │          │          │          │                │
@@ -1230,11 +1604,20 @@ function calculateAcceleratedPayoff(loanAmount, rate, termYears, extraPayment) {
 
 **Purpose:** Show investment potential of monthly savings
 
+**Interactive Control:**
+- Interest rate slider (3% to 12%, default 7%)
+- Number input for precise rate entry
+
 **Layout:**
 ```
 ┌─────────────────────────────────────────────────────┐
 │              COMPOUND GROWTH                        │
+│         Invest your savings @ 7% annual return      │
 ├─────────────────────────────────────────────────────┤
+│ ┌─────────────────────────────────────────────────┐ │
+│ │ ⚙️ Adjust Parameters                            │ │
+│ │ Interest Rate: ─────────●───────────  [7.0] %  │ │
+│ └─────────────────────────────────────────────────┘ │
 │                                                     │
 │  Invest $401/mo at 7% annual return                 │
 │                                                     │
@@ -1280,6 +1663,89 @@ const milestones = [5, 10, 20, 30].map(years => ({
 
 ---
 
+### 8.8 Disposable Income Calculator
+
+**Purpose:** Show how refinancing increases disposable income (income after all payments)
+
+**Interactive Controls:**
+- Gross Monthly Income input (editable)
+- Tax Rate slider (10% to 45%, step 1%)
+- Live calculation of income after taxes
+
+**Layout:**
+```
+┌─────────────────────────────────────────────────────┐
+│          ESTIMATED DISPOSABLE INCOME                │
+│      Compare your take-home income before and after │
+├─────────────────────────────────────────────────────┤
+│ ┌─────────────────────────────────────────────────┐ │
+│ │ ⚙️ Enter Your Income Details                    │ │
+│ │                                                  │ │
+│ │ Gross Monthly Income      Estimated Tax Rate    │ │
+│ │ $ [12,000]                ────●─────── [25] %   │ │
+│ │                                                  │ │
+│ │ ┌──────────────────────────────────────────┐   │ │
+│ │ │ Income After Taxes            $9,000/mo  │   │ │
+│ │ └──────────────────────────────────────────┘   │ │
+│ └─────────────────────────────────────────────────┘ │
+│                                                     │
+│ ┌─────────────────────────────────────────────────┐ │
+│ │                         Current    Proposed     │ │
+│ │ ─────────────────────────────────────────────── │ │
+│ │ Monthly Income          $12,000    $12,000      │ │
+│ │ Income After Taxes      $9,000     $9,000       │ │
+│ │ Mortgage Payment        $1,710     $3,499       │ │
+│ │ Other Monthly Payments  $2,446     $0           │ │
+│ │ ─────────────────────────────────────────────── │ │
+│ │ Disposable Income ($)   $4,844     $5,501       │ │
+│ │ Disposable Income (%)   53.8%      61.1%        │ │
+│ └─────────────────────────────────────────────────┘ │
+│                                                     │
+│ ╭─────────────────────────────────────────────────╮ │
+│ │     Increase in Disposable Income               │ │
+│ │                                                 │ │
+│ │        +7.3%           |        +$657          │ │
+│ │   Percentage Increase  |   Monthly Increase    │ │
+│ ╰─────────────────────────────────────────────────╯ │
+└─────────────────────────────────────────────────────┘
+```
+
+**Calculation:**
+```javascript
+// Income after taxes
+const incomeAfterTaxes = grossMonthlyIncome * (1 - taxRate / 100);
+
+// Current disposable
+const currentMortgagePmt = analysisData.currentMortgagePI || 1710;
+const currentOtherDebtPmt = analysisData.debtsPaidOff || 2446;
+const currentDisposable = incomeAfterTaxes - currentMortgagePmt - currentOtherDebtPmt;
+const currentDisposablePct = (currentDisposable / incomeAfterTaxes) * 100;
+
+// Proposed disposable (debts paid off)
+const proposedMortgagePmt = analysisData.proposedPI || 3499;
+const proposedOtherDebtPmt = analysisData.debtsRemaining || 0;
+const proposedDisposable = incomeAfterTaxes - proposedMortgagePmt - proposedOtherDebtPmt;
+const proposedDisposablePct = (proposedDisposable / incomeAfterTaxes) * 100;
+
+// Increase
+const disposableIncrease = proposedDisposable - currentDisposable;
+const disposableIncreasePct = proposedDisposablePct - currentDisposablePct;
+```
+
+**Data Required:**
+```javascript
+{
+  grossMonthlyIncome: number,  // User input (default from borrower data)
+  taxRate: number,             // User input (default 25%)
+  currentMortgagePI: number,   // From present breakdown
+  debtsPaidOff: number,        // Monthly payments of selected debts
+  proposedPI: number,          // New mortgage P&I
+  debtsRemaining: number       // Debts not being paid off
+}
+```
+
+---
+
 ## 9. Proposal Document Generator
 
 ### 9.1 Document Layout
@@ -1299,7 +1765,8 @@ const milestones = [5, 10, 20, 30].map(years => ({
 │                  LOAN PROPOSAL                      │
 ├─────────────────────────────────────────────────────┤
 │                      Current    Proposed Loan       │
-│  Loan Program/Term   30 Year    30 Year Fixed      │
+│  Loan Program/Term   XX Year*   XX Year Fixed      │
+│  * (dynamically set from currentTerm/term values)  │
 │  Interest Rate       3.75%      6.875%             │
 │  APR                 —          7.125%             │
 │  Principal & Int.    $1,710     $3,447             │
@@ -1377,6 +1844,9 @@ const [selectedRateOption, setSelectedRateOption] = useState(2);  // Par rate
 // Escrow
 const [includeEscrow, setIncludeEscrow] = useState(true);
 
+// Property value (editable, defaults from AVM)
+const [propertyValue, setPropertyValue] = useState(borrowerData?.property?.avmValue || 950000);
+
 // Present values (editable)
 const [currentPI, setCurrentPI] = useState(1710);
 const [currentTaxes, setCurrentTaxes] = useState(450);
@@ -1384,6 +1854,7 @@ const [currentInsurance, setCurrentInsurance] = useState(120);
 const [currentMIP, setCurrentMIP] = useState(0);
 const [currentBalance, setCurrentBalance] = useState(247500);
 const [currentRate, setCurrentRate] = useState(3.75);
+const [currentTerm, setCurrentTerm] = useState(30);  // 10, 15, 20, or 30 years
 
 // GoodLeap loan
 const [goodLeapSelected, setGoodLeapSelected] = useState(true);
@@ -1411,6 +1882,7 @@ const [moduleSelections, setModuleSelections] = useState({
 5. ✅ Manual cashout/loan amount changes
 6. ✅ GoodLeap loan toggle
 7. ✅ Escrow toggle
+8. ✅ Property value changes
 
 ```javascript
 const resetPricing = () => {
@@ -1527,6 +1999,10 @@ interface ChartData {
   debtsPaidOff: number;
   debtsRemaining: number;
   
+  // Current loan info
+  currentRate: number;           // e.g., 3.75
+  currentTerm: number;           // 10, 15, 20, or 30 years
+  
   // Proposed breakdown
   proposedPI: number;
   proposedEscrow: number;
@@ -1542,7 +2018,8 @@ interface ChartData {
   newLoanAmount: number;
   ltv: number;
   cashout: number;
-  rate: number;
+  rate: number;                  // Proposed rate
+  term: number;                  // Proposed term (15 or 30)
   closingCosts: number;
   breakEvenMonths: number;
   
@@ -1574,6 +2051,9 @@ interface ChartData {
 - [ ] Editable fields have clear visual treatment
 - [ ] Progress bar shows current step
 - [ ] Value propositions locked until pricing complete
+- [ ] **Debts column auto-collapses when pricing completes**
+- [ ] **Debts column shows summary when collapsed (200px width)**
+- [ ] **Debts column can be manually expanded/collapsed via header toggle**
 - [ ] Chart preview flyover works for each chart
 - [ ] Proposal document is print-ready
 

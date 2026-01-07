@@ -11,7 +11,6 @@ import { SalesComparablesTab } from './components/dashboard/tabs/SalesComparable
 import { URLATab } from './components/dashboard/tabs/URLATab';
 import { DebtWorksheet } from './components/dashboard/DebtWorksheet';
 import { QuickQuote } from './components/dashboard/QuickQuote';
-import { GoodLeapAssistant } from './components/dashboard/GoodLeapAssistant';
 import { AIPopoutWindow } from './components/dashboard/AIPopoutWindow';
 import { GoodLeapSummary } from './components/dashboard/GoodLeapSummary';
 import { LiabilityAI } from './components/dashboard/LiabilityAI';
@@ -131,6 +130,13 @@ const borrowerData = {
   ]
 };
 
+// Map AI tool IDs from config to quick action names
+const AI_TOOL_MAPPING = {
+  'call-prep': 'Call Prep Brief',
+  'liability': 'Liability AI',
+  'avm': 'Property AVM'
+};
+
 function App() {
   // Check if this is a popout window
   const isPopout = new URLSearchParams(window.location.search).get('popout') === 'ai';
@@ -211,6 +217,13 @@ function App() {
     if (analysisData) {
       setFlyoverData(analysisData);
     }
+  };
+
+  // Handle quick action change - supports AI tool IDs from config
+  const handleQuickActionChange = (action) => {
+    // Map AI tool IDs to quick action names
+    const mappedAction = AI_TOOL_MAPPING[action] || action;
+    setActiveQuickAction(mappedAction);
   };
 
   // Flyover content based on activeQuickAction
@@ -345,20 +358,17 @@ function App() {
   }
 
   return (
-    <>
-      <Layout
-        currentView={currentView}
-        onViewChange={setCurrentView}
-        activeQuickAction={activeQuickAction}
-        onQuickActionChange={setActiveQuickAction}
-        rightPanel={getRightPanelContent()}
-      >
-        {renderMainContent()}
-      </Layout>
-      
-      {/* Floating AI Assistant - always visible */}
-      <GoodLeapAssistant accounts={accounts} borrowerData={borrowerData} />
-    </>
+    <Layout
+      currentView={currentView}
+      onViewChange={setCurrentView}
+      activeQuickAction={activeQuickAction}
+      onQuickActionChange={handleQuickActionChange}
+      rightPanel={getRightPanelContent()}
+      accounts={accounts}
+      borrowerData={borrowerData}
+    >
+      {renderMainContent()}
+    </Layout>
   );
 }
 

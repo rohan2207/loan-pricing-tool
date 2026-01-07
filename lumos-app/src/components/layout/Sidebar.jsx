@@ -1,25 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
-    FileText, 
-    Calculator, 
-    DollarSign, 
     MessageCircle, 
-    ChevronLeft, 
-    ChevronRight, 
+    ChevronDown,
     Sparkles, 
     LayoutDashboard,
-    BarChart3,
-    FileSearch,
-    Send,
-    FileCheck,
     Phone,
     CreditCard,
     Home,
-    Bot
+    Bot,
+    Archive
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 export function Sidebar({ currentView, onViewChange, activeQuickAction, onQuickActionChange }) {
+    const [showArchive, setShowArchive] = useState(false);
+    const [showAI, setShowAI] = useState(false);
+    
     const handleQuickActionClick = (itemName) => {
         if (activeQuickAction === itemName) {
             onQuickActionChange(null);
@@ -38,75 +34,76 @@ export function Sidebar({ currentView, onViewChange, activeQuickAction, onQuickA
                 <span className="text-white font-bold text-lg">LinkAI</span>
             </div>
 
-            {/* Quick Actions Header */}
-            <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-                <span className="text-xs font-medium text-neutral-l1 uppercase tracking-wider">Quick Actions</span>
-                <ChevronLeft size={16} className="text-neutral-l1" />
-            </div>
-
             {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto">
-                <NavItem icon={<FileText size={18} />} label="Debt Worksheet" active={activeQuickAction === 'Debt Worksheet'} onClick={() => handleQuickActionClick('Debt Worksheet')} />
-                <NavItem icon={<Calculator size={18} />} label="Blended Rate Calculator" active={activeQuickAction === 'Blended Rate Calculator'} onClick={() => handleQuickActionClick('Blended Rate Calculator')} />
-                <NavItem icon={<BarChart3 size={18} />} label="Sales Comparables" active={activeQuickAction === 'Sales Comparables'} onClick={() => handleQuickActionClick('Sales Comparables')} />
-                <NavItem icon={<FileSearch size={18} />} label="Property Lien Report" active={activeQuickAction === 'Property Lien Report'} onClick={() => handleQuickActionClick('Property Lien Report')} />
-                <NavItem icon={<DollarSign size={18} />} label="Quick Quote" active={activeQuickAction === 'Quick Quote'} onClick={() => handleQuickActionClick('Quick Quote')} />
-
-                {/* AI Assistant Section */}
-                <div className="px-4 pt-4 pb-2 flex items-center gap-2">
-                    <Bot size={14} className="text-purple-400" />
-                    <span className="text-xs font-medium text-purple-400 uppercase tracking-wider">AI Assistant</span>
-                </div>
-                <NavItem 
-                    icon={<Phone size={18} />} 
-                    label="Call Prep Brief" 
-                    active={activeQuickAction === 'Call Prep Brief'} 
-                    onClick={() => handleQuickActionClick('Call Prep Brief')} 
-                    highlight 
-                />
-                <NavItem 
-                    icon={<CreditCard size={18} />} 
-                    label="Liability AI" 
-                    active={activeQuickAction === 'Liability AI'} 
-                    onClick={() => handleQuickActionClick('Liability AI')} 
-                    highlight 
-                />
-                <NavItem 
-                    icon={<Home size={18} />} 
-                    label="Property AVM" 
-                    active={activeQuickAction === 'Property AVM'} 
-                    onClick={() => handleQuickActionClick('Property AVM')} 
-                    highlight 
-                />
+                {/* AI Assistant Section - Collapsed by default */}
+                <button
+                    onClick={() => setShowAI(!showAI)}
+                    className="w-full flex items-center justify-between px-4 py-3 text-purple-400 hover:text-purple-300 text-left"
+                >
+                    <div className="flex items-center gap-2">
+                        <Bot size={14} />
+                        <span className="text-xs font-medium uppercase tracking-wider">AI Assistant</span>
+                    </div>
+                    <ChevronDown size={14} className={cn("transition-transform", showAI && "rotate-180")} />
+                </button>
+                
+                {showAI && (
+                    <div className="bg-purple-900/20 py-1">
+                        <NavItem 
+                            icon={<Phone size={16} />} 
+                            label="Call Prep Brief" 
+                            active={activeQuickAction === 'Call Prep Brief'} 
+                            onClick={() => handleQuickActionClick('Call Prep Brief')} 
+                            highlight 
+                            small
+                        />
+                        <NavItem 
+                            icon={<CreditCard size={16} />} 
+                            label="Liability AI" 
+                            active={activeQuickAction === 'Liability AI'} 
+                            onClick={() => handleQuickActionClick('Liability AI')} 
+                            highlight 
+                            small
+                        />
+                        <NavItem 
+                            icon={<Home size={16} />} 
+                            label="Property AVM" 
+                            active={activeQuickAction === 'Property AVM'} 
+                            onClick={() => handleQuickActionClick('Property AVM')} 
+                            highlight 
+                            small
+                        />
+                    </div>
+                )}
 
                 {/* Divider */}
                 <div className="my-3 mx-4 border-t border-neutral-d2" />
 
-                {/* Main Navigation */}
+                {/* Main Navigation - Only Dashboard */}
                 <NavItem icon={<LayoutDashboard size={18} />} label="Dashboard" active={currentView === 'dashboard'} onClick={() => onViewChange('dashboard')} />
-                <NavItem icon={<Sparkles size={18} />} label="GoodLeap Advantage" active={currentView === 'advantage'} onClick={() => onViewChange('advantage')} />
-                <NavItem icon={<Sparkles size={18} />} label="GoodLeap Advantage V2" active={currentView === 'advantageV2'} onClick={() => onViewChange('advantageV2')} />
-                <NavItem icon={<Sparkles size={18} />} label="GoodLeap Advantage V3" active={currentView === 'advantageV3'} onClick={() => onViewChange('advantageV3')} />
-                <NavItem icon={<Sparkles size={18} />} label="GoodLeap Advantage V4" active={currentView === 'advantageV4'} onClick={() => onViewChange('advantageV4')} />
-                <NavItem icon={<Sparkles size={18} />} label="GoodLeap Advantage V5" active={currentView === 'advantageV5'} onClick={() => onViewChange('advantageV5')} highlight />
-
-                {/* Action Buttons */}
-                <div className="mx-3 mt-3">
-                    <button className="w-full flex items-center justify-center gap-2 bg-danger hover:bg-danger-d2 text-white py-3 px-4 rounded-lg font-medium text-sm">
-                        <Send size={16} />
-                        Send to Figure
-                    </button>
-                </div>
-
-                <div className="mx-3 mt-2 mb-4">
-                    <button className="w-full flex items-center justify-between bg-information-d2 hover:bg-information-d1 text-white py-3 px-4 rounded-lg font-medium text-sm">
-                        <div className="flex items-center gap-2">
-                            <FileCheck size={16} />
-                            Complete 1003
-                        </div>
-                        <ChevronRight size={16} />
-                    </button>
-                </div>
+                
+                {/* Archive / Old Versions - Collapsed by default */}
+                <button
+                    onClick={() => setShowArchive(!showArchive)}
+                    className="w-full flex items-center justify-between px-4 py-2 text-white/40 hover:text-white/60 text-left"
+                >
+                    <div className="flex items-center gap-3">
+                        <Archive size={16} className="opacity-50" />
+                        <span className="text-xs">Archive (Old Versions)</span>
+                    </div>
+                    <ChevronDown size={14} className={cn("transition-transform", showArchive && "rotate-180")} />
+                </button>
+                
+                {showArchive && (
+                    <div className="bg-neutral-d2/30 py-1">
+                        <NavItem icon={<Sparkles size={16} />} label="Advantage V1" active={currentView === 'advantage'} onClick={() => onViewChange('advantage')} small muted />
+                        <NavItem icon={<Sparkles size={16} />} label="Advantage V2" active={currentView === 'advantageV2'} onClick={() => onViewChange('advantageV2')} small muted />
+                        <NavItem icon={<Sparkles size={16} />} label="Advantage V3" active={currentView === 'advantageV3'} onClick={() => onViewChange('advantageV3')} small muted />
+                        <NavItem icon={<Sparkles size={16} />} label="Advantage V4" active={currentView === 'advantageV4'} onClick={() => onViewChange('advantageV4')} small muted />
+                        <NavItem icon={<Sparkles size={16} />} label="Advantage V5" active={currentView === 'advantageV5'} onClick={() => onViewChange('advantageV5')} small muted />
+                    </div>
+                )}
             </div>
 
             {/* Footer */}
@@ -117,19 +114,21 @@ export function Sidebar({ currentView, onViewChange, activeQuickAction, onQuickA
     );
 }
 
-function NavItem({ icon, label, active, onClick, highlight }) {
+function NavItem({ icon, label, active, onClick, highlight, small, muted }) {
     return (
         <button
             onClick={onClick}
             className={cn(
-                "w-full flex items-center px-4 py-2.5 text-white/80 text-left",
+                "w-full flex items-center text-left",
+                small ? "px-6 py-1.5" : "px-4 py-2.5",
+                muted ? "text-white/40" : "text-white/80",
                 active && "bg-white/10 text-white border-l-2 border-orange",
                 !active && "hover:bg-white/5 hover:text-white",
                 highlight && !active && "text-orange"
             )}
         >
             <span className={cn("mr-3 opacity-70", active && "opacity-100", highlight && !active && "text-orange")}>{icon}</span>
-            <span className="text-sm font-medium">{label}</span>
+            <span className={cn("font-medium", small ? "text-xs" : "text-sm")}>{label}</span>
         </button>
     );
 }

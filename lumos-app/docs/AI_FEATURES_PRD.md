@@ -4,6 +4,289 @@ This document provides complete implementation specifications for three AI-power
 
 ---
 
+## Permanent AI Panel Architecture
+
+### Overview
+
+The AI Assistant lives as a **permanent right panel** that is always visible by default. This provides:
+- Immediate access to AI tools without navigation
+- Persistent context across all dashboard views
+- Seamless integration with flyover system
+- User control over panel visibility
+
+### Component Structure
+
+```mermaid
+flowchart LR
+    subgraph Layout [Layout.jsx]
+        Sidebar[Sidebar 224px]
+        MainContent[Main Content]
+        AIPanelPermanent[AI Panel 320px]
+        Flyover[Flyover 480px]
+    end
+    
+    Sidebar --> MainContent
+    MainContent --> AIPanelPermanent
+    AIPanelPermanent -.->|"collapses when flyover opens"| CollapsedIcon[AI Icon 48px]
+    Flyover -.->|"overlays panel area"| AIPanelPermanent
+```
+
+### File Structure
+
+```
+src/components/layout/
+├── Layout.jsx              # Main layout with AI panel integration
+├── AIPanelPermanent.jsx    # Permanent AI panel component
+├── Sidebar.jsx             # Left navigation
+└── BorrowerHeader.jsx      # Top header
+```
+
+### Panel States
+
+The AI panel has three distinct states:
+
+| State | Trigger | Main Content Margin | Panel Width | Visual |
+|-------|---------|---------------------|-------------|--------|
+| **Expanded** | Default | `mr-[320px]` | 320px | Full AI tools grid |
+| **Collapsed (Manual)** | User clicks collapse | None | 48px icon | Floating AI button |
+| **Collapsed (Flyover)** | Flyover opens | `mr-[480px]` | 48px icon | Floating AI button |
+
+### Visual Layout
+
+```
+STATE 1: Expanded (Default)
++----------+---------------------------+----------+
+|          |                           |   AI     |
+| Sidebar  |      Main Content         |  Panel   |
+|  224px   |        flex-1             |  320px   |
+|          |                           | [collapse]|
++----------+---------------------------+----------+
+
+STATE 2: Manually Collapsed
++----------+--------------------------------------+------+
+|          |                                      | [AI] |
+| Sidebar  |        Full Width Main Content       | icon |
+|  224px   |              flex-1                  | 48px |
++----------+--------------------------------------+------+
+
+STATE 3: Flyover Open (Auto-Collapsed)
++----------+---------------------+---------+------+
+|          |                     |         | [AI] |
+| Sidebar  |   Main Content      | Flyover | icon |
+|  224px   |      flex-1         |  480px  | 48px |
++----------+---------------------+---------+------+
+```
+
+### AIPanelPermanent.jsx
+
+```typescript
+interface AIPanelPermanentProps {
+  isCollapsed: boolean;           // True when flyover is open
+  isManuallyCollapsed: boolean;   // True when user collapsed
+  onExpand: () => void;           // Called when icon clicked
+  onManualCollapse: () => void;   // Called when collapse button clicked
+  onSelectTool: (toolId: string) => void;  // Opens tool in flyover
+  accounts: Account[];
+  borrowerData: BorrowerData;
+}
+```
+
+**Expanded State UI:**
+```
++------------------------------------------+
+|  [Icon] AI Assistant            [collapse]|  <- Header with collapse button
++------------------------------------------+
+|  🔍 Search tools...                       |  <- Search input
++------------------------------------------+
+|  [All] [Conversation] [Analysis] [...]    |  <- Category filters
++------------------------------------------+
+|  +------------------+  +------------------+
+|  | 📞 Call Prep     |  | 💳 Liability AI  |
+|  | Customer brief   |  | Debt analysis    |
+|  +------------------+  +------------------+
+|  +------------------+                      |
+|  | 🏠 Property AVM  |                      |
+|  | Valuation...     |                      |
+|  +------------------+                      |  <- Tool cards
++------------------------------------------+
+|  AI-generated content. Verify details.    |  <- Disclaimer footer
++------------------------------------------+
+```
+
+**Collapsed State UI:**
+```
++--------+
+|   ✨   |  <- Floating button, fixed right edge
+|   AI   |     vertically centered
++--------+
+```
+
+### Layout.jsx Integration
+
+```typescript
+export function Layout({ 
+  children, 
+  rightPanel,           // Flyover content (null if no flyover)
+  onQuickActionChange,  // Callback to open flyover
+  accounts,
+  borrowerData
+}) {
+  // Manual collapse state - user preference
+  const [isManuallyCollapsed, setIsManuallyCollapsed] = useState(false);
+
+  // Derived states
+  const hasFlyover = !!rightPanel;
+  const isPanelVisible = !hasFlyover && !isManuallyCollapsed;
+
+  // Handlers
+  const handleExpand = () => {
+    if (hasFlyover) {
+      onQuickActionChange(null);  // Close flyover
+    } else {
+      setIsManuallyCollapsed(false);  // Expand panel
+    }
+  };
+
+  const handleManualCollapse = () => {
+    setIsManuallyCollapsed(true);
+  };
+
+  return (
+    <div className="flex">
+      <Sidebar />
+      <main className={cn(
+        "flex-1 ml-56",
+        hasFlyover ? "mr-[480px]" : isPanelVisible ? "mr-[320px]" : ""
+      )}>
+        {children}
+      </main>
+      
+      {/* Permanent AI Panel */}
+      <AIPanelPermanent 
+        isCollapsed={hasFlyover}
+        isManuallyCollapsed={isManuallyCollapsed}
+        onExpand={handleExpand}
+        onManualCollapse={handleManualCollapse}
+        onSelectTool={onQuickActionChange}
+        accounts={accounts}
+        borrowerData={borrowerData}
+      />
+      
+      {/* Flyover overlay */}
+      {rightPanel && (
+        <div className="fixed right-0 w-[480px] ...">
+          {rightPanel}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### Interaction Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant AIPanel as AI Panel
+    participant Layout
+    participant Flyover
+    
+    Note over AIPanel: Default: Expanded
+    
+    User->>AIPanel: Click "Call Prep" tool
+    AIPanel->>Layout: onSelectTool('call-prep')
+    Layout->>Flyover: Open flyover
+    Layout->>AIPanel: isCollapsed = true
+    Note over AIPanel: Collapses to icon
+    
+    User->>Flyover: Use tool...
+    User->>Flyover: Click close (X)
+    Flyover->>Layout: onQuickActionChange(null)
+    Layout->>AIPanel: isCollapsed = false
+    Note over AIPanel: Expands back
+    
+    User->>AIPanel: Click collapse button
+    AIPanel->>Layout: onManualCollapse()
+    Note over AIPanel: Collapses to icon (manual)
+    
+    User->>AIPanel: Click AI icon
+    AIPanel->>Layout: onExpand()
+    Note over AIPanel: Expands back
+```
+
+### Tool Selection Mapping
+
+When a user clicks a tool card in the AI panel, the tool ID is mapped to the appropriate quick action:
+
+```typescript
+// App.jsx
+const AI_TOOL_MAPPING = {
+  'call-prep': 'Call Prep Brief',
+  'liability': 'Liability AI',
+  'avm': 'Property AVM'
+};
+
+const handleQuickActionChange = (action) => {
+  const mappedAction = AI_TOOL_MAPPING[action] || action;
+  setActiveQuickAction(mappedAction);
+};
+```
+
+### CSS Classes
+
+```css
+/* Permanent AI Panel */
+.ai-panel-permanent {
+  @apply fixed right-0 top-0 bottom-0 w-[320px];
+  @apply bg-white border-l border-stone-200 shadow-lg z-10;
+  @apply flex flex-col;
+}
+
+.ai-panel-header {
+  @apply px-4 py-4 border-b border-stone-200;
+  @apply bg-gradient-to-r from-indigo-50 to-purple-50;
+}
+
+.ai-panel-collapse-btn {
+  @apply p-1.5 rounded-lg hover:bg-stone-200/50;
+  @apply text-stone-400 hover:text-stone-600 transition-colors;
+}
+
+/* Collapsed icon button */
+.ai-panel-collapsed-icon {
+  @apply fixed right-4 top-1/2 -translate-y-1/2 z-30;
+  @apply flex flex-col items-center gap-1 px-3 py-4;
+  @apply bg-gradient-to-b from-indigo-500 to-purple-600 text-white;
+  @apply rounded-xl shadow-lg hover:shadow-xl hover:scale-105;
+  @apply transition-all duration-200;
+}
+
+/* Tool cards */
+.ai-tool-card {
+  @apply w-full flex items-center gap-3 p-3;
+  @apply bg-white border border-stone-200 rounded-xl;
+  @apply hover:border-indigo-300 hover:shadow-md hover:bg-indigo-50/30;
+  @apply transition-all;
+}
+```
+
+### Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Escape` | Close flyover (if open) |
+| `A` | Toggle AI panel expand/collapse |
+
+### Accessibility
+
+- Panel collapse button has `title="Collapse panel"`
+- Collapsed icon has `title="Open AI Assistant"`
+- All interactive elements are keyboard accessible
+- Focus management when panel state changes
+
+---
+
 ## Architecture Overview
 
 ```mermaid

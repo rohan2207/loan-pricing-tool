@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PaymentSavingsChart } from './charts/PaymentSavingsChart';
 import { BlendedRateChart } from './charts/BlendedRateChart';
 import { DisposableIncomeChart } from './charts/DisposableIncomeChart';
 import { CompoundGrowthChart } from './charts/CompoundGrowthChart';
 import { CashFlowChart } from './charts/CashFlowChart';
-import { BarChart3, TrendingUp, DollarSign, Clock, PiggyBank, CreditCard, BadgeCheck, Shield, Percent, Gift, Check, GraduationCap, Home, Plane, Wallet, Receipt, Umbrella, Banknote, ArrowRight, Calendar, Target, Zap } from 'lucide-react';
+import { BarChart3, TrendingUp, DollarSign, Clock, PiggyBank, CreditCard, BadgeCheck, Shield, Percent, Gift, Check, GraduationCap, Home, Plane, Wallet, Receipt, Umbrella, Banknote, ArrowRight, Calendar, Target, Zap, Settings, Sliders } from 'lucide-react';
 
 const chartTitles = {
     'blended-rate': 'Blended Rate on Debt Comparison',
@@ -21,6 +21,25 @@ const chartTitles = {
 };
 
 export function ChartPreview({ chartType, data }) {
+    // Get config from data if available (set from main UI), otherwise use defaults
+    const chartConfig = data?.chartConfig || {};
+    
+    // Configurable chart parameters - use props from main UI if available
+    const [compoundRate, setCompoundRate] = useState(chartConfig.compoundRate || 7);
+    const [acceleratedPaymentPercent, setAcceleratedPaymentPercent] = useState(chartConfig.acceleratedPercent || 100);
+    const [cashFlowDays, setCashFlowDays] = useState(chartConfig.cashFlowDays || 60);
+    const [taxRate, setTaxRate] = useState(chartConfig.taxRate || 25);
+    const [grossMonthlyIncome, setGrossMonthlyIncome] = useState(chartConfig.grossIncome || 12000);
+    
+    // Sync local state with chartConfig when it changes from main UI
+    useEffect(() => {
+        if (chartConfig.compoundRate !== undefined) setCompoundRate(chartConfig.compoundRate);
+        if (chartConfig.acceleratedPercent !== undefined) setAcceleratedPaymentPercent(chartConfig.acceleratedPercent);
+        if (chartConfig.cashFlowDays !== undefined) setCashFlowDays(chartConfig.cashFlowDays);
+        if (chartConfig.taxRate !== undefined) setTaxRate(chartConfig.taxRate);
+        if (chartConfig.grossIncome !== undefined) setGrossMonthlyIncome(chartConfig.grossIncome);
+    }, [chartConfig.compoundRate, chartConfig.acceleratedPercent, chartConfig.cashFlowDays, chartConfig.taxRate, chartConfig.grossIncome]);
+    
     // Use passed data or fallback defaults
     const analysisData = data || {
         monthlySavings: 950,
@@ -283,17 +302,114 @@ export function ChartPreview({ chartType, data }) {
             case 'blended-rate':
                 return <BlendedRateChart />;
             case 'disposable-income':
+                // Calculate disposable income with configurable inputs
+                const incomeAfterTaxes = Math.round(grossMonthlyIncome * (1 - taxRate / 100));
+                
+                // Current payments
+                const currentMortgagePmt = analysisData.currentMortgagePI || 1710;
+                const currentOtherDebtPmt = analysisData.debtsPaidOff || 2446;
+                const currentTotalDebt = currentMortgagePmt + currentOtherDebtPmt;
+                const currentDisposable = incomeAfterTaxes - currentTotalDebt;
+                const currentDisposablePct = Math.round((currentDisposable / incomeAfterTaxes) * 100);
+                
+                // Proposed payments (debts paid off, only new mortgage)
+                const proposedMortgagePmt = analysisData.proposedPI || 3499;
+                const proposedOtherDebtPmt = analysisData.debtsRemaining || 0; // Only remaining debts
+                const proposedTotalDebt = proposedMortgagePmt + proposedOtherDebtPmt;
+                const proposedDisposable = incomeAfterTaxes - proposedTotalDebt;
+                const proposedDisposablePct = Math.round((proposedDisposable / incomeAfterTaxes) * 100);
+                
+                const disposableIncrease = proposedDisposable - currentDisposable;
+                const disposableIncreasePct = proposedDisposablePct - currentDisposablePct;
+                
                 return (
-                    <div className="p-6">
-                        <div className="bg-neutral-l5 rounded-lg p-4 mb-4">
-                            <p className="text-xs text-neutral-l1 uppercase tracking-wide mb-1">Gross Monthly Income</p>
-                            <p className="text-xl font-bold text-neutral-d3">${analysisData.grossMonthlyIncome?.toLocaleString()}</p>
+                    <div className="h-full flex flex-col">
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-4">
+                            <h2 className="font-bold text-xl tracking-wide">ESTIMATED DISPOSABLE INCOME</h2>
+                            <p className="text-blue-100 text-sm">Compare your take-home income before and after</p>
                         </div>
-                        <DisposableIncomeChart 
-                            grossIncome={analysisData.grossMonthlyIncome}
-                            mortgagePayment={analysisData.proposedPayment}
-                            savings={analysisData.monthlySavings}
-                        />
+                        
+                        <div className="flex-1 overflow-auto p-6">
+                            {/* Income Summary */}
+                            <div className="bg-blue-50 rounded-xl p-4 mb-6">
+                                <div className="grid grid-cols-3 gap-4 text-center">
+                                    <div>
+                                        <p className="text-xs text-blue-600 mb-1">Gross Income</p>
+                                        <p className="text-lg font-bold text-blue-700">${grossMonthlyIncome.toLocaleString()}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-blue-600 mb-1">Tax Rate</p>
+                                        <p className="text-lg font-bold text-blue-700">{taxRate}%</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-blue-600 mb-1">After Taxes</p>
+                                        <p className="text-lg font-bold text-blue-700">${incomeAfterTaxes.toLocaleString()}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Comparison Table */}
+                            <div className="bg-white rounded-xl border border-stone-200 overflow-hidden mb-6">
+                                <div className="grid grid-cols-3 bg-stone-800 text-white text-sm font-semibold">
+                                    <div className="px-4 py-3"></div>
+                                    <div className="px-4 py-3 text-center">Current</div>
+                                    <div className="px-4 py-3 text-center text-amber-300">Proposed</div>
+                                </div>
+                                
+                                <div className="divide-y divide-stone-100">
+                                    <div className="grid grid-cols-3 items-center">
+                                        <div className="px-4 py-3 text-sm text-stone-600">Monthly Income</div>
+                                        <div className="px-4 py-3 text-center font-medium text-stone-800">${grossMonthlyIncome.toLocaleString()}</div>
+                                        <div className="px-4 py-3 text-center font-medium text-stone-800">${grossMonthlyIncome.toLocaleString()}</div>
+                                    </div>
+                                    <div className="grid grid-cols-3 items-center bg-stone-50">
+                                        <div className="px-4 py-3 text-sm text-stone-600">Income After Taxes</div>
+                                        <div className="px-4 py-3 text-center font-medium text-stone-800">${incomeAfterTaxes.toLocaleString()}</div>
+                                        <div className="px-4 py-3 text-center font-medium text-stone-800">${incomeAfterTaxes.toLocaleString()}</div>
+                                    </div>
+                                    <div className="grid grid-cols-3 items-center">
+                                        <div className="px-4 py-3 text-sm text-stone-600">Mortgage Payment</div>
+                                        <div className="px-4 py-3 text-center font-medium text-stone-800">${currentMortgagePmt.toLocaleString()}</div>
+                                        <div className="px-4 py-3 text-center font-medium text-amber-600">${proposedMortgagePmt.toLocaleString()}</div>
+                                    </div>
+                                    <div className="grid grid-cols-3 items-center bg-stone-50">
+                                        <div className="px-4 py-3 text-sm text-stone-600">Other Monthly Payments</div>
+                                        <div className="px-4 py-3 text-center font-medium text-rose-600">${currentOtherDebtPmt.toLocaleString()}</div>
+                                        <div className="px-4 py-3 text-center font-medium text-teal-600">${proposedOtherDebtPmt.toLocaleString()}</div>
+                                    </div>
+                                    <div className="grid grid-cols-3 items-center border-t-2 border-stone-200 bg-blue-50">
+                                        <div className="px-4 py-3 text-sm font-semibold text-stone-800">Disposable Income ($)</div>
+                                        <div className="px-4 py-3 text-center text-xl font-bold text-stone-800">${currentDisposable.toLocaleString()}</div>
+                                        <div className="px-4 py-3 text-center text-xl font-bold text-blue-600">${proposedDisposable.toLocaleString()}</div>
+                                    </div>
+                                    <div className="grid grid-cols-3 items-center bg-blue-50">
+                                        <div className="px-4 py-3 text-sm font-semibold text-stone-800">Disposable Income (%)</div>
+                                        <div className="px-4 py-3 text-center text-lg font-bold text-stone-800">{currentDisposablePct}%</div>
+                                        <div className="px-4 py-3 text-center text-lg font-bold text-blue-600">{proposedDisposablePct}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Increase in Disposable Income */}
+                            <div className={`rounded-xl p-6 text-center border-2 ${disposableIncrease >= 0 ? 'bg-teal-50 border-teal-200' : 'bg-rose-50 border-rose-200'}`}>
+                                <p className="text-sm text-stone-600 mb-2">Increase in Disposable Income</p>
+                                <div className="flex items-center justify-center gap-4">
+                                    <div>
+                                        <p className={`text-4xl font-bold ${disposableIncrease >= 0 ? 'text-teal-600' : 'text-rose-600'}`}>
+                                            {disposableIncrease >= 0 ? '+' : ''}{disposableIncreasePct.toFixed(1)}%
+                                        </p>
+                                        <p className="text-xs text-stone-500 mt-1">Percentage Increase</p>
+                                    </div>
+                                    <div className="w-px h-12 bg-stone-200"></div>
+                                    <div>
+                                        <p className={`text-3xl font-bold ${disposableIncrease >= 0 ? 'text-teal-600' : 'text-rose-600'}`}>
+                                            {disposableIncrease >= 0 ? '+' : ''}${Math.abs(disposableIncrease).toLocaleString()}
+                                        </p>
+                                        <p className="text-xs text-stone-500 mt-1">Monthly Increase</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 );
             case 'reinvestment':
@@ -449,8 +565,9 @@ export function ChartPreview({ chartType, data }) {
                     </div>
                 );
             case 'accelerated-payoff':
-                // Calculate how much faster they can pay off the loan
-                const extraPayment = analysisData.monthlySavings || 657;
+                // Calculate how much faster they can pay off the loan with configurable extra payment
+                const maxExtraPayment = analysisData.monthlySavings || 657;
+                const extraPayment = Math.round((acceleratedPaymentPercent / 100) * maxExtraPayment);
                 const loanAmt = analysisData.newLoanAmount || 628000;
                 const loanRate = (analysisData.rate || 7.0) / 100 / 12;
                 const originalTerm = 30; // years
@@ -488,8 +605,9 @@ export function ChartPreview({ chartType, data }) {
                         <div className="flex-1 overflow-auto p-6">
                             {/* Extra Payment Amount */}
                             <div className="bg-purple-50 rounded-xl p-4 mb-6 text-center">
-                                <p className="text-sm text-purple-600 mb-1">Extra Monthly Payment</p>
+                                <p className="text-sm text-purple-600 mb-1">Extra Monthly Payment Applied</p>
                                 <p className="text-3xl font-bold text-purple-700">${extraPayment.toLocaleString()}</p>
+                                <p className="text-xs text-purple-500 mt-1">{acceleratedPaymentPercent}% of your ${maxExtraPayment.toLocaleString()} savings</p>
                             </div>
                             
                             {/* Visual Timeline Comparison */}
@@ -573,15 +691,15 @@ export function ChartPreview({ chartType, data }) {
                 );
             
             case 'compound-growth':
-                // Calculate compound growth at different intervals
+                // Calculate compound growth at different intervals with configurable rate
                 const monthlyInvestment = analysisData.monthlySavings || 657;
-                const annualReturn = 0.07; // 7%
-                const monthlyReturn = annualReturn / 12;
+                const annualReturnRate = compoundRate / 100;
+                const monthlyReturnRate = annualReturnRate / 12;
                 
                 const calculateFutureValue = (years) => {
                     const n = years * 12;
                     // Future value of annuity formula
-                    return monthlyInvestment * ((Math.pow(1 + monthlyReturn, n) - 1) / monthlyReturn);
+                    return monthlyInvestment * ((Math.pow(1 + monthlyReturnRate, n) - 1) / monthlyReturnRate);
                 };
                 
                 const growthData = [
@@ -601,7 +719,7 @@ export function ChartPreview({ chartType, data }) {
                     <div className="h-full flex flex-col">
                         <div className="bg-gradient-to-r from-teal-600 to-teal-500 text-white px-6 py-4">
                             <h2 className="font-bold text-xl tracking-wide">COMPOUND GROWTH</h2>
-                            <p className="text-teal-100 text-sm">Invest your savings @ 7% annual return</p>
+                            <p className="text-teal-100 text-sm">Invest your savings @ {compoundRate}% annual return</p>
                         </div>
                         
                         <div className="flex-1 overflow-auto p-6">
@@ -613,7 +731,7 @@ export function ChartPreview({ chartType, data }) {
                             
                             {/* Growth Chart - Bar visualization */}
                             <div className="mb-6">
-                                <h3 className="text-sm font-semibold text-stone-700 mb-4">Growth Over Time</h3>
+                                <h3 className="text-sm font-semibold text-stone-700 mb-4">Growth Over Time @ {compoundRate}%</h3>
                                 <div className="space-y-3">
                                     {growthData.map((item, i) => (
                                         <div key={i} className="flex items-center gap-3">
@@ -679,8 +797,8 @@ export function ChartPreview({ chartType, data }) {
                 );
             
             case 'cash-flow-window':
-                // Cash Flow Window - money kept during transition
-                const daysToFirstPayment = 60; // Default 60 days
+                // Cash Flow Window - money kept during transition with configurable days
+                const daysToFirstPayment = cashFlowDays;
                 const monthsPaymentFree = Math.floor(daysToFirstPayment / 30);
                 
                 // Current total monthly payment (what they pay NOW on all debts being consolidated)
@@ -694,7 +812,7 @@ export function ChartPreview({ chartType, data }) {
                     <div className="h-full flex flex-col">
                         <div className="bg-gradient-to-r from-emerald-600 to-teal-500 text-white px-6 py-4">
                             <h2 className="font-bold text-xl tracking-wide">CASH FLOW WINDOW</h2>
-                            <p className="text-emerald-100 text-sm">Money freed up when you refinance</p>
+                            <p className="text-emerald-100 text-sm">{cashFlowDays} days payment-free period</p>
                         </div>
                         
                         <div className="flex-1 overflow-auto p-6">
@@ -708,7 +826,7 @@ export function ChartPreview({ chartType, data }) {
                                 </p>
                                 <p className="text-emerald-700 font-medium">Cash In Your Pocket</p>
                                 <p className="text-stone-500 text-sm mt-2">
-                                    {monthsPaymentFree} months × ${currentMonthlyTotal.toLocaleString()}/mo = ${cashInPocket.toLocaleString()}
+                                    {monthsPaymentFree} month{monthsPaymentFree > 1 ? 's' : ''} × ${currentMonthlyTotal.toLocaleString()}/mo = ${cashInPocket.toLocaleString()}
                                 </p>
                             </div>
                             
@@ -716,7 +834,7 @@ export function ChartPreview({ chartType, data }) {
                             <div className="bg-white rounded-xl border border-stone-200 p-5 mb-6">
                                 <div className="flex items-center gap-2 mb-4">
                                     <Clock size={18} className="text-stone-500" />
-                                    <h3 className="font-semibold text-stone-700">How It Works</h3>
+                                    <h3 className="font-semibold text-stone-700">How It Works ({cashFlowDays} Day Window)</h3>
                                 </div>
                                 
                                 <div className="space-y-4">
@@ -882,7 +1000,7 @@ export function ChartPreview({ chartType, data }) {
     };
 
     // Charts with their own full-height layout (no wrapper header)
-    if (['debt-consolidation', 'payment-savings', 'cash-back', 'accelerated-payoff', 'compound-growth', 'cash-flow-window'].includes(chartType)) {
+    if (['debt-consolidation', 'payment-savings', 'cash-back', 'accelerated-payoff', 'compound-growth', 'cash-flow-window', 'disposable-income'].includes(chartType)) {
         return (
             <div className="h-full flex flex-col bg-white">
                 {renderChart()}

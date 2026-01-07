@@ -36,20 +36,22 @@ export function ProposalDocument({
         nmls: '123456'
     };
     
+    // Build loan details from chartData when available
+    const cd = chartData || {};
     const loan = loanData || {
-        currentProgram: '30 Year Fixed',
-        proposedProgram: '30 Year Fixed',
-        currentRate: 3.0,
-        proposedRate: 5.875,
-        proposedAPR: 6.183,
-        currentPI: 900,
-        proposedPI: 1478.84,
-        currentMI: 0,
-        proposedMI: 0,
-        currentTotal: 1250,
-        proposedTotal: 1828.84,
-        currentEscrow: 350,
-        proposedEscrow: 350
+        currentProgram: `${cd.currentTerm || 30} Year Fixed`,
+        proposedProgram: `${cd.term || 30} Year Fixed`,
+        currentRate: cd.currentRate || 3.0,
+        proposedRate: cd.rate || 5.875,
+        proposedAPR: (cd.rate || 5.875) + 0.25, // Estimate APR
+        currentPI: cd.currentMortgagePI || 900,
+        proposedPI: cd.proposedPI || 1478.84,
+        currentMI: cd.currentMI || 0,
+        proposedMI: cd.proposedMI || 0,
+        currentTotal: cd.currentTotal || 1250,
+        proposedTotal: cd.proposedTotal || 1828.84,
+        currentEscrow: cd.currentEscrow || 350,
+        proposedEscrow: cd.proposedEscrow || 350
     };
     
     const data = chartData || {};
