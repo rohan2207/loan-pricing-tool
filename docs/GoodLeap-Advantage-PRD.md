@@ -1231,9 +1231,18 @@ const toggle = (id) => {
 |-------|---------|---------|-------|----------------|
 | Compound Growth | Interest Rate | 7% | 3-12% | "Invest @ [7] % return" |
 | Accelerated Payoff | Extra Payment % | 100% | 0-100% | Slider with "X% of $657" |
-| Cash Flow Window | Days | 60 | 30-90 | "[60] days payment-free" |
+| Cash Flow Window | Months | 2 | 1-3 | Button group "1 2 3 months payment-free" |
 | Disposable Income | Gross Income | $12,000 | $1k-100k | "$ [12000] gross @ [25] % tax" |
 | Disposable Income | Tax Rate | 25% | 10-45% | Combined with income |
+
+**Important: Rankings are FIXED**
+
+Rankings use ORIGINAL benefit values (not user-adjusted values) to ensure consistent ordering:
+- Changing Cash Flow months: Impact always uses 2 months for ranking
+- Changing Accelerated Payoff %: Impact always uses full savings for ranking
+- Changing Compound Growth rate: Impact always uses original savings for ranking
+
+This prevents confusing ranking changes when users adjust parameters.
 
 **State Management (in GoodLeapAdvantageTabs.jsx):**
 ```javascript
@@ -1503,25 +1512,38 @@ const currentEscrowHeight = currentEscrow * scale;
 
 ### 8.4 Cash Flow Window
 
-**Purpose:** Show configurable payment-free period (30-90 days)
+**Purpose:** Show configurable payment-free period (1, 2, or 3 months)
 
 **Interactive Control:**
-- Days slider (30 to 90 days, step 15)
-- Number input for precise entry
-- Default: 60 days
+- Button group with 1, 2, 3 month options
+- Default: 2 months
+- Simple click selection (no slider needed)
+
+**Inline Control (in Value Proposition Card):**
+```jsx
+<div className="flex items-center gap-1.5 mt-1">
+    {[1, 2, 3].map(m => (
+        <button
+            key={m}
+            onClick={() => setCashFlowMonths(m)}
+            className={cn(
+                "px-2 py-0.5 text-xs font-semibold rounded-md",
+                value === m ? "bg-teal-500 text-white" : "bg-stone-100 text-stone-500"
+            )}
+        >
+            {m}
+        </button>
+    ))}
+    <span className="text-xs text-stone-400 ml-1">months payment-free</span>
+</div>
+```
 
 **Layout:**
 ```
 ┌─────────────────────────────────────────────────────┐
 │               CASH FLOW WINDOW                      │
-│            60 days payment-free period              │
+│            2 months payment-free period             │
 ├─────────────────────────────────────────────────────┤
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ 📅 Adjust Payment-Free Period                   │ │
-│ │ Days until first payment:                        │ │
-│ │ ─────────────●───────────────────  [60] days    │ │
-│ │ 30 days (1 mo)   60 days (2 mo)   90 days (3 mo)│ │
-│ └─────────────────────────────────────────────────┘ │
 │                                                     │
 │              ╭─────────────╮                        │
 │              │             │                        │
@@ -1532,7 +1554,7 @@ const currentEscrowHeight = currentEscrow * scale;
 │                                                     │
 │   2 months × $4,656/mo = $9,312                    │
 │                                                     │
-│  How It Works (60 Day Window):                      │
+│  How It Works (2 Month Window):                     │
 │  ✓ Loan closes: All existing payments stop         │
 │  ✓ Month 1 & 2: No payments due ($0)              │
 │  ✓ Month 3: First new payment ($3,447)            │
@@ -1546,8 +1568,11 @@ const currentEscrowHeight = currentEscrow * scale;
 
 **Calculation:**
 ```javascript
-const cashInPocket = currentTotalPayment * 2;  // 2 months
-const month3Payment = proposedTotalPayment;
+const cashInPocket = currentTotalPayment * cashFlowMonths;
+const firstNewPayment = proposedTotalPayment;
+
+// Impact for ranking is FIXED at 2 months (doesn't change with user selection)
+const cashFlowImpact = currentTotalPayment * 2;
 ```
 
 ---

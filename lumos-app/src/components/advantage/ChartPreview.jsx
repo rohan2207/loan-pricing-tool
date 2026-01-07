@@ -27,7 +27,7 @@ export function ChartPreview({ chartType, data }) {
     // Configurable chart parameters - use props from main UI if available
     const [compoundRate, setCompoundRate] = useState(chartConfig.compoundRate || 7);
     const [acceleratedPaymentPercent, setAcceleratedPaymentPercent] = useState(chartConfig.acceleratedPercent || 100);
-    const [cashFlowDays, setCashFlowDays] = useState(chartConfig.cashFlowDays || 60);
+    const [cashFlowMonths, setCashFlowMonths] = useState(chartConfig.cashFlowMonths || 2);
     const [taxRate, setTaxRate] = useState(chartConfig.taxRate || 25);
     const [grossMonthlyIncome, setGrossMonthlyIncome] = useState(chartConfig.grossIncome || 12000);
     
@@ -35,10 +35,10 @@ export function ChartPreview({ chartType, data }) {
     useEffect(() => {
         if (chartConfig.compoundRate !== undefined) setCompoundRate(chartConfig.compoundRate);
         if (chartConfig.acceleratedPercent !== undefined) setAcceleratedPaymentPercent(chartConfig.acceleratedPercent);
-        if (chartConfig.cashFlowDays !== undefined) setCashFlowDays(chartConfig.cashFlowDays);
+        if (chartConfig.cashFlowMonths !== undefined) setCashFlowMonths(chartConfig.cashFlowMonths);
         if (chartConfig.taxRate !== undefined) setTaxRate(chartConfig.taxRate);
         if (chartConfig.grossIncome !== undefined) setGrossMonthlyIncome(chartConfig.grossIncome);
-    }, [chartConfig.compoundRate, chartConfig.acceleratedPercent, chartConfig.cashFlowDays, chartConfig.taxRate, chartConfig.grossIncome]);
+    }, [chartConfig.compoundRate, chartConfig.acceleratedPercent, chartConfig.cashFlowMonths, chartConfig.taxRate, chartConfig.grossIncome]);
     
     // Use passed data or fallback defaults
     const analysisData = data || {
@@ -797,22 +797,21 @@ export function ChartPreview({ chartType, data }) {
                 );
             
             case 'cash-flow-window':
-                // Cash Flow Window - money kept during transition with configurable days
-                const daysToFirstPayment = cashFlowDays;
-                const monthsPaymentFree = Math.floor(daysToFirstPayment / 30);
+                // Cash Flow Window - money kept during transition with configurable months
+                const monthsPaymentFree = cashFlowMonths;
                 
                 // Current total monthly payment (what they pay NOW on all debts being consolidated)
                 const currentMonthlyTotal = analysisData.currentTotal || analysisData.debtsMonthlyPayment || 4156;
                 const cashInPocket = currentMonthlyTotal * monthsPaymentFree;
                 
-                // New proposed total monthly payment (what they'll pay starting Month 3)
+                // New proposed total monthly payment (what they'll pay starting after payment-free period)
                 const newProposedPayment = analysisData.proposedTotal || analysisData.proposedPI || 3625;
                 
                 return (
                     <div className="h-full flex flex-col">
                         <div className="bg-gradient-to-r from-emerald-600 to-teal-500 text-white px-6 py-4">
                             <h2 className="font-bold text-xl tracking-wide">CASH FLOW WINDOW</h2>
-                            <p className="text-emerald-100 text-sm">{cashFlowDays} days payment-free period</p>
+                            <p className="text-emerald-100 text-sm">{monthsPaymentFree} month{monthsPaymentFree !== 1 ? 's' : ''} payment-free period</p>
                         </div>
                         
                         <div className="flex-1 overflow-auto p-6">
@@ -826,7 +825,7 @@ export function ChartPreview({ chartType, data }) {
                                 </p>
                                 <p className="text-emerald-700 font-medium">Cash In Your Pocket</p>
                                 <p className="text-stone-500 text-sm mt-2">
-                                    {monthsPaymentFree} month{monthsPaymentFree > 1 ? 's' : ''} × ${currentMonthlyTotal.toLocaleString()}/mo = ${cashInPocket.toLocaleString()}
+                                    {monthsPaymentFree} month{monthsPaymentFree !== 1 ? 's' : ''} × ${currentMonthlyTotal.toLocaleString()}/mo = ${cashInPocket.toLocaleString()}
                                 </p>
                             </div>
                             
@@ -834,7 +833,7 @@ export function ChartPreview({ chartType, data }) {
                             <div className="bg-white rounded-xl border border-stone-200 p-5 mb-6">
                                 <div className="flex items-center gap-2 mb-4">
                                     <Clock size={18} className="text-stone-500" />
-                                    <h3 className="font-semibold text-stone-700">How It Works ({cashFlowDays} Day Window)</h3>
+                                    <h3 className="font-semibold text-stone-700">How It Works ({monthsPaymentFree} Month Window)</h3>
                                 </div>
                                 
                                 <div className="space-y-4">

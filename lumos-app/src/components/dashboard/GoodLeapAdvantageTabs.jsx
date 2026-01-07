@@ -57,7 +57,7 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
     // Chart configurable parameters - inline adjustable
     const [compoundRate, setCompoundRate] = useState(7);
     const [acceleratedPercent, setAcceleratedPercent] = useState(100);
-    const [cashFlowDays, setCashFlowDays] = useState(60);
+    const [cashFlowMonths, setCashFlowMonths] = useState(2); // 1, 2, or 3 months
     const [grossIncome, setGrossIncome] = useState(12000);
     const [taxRate, setTaxRate] = useState(25);
     
@@ -321,7 +321,7 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
         chartConfig: {
             compoundRate,
             acceleratedPercent,
-            cashFlowDays,
+            cashFlowMonths,
             grossIncome,
             taxRate,
         }
@@ -340,7 +340,7 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                 onUpdateFlyoverData(buildChartData());
             }
         }
-    }, [openChartType, acceleratedPercent, compoundRate, cashFlowDays, grossIncome, taxRate, isPriced]);
+    }, [openChartType, acceleratedPercent, compoundRate, cashFlowMonths, grossIncome, taxRate, isPriced]);
 
     return (
         <div className="h-full flex flex-col bg-stone-50">
@@ -981,8 +981,9 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                 {/* Recommendation Engine - grouped by value */}
                                 {(() => {
                                     // Calculate values based on configurable parameters
-                                    const cashFlowMonths = Math.floor(cashFlowDays / 30);
+                                    // cashFlowValue uses adjustable months, but IMPACT always uses 2 months (fixed for ranking)
                                     const cashFlowValue = calc.currentTotal * cashFlowMonths;
+                                    const cashFlowImpact = calc.currentTotal * 2; // Fixed at 2 months for consistent ranking
                                     const acceleratedPayment = Math.round((acceleratedPercent / 100) * loan.savings);
                                     const incomeAfterTax = Math.round(grossIncome * (1 - taxRate / 100));
                                     const currentDebtPmts = calc.other; // debts being paid off
@@ -999,10 +1000,10 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                             icon: <Calendar size={16} />, 
                                             title: 'Cash Flow Window', 
                                             value: fmt(cashFlowValue), 
-                                            impact: cashFlowValue, 
+                                            impact: cashFlowImpact, // Fixed at 2 months for consistent ranking
                                             providesValue: calc.currentTotal > 0, 
                                             chart: 'cash-flow-window',
-                                            config: { type: 'days', value: cashFlowDays, setValue: setCashFlowDays, min: 30, max: 90, step: 15, label: 'days' }
+                                            config: { type: 'months', value: cashFlowMonths, setValue: setCashFlowMonths, min: 1, max: 3, step: 1, label: 'months' }
                                         },
                                         { id: 'break-even', icon: <Clock size={16} />, title: 'Break-Even', value: loan.savings > 0 ? `${loan.breakEven} mo` : '—', sub: loan.savings > 0 ? (loan.breakEven <= 24 ? '✓ Under 2 years' : `${fmt(closingCosts + Math.max(0, loan.pointsCost))} to recoup`) : 'No savings to recoup', impact: loan.savings > 0 ? Math.max(0, 60 - loan.breakEven) : 0, providesValue: loan.savings > 0 && loan.breakEven <= 36, chart: 'recoup-costs', warning: loan.savings > 0 && loan.breakEven > 24 },
                                         { 
@@ -1212,19 +1213,24 @@ function Card({ icon, title, value, sub, sel, onToggle, onView, rec, top, c = "a
             );
         }
         
-        if (config.type === 'days') {
+        if (config.type === 'months') {
             return (
-                <div className="flex items-center gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
-                    <input 
-                        type="number" 
-                        min={config.min} 
-                        max={config.max} 
-                        step={config.step}
-                        value={config.value}
-                        onChange={(e) => config.setValue(parseInt(e.target.value) || config.min)}
-                        className="w-12 px-1.5 py-0.5 text-xs font-semibold text-center border border-stone-300 rounded-md focus:border-teal-400 focus:outline-none"
-                    />
-                    <span className="text-xs text-stone-400">{config.label} payment-free</span>
+                <div className="flex items-center gap-1.5 mt-1" onClick={(e) => e.stopPropagation()}>
+                    {[1, 2, 3].map(m => (
+                        <button
+                            key={m}
+                            onClick={() => config.setValue(m)}
+                            className={cn(
+                                "px-2 py-0.5 text-xs font-semibold rounded-md transition-all",
+                                config.value === m 
+                                    ? "bg-teal-500 text-white" 
+                                    : "bg-stone-100 text-stone-500 hover:bg-stone-200"
+                            )}
+                        >
+                            {m}
+                        </button>
+                    ))}
+                    <span className="text-xs text-stone-400 ml-1">month{config.value !== 1 ? 's' : ''} payment-free</span>
                 </div>
             );
         }
