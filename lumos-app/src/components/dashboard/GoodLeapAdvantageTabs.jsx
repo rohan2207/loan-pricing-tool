@@ -1180,17 +1180,18 @@ function Card({ icon, title, value, sub, sel, onToggle, onView, rec, top, c = "a
         if (config.type === 'rate') {
             return (
                 <div className="flex items-center gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
-                    <span className="text-xs text-stone-400">Invest @</span>
+                    <span className="text-xs text-stone-400">@</span>
                     <input 
-                        type="number" 
-                        min={config.min} 
-                        max={config.max} 
-                        step={config.step}
+                        type="range" 
+                        min={0} 
+                        max={20} 
+                        step={1}
                         value={config.value}
-                        onChange={(e) => config.setValue(parseFloat(e.target.value) || config.min)}
-                        className="w-12 px-1.5 py-0.5 text-xs font-semibold text-center border border-stone-300 rounded-md focus:border-teal-400 focus:outline-none"
+                        onChange={(e) => config.setValue(parseInt(e.target.value))}
+                        className="w-20 h-1.5 bg-stone-200 rounded-full appearance-none cursor-pointer accent-purple-500"
                     />
-                    <span className="text-xs text-stone-400">{config.label}</span>
+                    <span className="text-xs font-bold text-purple-600 w-8">{config.value}%</span>
+                    <span className="text-xs text-stone-400">return</span>
                 </div>
             );
         }
@@ -1236,29 +1237,42 @@ function Card({ icon, title, value, sub, sel, onToggle, onView, rec, top, c = "a
         }
         
         if (config.type === 'income') {
+            const taxPresets = [20, 25, 30, 35];
             return (
-                <div className="flex items-center gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
-                    <span className="text-xs text-stone-400">$</span>
-                    <input 
-                        type="number" 
-                        min={1000} 
-                        max={100000} 
-                        step={500}
-                        value={config.grossIncome}
-                        onChange={(e) => config.setGrossIncome(parseInt(e.target.value) || 8000)}
-                        className="w-20 px-1.5 py-0.5 text-xs font-semibold text-center border border-stone-300 rounded-md focus:border-teal-400 focus:outline-none"
-                    />
-                    <span className="text-xs text-stone-400">@</span>
-                    <input 
-                        type="number" 
-                        min={10} 
-                        max={50} 
-                        step={1}
-                        value={config.taxRate}
-                        onChange={(e) => config.setTaxRate(parseInt(e.target.value) || 25)}
-                        className="w-12 px-1.5 py-0.5 text-xs font-semibold text-center border border-stone-300 rounded-md focus:border-teal-400 focus:outline-none"
-                    />
-                    <span className="text-xs text-stone-400">% tax</span>
+                <div className="flex flex-col gap-1.5 mt-1" onClick={(e) => e.stopPropagation()}>
+                    {/* Income slider with common presets */}
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs text-stone-400">$</span>
+                        <input 
+                            type="range" 
+                            min={3000} 
+                            max={25000} 
+                            step={500}
+                            value={config.grossIncome}
+                            onChange={(e) => config.setGrossIncome(parseInt(e.target.value))}
+                            className="w-24 h-1.5 bg-stone-200 rounded-full appearance-none cursor-pointer accent-indigo-500"
+                        />
+                        <span className="text-xs font-bold text-indigo-600">{(config.grossIncome / 1000).toFixed(0)}k</span>
+                        <span className="text-xs text-stone-400">/mo</span>
+                    </div>
+                    {/* Tax rate preset buttons */}
+                    <div className="flex items-center gap-1">
+                        <span className="text-xs text-stone-400 mr-1">Tax:</span>
+                        {taxPresets.map(rate => (
+                            <button
+                                key={rate}
+                                onClick={() => config.setTaxRate(rate)}
+                                className={cn(
+                                    "px-1.5 py-0.5 text-[10px] font-semibold rounded transition-all",
+                                    config.taxRate === rate 
+                                        ? "bg-indigo-500 text-white" 
+                                        : "bg-stone-100 text-stone-500 hover:bg-stone-200"
+                                )}
+                            >
+                                {rate}%
+                            </button>
+                        ))}
+                    </div>
                 </div>
             );
         }

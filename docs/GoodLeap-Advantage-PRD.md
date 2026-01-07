@@ -1229,11 +1229,11 @@ const toggle = (id) => {
 
 | Chart | Control | Default | Range | Inline Display |
 |-------|---------|---------|-------|----------------|
-| Compound Growth | Interest Rate | 7% | 3-12% | "Invest @ [7] % return" |
+| Compound Growth | Interest Rate | 7% | 0-20% | Slider with "@ [7]% return" |
 | Accelerated Payoff | Extra Payment % | 100% | 0-100% | Slider with "X% of $657" |
 | Cash Flow Window | Months | 2 | 1-3 | Button group "1 2 3 months payment-free" |
-| Disposable Income | Gross Income | $12,000 | $1k-100k | "$ [12000] gross @ [25] % tax" |
-| Disposable Income | Tax Rate | 25% | 10-45% | Combined with income |
+| Disposable Income | Gross Income | $12,000 | $3k-25k | Slider showing "$12k/mo" |
+| Disposable Income | Tax Rate | 25% | 20,25,30,35% | Button group presets |
 
 **Important: Rankings are FIXED**
 
