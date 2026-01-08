@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
     Calculator, X, Play, RefreshCw, Check, TrendingUp, ChevronRight, ExternalLink,
     FileText, Clock, Plus, Download, Lock, Sparkles, Home, DollarSign, Calendar,
-    ChevronDown, ChevronUp, ListChecks, Wallet
+    ChevronDown, ChevronUp, ChevronLeft, ListChecks, Wallet, ArrowLeft
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -43,6 +43,7 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
     const [currentBalance, setCurrentBalance] = useState(247500);
     const [currentRate, setCurrentRate] = useState(3.75);
     const [currentTerm, setCurrentTerm] = useState(30); // 15, 20, or 30 years
+    const [proposedTerm, setProposedTerm] = useState(30); // Proposed loan term
     const [propertyValue, setPropertyValue] = useState(borrowerData?.property?.avmValue || 950000);
     
     // GoodLeap loan fields (editable)
@@ -210,7 +211,7 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
         const ufmip = isFHA ? Math.round(baseLoanAmt * 0.0175) : 0;
         const amt = baseLoanAmt + ufmip;
         const rate = isPriced ? selectedRateData.rate : 7.0;
-        const r = rate / 100 / 12, n = 360;
+        const r = rate / 100 / 12, n = proposedTerm * 12;
         const pi = Math.round(amt * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1));
         
         let monthlyMI = 0;
@@ -244,7 +245,7 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
             miLabel,
             pointsCost 
         };
-    }, [calc, activeLTV, propertyValue, isPriced, selectedRateData, program, manualCashout]);
+    }, [calc, activeLTV, propertyValue, isPriced, selectedRateData, program, manualCashout, proposedTerm]);
 
     const handlePrice = () => { 
         setIsRunningPricing(true); 
@@ -374,15 +375,24 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                     isDebtsCollapsed ? "w-[200px] flex-shrink-0" : "flex-1"
                 )}>
                     <div className="p-4">
-                        {/* Header with collapse toggle */}
+                        {/* Header with back button and collapse toggle */}
                         <div className="flex items-center justify-between mb-3">
-                            <button 
-                                onClick={() => setIsDebtsCollapsed(!isDebtsCollapsed)}
-                                className="flex items-center gap-2 hover:bg-stone-100 rounded-lg px-2 py-1 -ml-2 transition-colors"
-                            >
-                                {isDebtsCollapsed ? <ChevronDown size={16} className="text-stone-500" /> : <ChevronUp size={16} className="text-stone-500" />}
-                                <h4 className="text-stone-800 font-medium">Debts to Pay Off</h4>
-                            </button>
+                            <div className="flex items-center gap-1">
+                                <button 
+                                    onClick={onExit}
+                                    className="p-1.5 hover:bg-stone-100 rounded-lg transition-colors text-stone-500 hover:text-stone-700"
+                                    title="Back to Liabilities"
+                                >
+                                    <ArrowLeft size={16} />
+                                </button>
+                                <button 
+                                    onClick={() => setIsDebtsCollapsed(!isDebtsCollapsed)}
+                                    className="flex items-center gap-2 hover:bg-stone-100 rounded-lg px-2 py-1 transition-colors"
+                                >
+                                    {isDebtsCollapsed ? <ChevronDown size={16} className="text-stone-500" /> : <ChevronUp size={16} className="text-stone-500" />}
+                                    <h4 className="text-stone-800 font-medium">Debts to Pay Off</h4>
+                                </button>
+                            </div>
                             <span className="bg-amber-100 text-amber-700 text-xs font-semibold px-2.5 py-1 rounded-full">{calc.count} Selected</span>
                         </div>
 
@@ -582,8 +592,32 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                     <label className="text-xs text-stone-500 font-medium">Term</label>
                                     <div className="flex gap-1 mt-1">
                                         {[30, 20, 15, 10].map(t => (
-                                            <button key={t} className={cn("flex-1 py-1.5 text-xs font-medium rounded-lg transition-all", t === 30 ? "bg-stone-800 text-white" : "bg-stone-100 text-stone-600 hover:bg-stone-200")}>{t}</button>
+                                            <button 
+                                                key={t} 
+                                                onClick={() => { setProposedTerm(t); resetPricing(); }}
+                                                className={cn("flex-1 py-1.5 text-xs font-medium rounded-lg transition-all", proposedTerm === t ? "bg-stone-800 text-white" : "bg-stone-100 text-stone-600 hover:bg-stone-200")}
+                                            >
+                                                {t}
+                                            </button>
                                         ))}
+                                        <input
+                                            type="number"
+                                            placeholder="—"
+                                            value={![30, 20, 15, 10].includes(proposedTerm) ? proposedTerm : ''}
+                                            onChange={(e) => {
+                                                const val = parseInt(e.target.value) || '';
+                                                if (val) {
+                                                    setProposedTerm(val);
+                                                    resetPricing();
+                                                }
+                                            }}
+                                            className={cn(
+                                                "w-10 py-1.5 text-xs font-medium text-center rounded-lg border transition-all",
+                                                ![30, 20, 15, 10].includes(proposedTerm) 
+                                                    ? "bg-stone-800 text-white border-stone-800" 
+                                                    : "bg-stone-100 text-stone-600 border-stone-200 hover:bg-stone-200"
+                                            )}
+                                        />
                                     </div>
                                 </div>
                                 <div>
@@ -591,9 +625,13 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                     {isPriced ? (
                                         <p className="mt-1 py-1.5 text-lg font-bold text-amber-600">{selectedRateData.rate.toFixed(3)}%</p>
                                     ) : (
-                                        <div className="mt-1 py-1.5 px-3 bg-stone-100 rounded-lg text-sm text-stone-400 flex items-center gap-2">
-                                            <Lock size={12} /> Price to see rates
-                                        </div>
+                                        <button 
+                                            onClick={handlePrice} 
+                                            disabled={isRunningPricing}
+                                            className="mt-1 w-full py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition-all disabled:bg-amber-300"
+                                        >
+                                            {isRunningPricing ? <><RefreshCw size={14} className="animate-spin" /> Pricing...</> : <><Play size={14} /> Price Loan</>}
+                                        </button>
                                     )}
                                 </div>
                             </div>
@@ -612,7 +650,7 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                         {RATE_OPTIONS.map((opt, i) => {
                                             // Calculate P&I payment for this rate option
                                             const r = opt.rate / 100 / 12;
-                                            const n = 360;
+                                            const n = proposedTerm * 12;
                                             const payment = Math.round(loan.amt * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1));
                                             
                                             return (
@@ -787,44 +825,39 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                 <span className="text-right text-amber-600">Proposed</span>
                             </div>
                             
-                            {/* Calculate from Balance */}
-                            <div className="px-4 py-2 bg-stone-50/50 border-b border-stone-100">
-                                <div className="flex items-center gap-2 text-xs flex-wrap">
-                                    <span className="text-stone-500">Calculate P&I from:</span>
-                                    <div className="flex items-center gap-1">
-                                        <span className="text-stone-400">$</span>
-                                        <input 
-                                            type="number" 
-                                            value={currentBalance} 
-                                            onChange={(e) => setCurrentBalance(parseInt(e.target.value) || 0)}
-                                            className="w-20 px-1.5 py-1 border border-stone-200 rounded-lg text-xs text-right focus:border-amber-400 focus:outline-none"
-                                        />
-                                    </div>
+                            {/* Calculate P&I - Compact single row with all 4 variables */}
+                            <div className="px-3 py-2 bg-stone-50/50 border-b border-stone-100">
+                                <div className="flex items-center gap-1.5 text-xs">
+                                    <span className="text-stone-500 whitespace-nowrap">Calculate P&I from:</span>
+                                    <span className="text-stone-400">$</span>
+                                    <input 
+                                        type="number" 
+                                        value={currentBalance} 
+                                        onChange={(e) => setCurrentBalance(parseInt(e.target.value) || 0)}
+                                        className="w-[72px] px-1 py-1 border border-stone-200 rounded text-xs text-right focus:border-amber-400 focus:outline-none"
+                                    />
                                     <span className="text-stone-400">@</span>
-                                    <div className="flex items-center gap-1">
-                                        <input 
-                                            type="number" 
-                                            step="0.125"
-                                            value={currentRate} 
-                                            onChange={(e) => setCurrentRate(parseFloat(e.target.value) || 0)}
-                                            className="w-14 px-1.5 py-1 border border-stone-200 rounded-lg text-xs text-right focus:border-amber-400 focus:outline-none"
-                                        />
-                                        <span className="text-stone-400">%</span>
-                                    </div>
-                                    <span className="text-stone-400">for</span>
+                                    <input 
+                                        type="number" 
+                                        step="0.125"
+                                        value={currentRate} 
+                                        onChange={(e) => setCurrentRate(parseFloat(e.target.value) || 0)}
+                                        className="w-12 px-1 py-1 border border-stone-200 rounded text-xs text-right focus:border-amber-400 focus:outline-none"
+                                    />
+                                    <span className="text-stone-400">%</span>
                                     <select 
                                         value={currentTerm}
                                         onChange={(e) => setCurrentTerm(parseInt(e.target.value))}
-                                        className="px-1.5 py-1 border border-stone-200 rounded-lg text-xs bg-white focus:border-amber-400 focus:outline-none"
+                                        className="px-1 py-1 border border-stone-200 rounded text-xs bg-white focus:border-amber-400 focus:outline-none"
                                     >
-                                        <option value={10}>10 yr</option>
-                                        <option value={15}>15 yr</option>
-                                        <option value={20}>20 yr</option>
-                                        <option value={30}>30 yr</option>
+                                        <option value={10}>10yr</option>
+                                        <option value={15}>15yr</option>
+                                        <option value={20}>20yr</option>
+                                        <option value={30}>30yr</option>
                                     </select>
                                     <button 
                                         onClick={() => setCurrentPI(calculatePIFromBalance(currentBalance, currentRate, currentTerm))}
-                                        className="px-2.5 py-1 bg-stone-800 text-white rounded-lg text-xs hover:bg-stone-700 transition-colors"
+                                        className="px-2 py-1 bg-stone-800 text-white rounded text-xs hover:bg-stone-700 transition-colors"
                                     >
                                         Calc
                                     </button>
@@ -832,7 +865,7 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                             </div>
                             
                             <div className="text-sm">
-                                {/* P&I Row */}
+                                {/* P&I Row - First (most important) */}
                                 <div className="grid grid-cols-3 items-center px-4 py-2.5 border-b border-stone-100">
                                     <div className="relative">
                                         <span className="absolute left-0 top-1/2 -translate-y-1/2 text-stone-500 text-sm">$</span>
@@ -856,54 +889,41 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                     </span>
                                 </div>
                                 
-                                {/* Escrow Toggle */}
-                                <div className="px-4 py-2.5 border-b border-stone-100 bg-stone-50/50">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <span className="text-stone-700 text-xs font-medium">Include Escrow</span>
-                                            {!includeEscrow && (
-                                                <p className="text-[10px] text-stone-400 mt-0.5">Paid separately</p>
-                                            )}
-                                        </div>
-                                        <button
-                                            onClick={() => updateEscrow(!includeEscrow)}
-                                            className={cn("w-10 h-5 rounded-full transition-colors relative", includeEscrow ? "bg-amber-500" : "bg-stone-300")}
-                                        >
-                                            <div className={cn("w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform shadow", includeEscrow ? "translate-x-5" : "translate-x-0.5")} />
-                                        </button>
+                                {/* Taxes Row - Always show, value depends on escrow toggle */}
+                                <div className="grid grid-cols-3 items-center px-4 py-2.5 border-b border-stone-100">
+                                    <div className="relative">
+                                        <span className="absolute left-0 top-1/2 -translate-y-1/2 text-stone-500 text-sm">$</span>
+                                        <input 
+                                            type="number" 
+                                            value={includeEscrow ? currentTaxes : 0} 
+                                            onChange={(e) => setCurrentTaxes(parseInt(e.target.value) || 0)}
+                                            disabled={!includeEscrow}
+                                            className={cn("w-16 pl-3 pr-1 py-1 border border-stone-200 rounded-lg text-sm font-medium text-right focus:border-amber-400 focus:outline-none", !includeEscrow && "bg-stone-50 text-stone-400")}
+                                        />
                                     </div>
+                                    <span className="text-center text-xs text-stone-500">Taxes</span>
+                                    <span className={cn("text-right font-medium", includeEscrow ? "text-amber-600" : "text-stone-300")}>
+                                        {includeEscrow ? fmt(currentTaxes) : '—'}
+                                    </span>
                                 </div>
                                 
-                                {includeEscrow && (
-                                    <>
-                                        <div className="grid grid-cols-3 items-center px-4 py-2.5 border-b border-stone-100">
-                                            <div className="relative">
-                                                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-stone-500 text-sm">$</span>
-                                                <input 
-                                                    type="number" 
-                                                    value={currentTaxes} 
-                                                    onChange={(e) => setCurrentTaxes(parseInt(e.target.value) || 0)}
-                                                    className="w-16 pl-3 pr-1 py-1 border border-stone-200 rounded-lg text-sm font-medium text-right focus:border-amber-400 focus:outline-none"
-                                                />
-                                            </div>
-                                            <span className="text-center text-xs text-stone-500">Taxes</span>
-                                            <span className="text-right font-medium text-amber-600">{fmt(currentTaxes)}</span>
-                                        </div>
-                                        <div className="grid grid-cols-3 items-center px-4 py-2.5 border-b border-stone-100">
-                                            <div className="relative">
-                                                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-stone-500 text-sm">$</span>
-                                                <input 
-                                                    type="number" 
-                                                    value={currentInsurance} 
-                                                    onChange={(e) => setCurrentInsurance(parseInt(e.target.value) || 0)}
-                                                    className="w-16 pl-3 pr-1 py-1 border border-stone-200 rounded-lg text-sm font-medium text-right focus:border-amber-400 focus:outline-none"
-                                                />
-                                            </div>
-                                            <span className="text-center text-xs text-stone-500">Insurance</span>
-                                            <span className="text-right font-medium text-amber-600">{fmt(currentInsurance)}</span>
-                                        </div>
-                                    </>
-                                )}
+                                {/* Insurance Row - Always show, value depends on escrow toggle */}
+                                <div className="grid grid-cols-3 items-center px-4 py-2.5 border-b border-stone-100">
+                                    <div className="relative">
+                                        <span className="absolute left-0 top-1/2 -translate-y-1/2 text-stone-500 text-sm">$</span>
+                                        <input 
+                                            type="number" 
+                                            value={includeEscrow ? currentInsurance : 0} 
+                                            onChange={(e) => setCurrentInsurance(parseInt(e.target.value) || 0)}
+                                            disabled={!includeEscrow}
+                                            className={cn("w-16 pl-3 pr-1 py-1 border border-stone-200 rounded-lg text-sm font-medium text-right focus:border-amber-400 focus:outline-none", !includeEscrow && "bg-stone-50 text-stone-400")}
+                                        />
+                                    </div>
+                                    <span className="text-center text-xs text-stone-500">Insurance</span>
+                                    <span className={cn("text-right font-medium", includeEscrow ? "text-amber-600" : "text-stone-300")}>
+                                        {includeEscrow ? fmt(currentInsurance) : '—'}
+                                    </span>
+                                </div>
                                 
                                 {/* MI Row */}
                                 <div className="grid grid-cols-3 items-center px-4 py-2.5 border-b border-stone-100">
@@ -931,6 +951,17 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                         <p className="text-xs text-sky-600">ℹ️ UFMIP ({fmt(loan.ufmip)}) financed into loan</p>
                                     </div>
                                 )}
+                                
+                                {/* Total Mtg Pmt Row - Subtotal of P&I + Escrow + MI */}
+                                <div className="grid grid-cols-3 items-center px-4 py-2.5 border-b border-stone-200 bg-stone-50/50">
+                                    <span className="font-semibold text-stone-700">
+                                        {fmt(currentPI + (includeEscrow ? currentTaxes + currentInsurance : 0) + currentMIP)}
+                                    </span>
+                                    <span className="text-center text-xs text-stone-600 font-medium">Total Mtg Pmt</span>
+                                    <span className={cn("text-right font-semibold", isPriced ? "text-amber-600" : "text-stone-300")}>
+                                        {isPriced ? fmt(loan.pi + (includeEscrow ? calc.escrow : 0) + loan.monthlyMI) : '—'}
+                                    </span>
+                                </div>
                                 
                                 {isPriced && loan.pointsCost !== 0 && (
                                     <div className="grid grid-cols-3 items-center px-4 py-2.5 border-b border-stone-100">
@@ -963,6 +994,24 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                                         rc="text-stone-500" 
                                     />
                                 )}
+                                
+                                {/* Include Escrow Toggle - Moved to bottom */}
+                                <div className="px-4 py-2.5 border-b border-stone-100 bg-stone-50/30">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <span className="text-stone-700 text-xs font-medium">Include Escrow</span>
+                                            {!includeEscrow && (
+                                                <p className="text-[10px] text-stone-400 mt-0.5">Taxes & Insurance paid separately</p>
+                                            )}
+                                        </div>
+                                        <button
+                                            onClick={() => updateEscrow(!includeEscrow)}
+                                            className={cn("w-10 h-5 rounded-full transition-colors relative", includeEscrow ? "bg-amber-500" : "bg-stone-300")}
+                                        >
+                                            <div className={cn("w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform shadow", includeEscrow ? "translate-x-5" : "translate-x-0.5")} />
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             
                             <div className="grid grid-cols-3 items-center px-4 py-3 bg-stone-50 border-t border-stone-200">
@@ -972,30 +1021,24 @@ export function GoodLeapAdvantageTabs({ accounts = [], borrowerData, onExit, onV
                             </div>
                         </div>
 
-                        {/* Savings or Price Button */}
-                        {isPriced ? (
-                            (() => {
-                                // Calculate actual savings including debts not paid off (same on both sides, so they cancel out)
-                                const actualSavings = (calc.currentTotal + debtsNotPaidPayment) - (loan.proposed + debtsNotPaidPayment);
-                                return (
-                                    <div className={cn("rounded-xl p-4 flex items-center justify-center gap-6", actualSavings >= 0 ? "bg-gradient-to-r from-teal-50 to-amber-50 border border-teal-200" : "bg-rose-50 border border-rose-200")}>
-                                        <div className="text-center">
-                                            <p className="text-sm text-stone-600">Monthly Savings</p>
-                                            <p className={cn("text-3xl font-bold", actualSavings >= 0 ? "text-teal-600" : "text-rose-600")}>{actualSavings >= 0 ? '+' : ''}{fmt(actualSavings)}</p>
-                                        </div>
-                                        <div className="w-px h-12 bg-stone-200" />
-                                        <div className="text-center">
-                                            <p className="text-sm text-stone-600">Annual</p>
-                                            <p className={cn("text-xl font-bold", actualSavings >= 0 ? "text-teal-600" : "text-rose-600")}>{fmt(actualSavings * 12)}</p>
-                                        </div>
+                        {/* Savings Summary - Only shown after pricing */}
+                        {isPriced && (() => {
+                            // Calculate actual savings including debts not paid off (same on both sides, so they cancel out)
+                            const actualSavings = (calc.currentTotal + debtsNotPaidPayment) - (loan.proposed + debtsNotPaidPayment);
+                            return (
+                                <div className={cn("rounded-xl p-4 flex items-center justify-center gap-6", actualSavings >= 0 ? "bg-gradient-to-r from-teal-50 to-amber-50 border border-teal-200" : "bg-rose-50 border border-rose-200")}>
+                                    <div className="text-center">
+                                        <p className="text-sm text-stone-600">Monthly Savings</p>
+                                        <p className={cn("text-3xl font-bold", actualSavings >= 0 ? "text-teal-600" : "text-rose-600")}>{actualSavings >= 0 ? '+' : ''}{fmt(actualSavings)}</p>
                                     </div>
-                                );
-                            })()
-                        ) : (
-                            <button onClick={handlePrice} disabled={isRunningPricing} className="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition-all">
-                                {isRunningPricing ? <><RefreshCw size={16} className="animate-spin" /> Pricing...</> : <><Play size={16} /> Price Loan</>}
-                            </button>
-                        )}
+                                    <div className="w-px h-12 bg-stone-200" />
+                                    <div className="text-center">
+                                        <p className="text-sm text-stone-600">Annual</p>
+                                        <p className={cn("text-xl font-bold", actualSavings >= 0 ? "text-teal-600" : "text-rose-600")}>{fmt(actualSavings * 12)}</p>
+                                    </div>
+                                </div>
+                            );
+                        })()}
                     </div>
                 </div>
 

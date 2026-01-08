@@ -107,10 +107,29 @@ Dashboard → Click "GoodLeap Advantage" →
 
 **Rationale:** Once pricing is complete, the loan officer's focus shifts to Value Propositions. Collapsing the debts table gives more screen space to the important comparison and benefits sections.
 
+### 4.1.1 Back to Liabilities Button
+
+The Debts section header includes a back arrow button that returns the user to the full liabilities page.
+
+**Implementation:**
+```jsx
+<button 
+    onClick={onExit}
+    className="p-1.5 hover:bg-stone-100 rounded-lg transition-colors text-stone-500 hover:text-stone-700"
+    title="Back to Liabilities"
+>
+    <ArrowLeft size={16} />
+</button>
+```
+
+**Purpose:** Provides quick navigation back to the full liabilities view when the LO needs to see the complete credit report or make changes outside the GoodLeap Advantage workflow.
+
 ### 4.2 Expanded Layout
 ```
 ┌────────────────────────────────────────────┐
-│ [▼] Debts to Pay Off        [8 Selected]   │
+│ [←] [▼] Debts to Pay Off    [8 Selected]   │
+│  ↑                                          │
+│  Back button (returns to full liabilities)  │
 ├────────────────────────────────────────────┤
 │ GOODLEAP LOAN                              │
 │ ┌────────────────────────────────────────┐ │
@@ -349,6 +368,53 @@ const [propertyValue, setPropertyValue] = useState(borrowerData?.property?.avmVa
 | FHA Streamline | 96.5% | UFMIP + MIP | Existing FHA |
 | VA IRRRL | 100% | None | Existing VA |
 
+### 5.3.1 Term Selection
+
+**Layout:**
+```
+┌────┬────┬────┬────┬─────┐
+│ 30 │ 20 │ 15 │ 10 │ [—] │  ← Custom term input
+└────┴────┴────┴────┴─────┘
+```
+
+**Requirements:**
+- 4 preset term buttons: 30, 20, 15, 10 years
+- Custom term input field for odd terms (e.g., 25, 12, 7 years)
+- Active button: Dark background, white text
+- Custom input highlights when a non-standard term is entered
+- Changing term triggers `resetPricing()`
+
+**State Variable:**
+```javascript
+const [proposedTerm, setProposedTerm] = useState(30);
+```
+
+**UI Implementation:**
+```jsx
+<div className="flex gap-1 mt-1">
+    {[30, 20, 15, 10].map(t => (
+        <button 
+            key={t} 
+            onClick={() => { setProposedTerm(t); resetPricing(); }}
+            className={cn("flex-1 py-1.5 text-xs font-medium rounded-lg", 
+                proposedTerm === t ? "bg-stone-800 text-white" : "bg-stone-100 text-stone-600")}
+        >
+            {t}
+        </button>
+    ))}
+    <input
+        type="number"
+        placeholder="—"
+        value={![30, 20, 15, 10].includes(proposedTerm) ? proposedTerm : ''}
+        onChange={(e) => { setProposedTerm(parseInt(e.target.value) || 30); resetPricing(); }}
+        className={cn("w-10 py-1.5 text-xs text-center rounded-lg border",
+            ![30, 20, 15, 10].includes(proposedTerm) 
+                ? "bg-stone-800 text-white border-stone-800" 
+                : "bg-stone-100 text-stone-600 border-stone-200")}
+    />
+</div>
+```
+
 ### 5.4 LTV Preset Buttons
 
 ```
@@ -399,9 +465,24 @@ const extraCashout = maxLoanAt80 - currentLoanAmount;
 
 Display: Teal background callout showing potential additional cashout
 
-### 5.7 Rate Options (Post-Pricing)
+### 5.7 Rate Options (with Price Loan Button)
 
-After pricing, show rate options with **payment prominently displayed first**, followed by rate and cost/credit details. This "rate stack" design prioritizes what matters most to borrowers - the monthly payment.
+**Before Pricing:**
+The Rate section shows a "Price Loan" button instead of rates. This button is the primary action to trigger pricing.
+
+```
+┌────────────────────────┐
+│ Rate                   │
+│ ┌────────────────────┐ │
+│ │   ▷ Price Loan     │ │  ← Amber button replaces "Price to see rates"
+│ └────────────────────┘ │
+└────────────────────────┘
+```
+
+**Note:** The Price Loan button was moved from the bottom of the comparison section to the Rate section for better UX flow. There is now only ONE Price Loan button.
+
+**After Pricing:**
+Show rate options with **payment prominently displayed first**, followed by rate and cost/credit details. This "rate stack" design prioritizes what matters most to borrowers - the monthly payment.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -437,18 +518,22 @@ After pricing, show rate options with **payment prominently displayed first**, f
 ┌─────────────────────────────────────────────────────────────────┐
 │      Present                               Proposed             │
 ├─────────────────────────────────────────────────────────────────┤
-│ Calculate P&I from: [$247,500] @ [3.75%] for [30 yr ▼] [Calc]  │
+│ Calculate P&I from: $[247500] @ [3.75] % [30yr▼] [Calc]        │
 ├─────────────────────────────────────────────────────────────────┤
 │ P&I              $1,710    →    $3,447                          │
-│ [✓] Include Escrow                                              │
 │ Taxes            $450      →    $450                            │
 │ Insurance        $120      →    $120                            │
 │ MI/MIP           $0        →    $125                            │
+├─────────────────────────────────────────────────────────────────┤
+│ Total Mtg Pmt    $2,280    →    $4,142     ← NEW subtotal       │
+├─────────────────────────────────────────────────────────────────┤
 │ Points/Credit    —         →    ($2,625)                        │
 │ Debts Being      $2,446    →    $0 (Paid Off)                   │
 │   Paid Off                                                      │
 │ Other Debts      $154      →    $154                            │
 │   (Not Paid)                                                    │
+├─────────────────────────────────────────────────────────────────┤
+│ [✓] Include Escrow                          ← Toggle at bottom  │
 ├─────────────────────────────────────────────────────────────────┤
 │ TOTAL            $4,880    →    $4,296                          │
 │                                                                 │
@@ -456,11 +541,24 @@ After pricing, show rate options with **payment prominently displayed first**, f
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+**Row Order (updated):**
+1. P&I - Most important, shown first
+2. Taxes - Escrow item
+3. Insurance - Escrow item
+4. MI/MIP - Mortgage insurance
+5. **Total Mtg Pmt** - NEW: Subtotal of P&I + Escrow + MI
+6. Points/Credit - Only shown after pricing if non-zero
+7. Debts Being Paid Off
+8. Other Debts (Not Paid)
+9. **Include Escrow toggle** - Moved to bottom (only affects pricing & comparison)
+10. TOTAL row
+
 **Note:** The term dropdown (10, 15, 20, 30 years) allows accurate P&I calculation for the borrower's existing mortgage. This flows to the proposal document for an accurate "X Year Fixed" display.
 
 **Key Row Types:**
 | Row | Present | Proposed | Notes |
 |-----|---------|----------|-------|
+| Total Mtg Pmt | P&I + Escrow + MI | P&I + Escrow + MI | Subtotal row with stone-50 background |
 | Debts Being Paid Off | Payment amount | $0 | Teal text for proposed |
 | Other Debts (Not Paid) | Payment amount | Same amount | Gray text, only shown if > $0 |
 
@@ -555,16 +653,29 @@ onChange={(e) => {
 - Correctly calculating present P&I ensures accurate savings comparison
 - Term flows to Proposal document for accurate "Current vs Proposed" display
 
-### 6.4 Escrow Toggle
+### 6.4 Escrow Toggle (Bottom of Comparison)
+
+**Position:** Moved to bottom of comparison section (after Other Debts row, before TOTAL).
+
+**Rationale:** The escrow toggle is only relevant for the pricing engine and comparison calculations. Moving it to the bottom keeps the focus on the payment breakdown while still providing the option to exclude escrow.
 
 ```
-[✓] Include Escrow (Taxes & Insurance)
+┌─────────────────────────────────────────────────────────────────┐
+│ Include Escrow                                          [●───]  │
+│ (Taxes & Insurance paid separately)   ← shown when unchecked    │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-**When unchecked:**
-- Hide Taxes and Insurance rows
-- Show note: "Taxes & Insurance paid separately"
-- Adjust totals accordingly
+**Behavior:**
+- **When checked (default):** Taxes and Insurance rows show current values
+- **When unchecked:**
+  - Taxes and Insurance inputs show $0 and are disabled
+  - Proposed escrow values show "—"
+  - Assumes client's current loan also has no escrows
+  - Note appears: "Taxes & Insurance paid separately"
+  - Total Mtg Pmt excludes escrow amounts
+
+**Important:** When "no escrow" is selected, assume the client's current mortgage also has no escrows. This ensures accurate comparison calculations.
 
 ### 6.5 Debts Breakdown Rows
 
