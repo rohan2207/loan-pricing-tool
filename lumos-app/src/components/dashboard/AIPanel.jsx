@@ -13,6 +13,7 @@ import { AIToolGrid } from './AIToolGrid';
 import { GoodLeapSummary } from './GoodLeapSummary';
 import { GoodLeapAVM } from './GoodLeapAVM';
 import { LiabilityAI } from './LiabilityAI';
+import { SalesCoach } from './SalesCoach';
 import '../../styles/bento.css';
 
 // Component registry - maps component names to actual components
@@ -20,6 +21,7 @@ const COMPONENT_MAP = {
     'GoodLeapSummary': GoodLeapSummary,
     'LiabilityAI': LiabilityAI,
     'GoodLeapAVM': GoodLeapAVM,
+    'SalesCoach': SalesCoach,
     // Add new components here as they're created
     // 'RateCompare': RateCompare,
     // 'DTICalculator': DTICalculator,

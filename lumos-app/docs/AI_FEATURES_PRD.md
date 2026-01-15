@@ -303,6 +303,7 @@ flowchart TB
             CallPrepBrief[Call Prep Brief]
             LiabilityAI[Liability AI]
             GoodLeapAVM[GoodLeap AVM]
+            SalesCoach[Sales Coach]
         end
         
         AIPanel --> AITools
@@ -313,6 +314,7 @@ flowchart TB
         CallPrepAPI[POST /api/ai/call-prep]
         LiabilityAPI[POST /api/ai/liability]
         AVMAPI[POST /api/ai/avm]
+        SalesCoachAPI[POST /api/ai/sales-coach]
     end
     
     subgraph External [External APIs]
@@ -322,10 +324,12 @@ flowchart TB
     CallPrepBrief --> CallPrepAPI
     LiabilityAI --> LiabilityAPI
     GoodLeapAVM --> AVMAPI
+    SalesCoach --> SalesCoachAPI
     
     CallPrepAPI --> OpenAI
     LiabilityAPI --> OpenAI
     AVMAPI --> OpenAI
+    SalesCoachAPI --> OpenAI
 ```
 
 > **Key Architecture Decision:** OpenAI calls are server-side only. The client never sees the API key.
@@ -359,6 +363,7 @@ flowchart LR
         Summary[GoodLeapSummary.jsx]
         Liability[LiabilityAI.jsx]
         AVM[GoodLeapAVM.jsx]
+        Coach[SalesCoach.jsx]
     end
     
     GoodLeapAssistant --> AIPanel
@@ -376,7 +381,8 @@ src/components/dashboard/
 ├── AIPopoutWindow.jsx       # Standalone popout page
 ├── GoodLeapSummary.jsx      # Call Prep Brief tool (embedded: true)
 ├── LiabilityAI.jsx          # Liability analysis tool (embedded: true)
-└── GoodLeapAVM.jsx          # Property valuation tool (embedded: true)
+├── GoodLeapAVM.jsx          # Property valuation tool (embedded: true)
+└── SalesCoach.jsx           # Conversational sales coach (embedded: true)
 ```
 
 ### GoodLeapAssistant.jsx
@@ -561,7 +567,7 @@ Remove AI tools from Quick Actions:
 // Sidebar.jsx - Remove these NavItems:
 - <NavItem label="GoodLeap Summary" ... />
 - <NavItem label="GoodLeap AVM" ... />
-- <NavItem label="Liability AI" ... />
+- <NavItem label="Sales Coach AI" ... />
 ```
 
 ### CSS Classes (Bento Grid Style)
@@ -644,6 +650,7 @@ const COMPONENT_MAP = {
   'GoodLeapSummary': GoodLeapSummary,
   'LiabilityAI': LiabilityAI,
   'GoodLeapAVM': GoodLeapAVM,
+  'SalesCoach': SalesCoach,
   // Add new components here
 };
 ```
@@ -664,9 +671,10 @@ The tool selection interface features:
 ├─────────────────────────────────────────────┤
 │  ┌─────────┐ ┌─────────┐ ┌─────────┐       │
 │  │   📞    │ │   💳    │ │   🏠    │       │
-│  │  Call   │ │Liability│ │Property │       │
-│  │  Prep   │ │   AI    │ │  AVM    │       │
+│  │  Call   │ Sales Coach    │ │  AVM    │       │
 │  └─────────┘ └─────────┘ └─────────┘       │
+│                               │
+│                               │
 └─────────────────────────────────────────────┘
 ```
 
@@ -777,6 +785,9 @@ Analyzes borrower liabilities for debt consolidation opportunities.
 
 ### POST `/api/ai/avm`
 Selects and explains a working property value for AUS submission.
+
+### POST `/api/ai/sales-coach`
+Conversational AI for objection handling and benefit calculation. Accepts message history and loan scenario context. Returns natural language responses (not JSON).
 
 All endpoints:
 - Accept JSON body with input data
@@ -1227,7 +1238,581 @@ const AVMResponseSchema = z.object({
 
 ---
 
-## 4. JSON Repair Mechanism
+## 4. Sales Coach (Objection Handling & Benefit Calculation)
+
+**Purpose:** Conversational AI assistant to help loan officers handle client objections and calculate/explain loan benefits using pre-loaded loan scenario data.
+
+### 4.1 Model Parameters
+
+| Parameter | Value |
+|-----------|-------|
+| Model | `gpt-4o-mini` |
+| Temperature | `0.4` |
+| Max Tokens | `1000` |
+| top_p | `1` |
+| frequency_penalty | `0` |
+| presence_penalty | `0.1` |
+
+### 4.2 Key Differences from Other Tools
+
+| Aspect | Other Tools | Sales Coach |
+|--------|-------------|-------------|
+| Response Type | Structured JSON | Natural language |
+| Interaction | Single request/response | Multi-turn conversation |
+| Message History | None | Maintains full conversation |
+| UI | Card-based display | Chat interface |
+
+### 4.3 Input Data (POST Body)
+
+```typescript
+interface SalesCoachInput {
+  messages: Array<{
+    role: 'user' | 'assistant';
+    content: string;
+  }>;
+  loanScenario: {
+    borrower: {
+      name: string;
+      city: string;
+      state: string;
+      creditScore?: number;
+      coBorrowerScore?: number;
+    };
+    property: {
+      address: string;
+      value: number;
+      totalLiens: number;           // Sum of all mortgage balances
+      estimatedEquity: number;      // value - totalLiens
+      consolidationBudget: number;  // value * 0.8 - totalLiens (80% LTV rule)
+      maxLTV80: number;             // value * 0.8
+    };
+    creditUtilization?: {
+      totalLimit: number;
+      totalBalance: number;
+      available: number;
+      utilizationPercent: number;
+    };
+    goodLeapLoan?: {
+      product: string;
+      balance: number;
+      payment: number;
+      rate?: number;
+    };
+    currentMortgage?: {
+      creditor: string;
+      balance: number;
+      rate: number;
+      payment: number;
+      term: number;
+    };
+    secondMortgage?: {
+      creditor: string;
+      balance: number;
+      rate: number;
+      payment: number;
+    };
+    allDebts: Array<{              // ALL non-mortgage debts (full picture)
+      creditor: string;
+      accountType: string;
+      balance: number;
+      payment: number;
+      rate?: number;
+      rateAssumed: boolean;
+      willPay: boolean;            // Whether selected for payoff
+    }>;
+    debtsBeingPaidOff: Array<{     // Only selected debts
+      creditor: string;
+      accountType: string;
+      balance: number;
+      payment: number;
+      rate?: number;
+    }>;
+    proposedLoan?: {
+      amount: number;
+      rate?: number;
+      payment?: number;
+      term: number;
+      ltv?: number;
+      notYetPriced?: boolean;      // True if loan hasn't been priced
+    };
+    comparison?: {
+      currentTotal: number;
+      proposedTotal?: number;
+      monthlySavings?: number;
+      notYetPriced?: boolean;
+      debtsPaymentToEliminate?: number;  // What we know even without pricing
+    };
+  };
+}
+```
+
+### 4.4 System Prompt
+
+The system prompt has two main sections:
+
+**Part 1: Behavioral Instructions (Full Prompt)**
+```
+You are a Sales Coach assistant helping Loan Officers (LOs) with two key areas:
+
+1. **Objection Handling** - Helping LOs respond effectively to client objections regarding loan offers, payments, and refinancing.
+2. **Benefit Calculation** - Assisting LOs in calculating and clearly communicating the financial benefits of loan options to clients.
+
+---
+
+## CRITICAL: USE THE CLIENT'S ACTUAL DATA
+
+You have access to the client's REAL financial data below. **Always reference specific numbers, creditors, and rates in your responses.**
+
+When you see opportunities in the data, CALL THEM OUT specifically:
+- High credit card balances at 20%+ rates? Mention the specific cards and rates.
+- High credit utilization? Point out the exact percentage and impact on their score.
+- Multiple payments adding up? Calculate the total and show the monthly burden.
+- Low mortgage rate but high-rate consumer debt? Explain the blended rate opportunity.
+
+**Example of a GOOD response:**
+"I see your client has $10,200 on their WFBNA Card at 24.99% and another $2,500 on AMEX at 19.99%. That's $12,700 in revolving debt costing them roughly $265/month in interest alone. If we consolidate at 7%, they'd drop that interest cost to about $74/month - a $191/month savings just on those two cards."
+
+**Example of a BAD response:**
+"High-interest debt can be consolidated to save money." (Too generic - doesn't use the actual data)
+
+---
+
+## GUIDELINES
+
+- Always reference the client's SPECIFIC creditors, balances, rates, and payments
+- Calculate actual numbers - don't give vague ranges
+- Keep responses concise and actionable
+- Be confident and persuasive with real numbers
+- Avoid long dashes or em dashes
+
+---
+
+## 1. OBJECTION HANDLING
+
+When handling objections, follow this framework:
+
+1. **Acknowledge** the client's concern empathetically.
+2. **Avoid confrontation** - pivot the conversation to a positive and supportive tone.
+3. **Use precision selling techniques** to structure the response with clear, persuasive wording.
+4. **Incorporate Socratic questioning** to dig deeper into the client's true concerns, if needed.
+5. **Utilize effective sales tie-downs and closing techniques.**
+
+### Common Objections & Response Strategies:
+
+**"I don't want to increase my mortgage rate."**
+- Acknowledge: "I understand that keeping a low rate is important to you."
+- Pivot: "However, what if we could show you how to lower your overall blended rate and free up extra cash each month?"
+- Provide Clarity: Use blended rate calculations to compare the total cost of debt with and without refinancing.
+
+**"I don't want to pay closing costs."**
+- Acknowledge: "That's a valid concern, no one likes unnecessary costs."
+- Explain Reinvestment Benefits: Show how the closing costs can be recouped through monthly savings within a calculated timeframe.
+
+**"I don't see the benefit in refinancing."**
+- Uncover Deeper Concerns: "What's your biggest financial priority right now - monthly savings, paying off debt, or long-term savings?"
+- Present Value Proposition: Tailor the response based on their answer (e.g., deferred payments, escrow refunds, cash flow improvements).
+
+---
+
+## 2. BENEFIT CALCULATION
+
+When calculating benefits:
+
+- Ensure the LO provides specific loan details (e.g., current and proposed interest rates, monthly payments, loan term, debts to consolidate).
+- If details are missing, ASK FOR THEM before calculating. Do not assume or invent values.
+- Use structured benefit calculations to highlight savings and advantages clearly.
+- Frame the numbers persuasively, focusing on the impact on the client's financial goals.
+
+### Types of Calculations You Can Help With:
+
+**Blended Interest Rate Calculation**
+- Compare the weighted average of multiple debts vs. the new consolidated mortgage rate.
+- Show how refinancing can reduce overall interest costs.
+
+**Monthly Savings & Cash Flow Impact**
+- Compare current vs. new monthly payments.
+- Factor in deferred mortgage payments, escrow refunds, and debt payoffs.
+
+**Time to Recoup Closing Costs**
+- Calculate how long it will take for monthly savings to offset closing costs.
+
+**Debt Snowball Strategy**
+- Guide on how to structure debt payoffs using the smallest balance method for faster momentum.
+
+---
+
+## COMMON MISTAKES TO AVOID
+
+- **Guessing Missing Information** - Always ask LOs for details first.
+- **Overloading with Numbers** - Keep explanations simple and impactful.
+- **Focusing Only on Interest Rates** - Always highlight total financial impact.
+- **Using Weak Language** - Be confident and persuasive (e.g., "This will save you $12,500 over 5 years" vs. "This might be a good option").
+
+---
+
+## INTEREST RATE ASSUMPTIONS
+
+If rates are missing from debt data, you may use these assumptions (and note them as "assumed"):
+- Revolving / Credit Card: 22%
+- Installment / Personal Loan: 9%
+- Auto Loan: 6.5%
+- Student Loan: 5.5%
+- Mortgage / HELOC: Do NOT assume - ask for actual rate
+```
+
+**Part 2: Dynamic Loan Scenario (injected from app data)**
+
+This section is dynamically built from whatever data is available:
+
+```
+---
+## CLIENT'S ACTUAL FINANCIAL DATA
+
+**IMPORTANT: Use these REAL numbers in your responses. Reference specific creditors, balances, and rates.**
+
+### Borrower Profile
+- Name: John Smith
+- Location: McKinney, TX
+- Credit Score: 608 / Co-Borrower: 650
+
+### Property & Equity Analysis
+- Address: 2116 Shrewsbury Dr
+- Property Value (AVM): $785,000
+- Total Mortgage Liens: $427,500
+- Estimated Equity: $357,500
+- 80% LTV Max Loan: $628,000
+- **Consolidation Budget: $200,500**
+  _(This is how much debt can be paid off while staying at 80% LTV)_
+
+### Credit Card Utilization
+- Total Credit Limit: $31,500
+- Current Balance: $13,950
+- Available Credit: $17,550
+- Utilization: 44.3%
+
+### Current Mortgages
+**1st Mortgage (REGIONS BANK):**
+- Balance: $247,500
+- Rate: 3.75%
+- Monthly P&I: $1,710
+
+**2nd Mortgage/HELOC (PENFED):**
+- Balance: $180,000
+- Rate: 4.25%
+- Monthly Payment: $1,250
+
+### ALL Non-Mortgage Debts (7 accounts)
+**Totals:** $55,814 balance | $1,196/mo in payments
+
+| Creditor | Type | Balance | Payment | Rate | Selected |
+|----------|------|---------|---------|------|----------|
+| CHASE AUTO | Installment | $18,000 | $450 | 6.9% | ✓ YES |
+| 5/3 DIVIDEND | Installment | $12,645 | $121 | 5.5% | ✓ YES |
+| WFBNA AUTO | Installment | $11,219 | $446 | 7.2% | ✓ YES |
+| WFBNA CARD | Revolving | $10,200 | $154 | 24.99% | ✓ YES |
+| AMERICAN EXPRESS | Revolving | $2,500 | $0 | 19.99%* | ✓ YES |
+| CITI BANK | Revolving | $750 | $0 | 22.99%* | ✓ YES |
+| DISCOVER CARD | Revolving | $500 | $25 | 18.99% | ✓ YES |
+
+*Rate with asterisk (*) is estimated based on account type.
+
+### Consolidation Feasibility
+- Consolidation Budget (at 80% LTV): $200,500
+- Total Debt to Pay Off: $55,814
+- **Status: ✓ CAN pay off all selected debts** (Budget covers $55,814)
+- Remaining budget after payoff: $144,686
+
+---
+**IMPORTANT:** Use ONLY the data above. Do NOT invent numbers or assume values not shown here. If you need additional information to answer the LO's question, ASK for it first.
+```
+
+### 4.5 Objection Handling Framework
+
+The AI uses these response strategies:
+
+| Objection | Strategy |
+|-----------|----------|
+| "Rate is too high" | Acknowledge → Pivot to blended rate → Show total savings |
+| "Don't want closing costs" | Acknowledge → Calculate break-even → Show ROI |
+| "Worried about longer term" | Acknowledge → Show accelerated payoff option → Highlight flexibility |
+| "Want to wait for rates" | Acknowledge → Calculate opportunity cost → Present urgency |
+
+### 4.6 Interest Rate Assumptions
+
+When calculating blended rates or comparing debts, the system uses these assumptions if actual rates are not provided:
+
+| Account Type | Assumed Rate | Note |
+|--------------|--------------|------|
+| Revolving / Credit Card | 22% | credit card assumption |
+| Installment / Personal Loan | 9% | installment assumption |
+| Auto / Car Loan | 6.5% | auto loan assumption |
+| Student Loan | 5.5% | student loan assumption |
+| Mortgage / HELOC | Not estimated | Use actual rate only |
+
+**Implementation:**
+```javascript
+const RATE_ASSUMPTIONS = {
+    revolving: { rate: 22.0, note: 'credit card assumption' },
+    credit: { rate: 22.0, note: 'credit card assumption' },
+    auto: { rate: 6.5, note: 'auto loan assumption' },
+    car: { rate: 6.5, note: 'auto loan assumption' },
+    installment: { rate: 9.0, note: 'installment assumption' },
+    personal: { rate: 9.0, note: 'personal loan assumption' },
+    student: { rate: 5.5, note: 'student loan assumption' }
+};
+
+function estimateRateByType(accountType) {
+    const type = accountType.toLowerCase();
+    for (const [key, value] of Object.entries(RATE_ASSUMPTIONS)) {
+        if (type.includes(key)) {
+            return { rate: value.rate, assumed: true };
+        }
+    }
+    return null;
+}
+```
+
+When using assumed rates in responses, the AI will note "(assumed)" so the LO knows to verify with the client.
+
+### 4.7 Handling Unpriced Loans
+
+When the loan has not been priced yet (no `advantageData` provided), the system:
+
+1. Sets `notYetPriced: true` flag on `proposedLoan` and `comparison` objects
+2. Shows debt payments that would be eliminated (what we know)
+3. Shows "Not yet calculated" for proposed payment and savings
+4. UI displays amber message: "price loan for full comparison"
+5. AI is informed it cannot calculate exact savings until pricing is complete
+
+This prevents showing misleading $0 values or incorrect savings calculations.
+
+### 4.8 Benefit Calculation Types
+
+| Calculation | Inputs Used | Output |
+|-------------|-------------|--------|
+| Blended Rate | All debt rates + balances | Weighted average comparison |
+| Monthly Savings | Current vs proposed totals | Dollar amount + percentage |
+| Break-Even | Closing costs ÷ monthly savings | Months to recoup |
+| Cash Flow Window | Current total × deferred months | Short-term cash benefit |
+
+### 4.9 Conversation Starters
+
+Pre-defined prompts that explicitly reference the client's actual data:
+
+**Objection Handling:**
+```javascript
+[
+  { 
+    id: 'analyze-client', 
+    label: 'What do you see?', 
+    prompt: "Look at this client's full financial picture - their credit cards, auto loans, mortgages, credit utilization, everything. What stands out? What are the biggest opportunities or pain points I should talk about? Give me 3-4 specific talking points using their actual numbers."
+  },
+  { 
+    id: 'rate-too-high', 
+    label: 'Rate too high objection', 
+    prompt: "My client says the new mortgage rate is too high. Look at their credit card rates and other debt rates. Calculate their current blended rate across ALL debt and show me how to explain that even a 7% mortgage is better than their current mix. Use their specific account rates."
+  },
+  { 
+    id: 'closing-costs', 
+    label: 'Closing costs concern', 
+    prompt: "My client doesn't want to pay closing costs. Look at their monthly debt payments and calculate how fast they'd recoup $5,000-$8,000 in closing costs based on their actual payment savings. Show me the math with their real numbers."
+  },
+  { 
+    id: 'wait-for-rates', 
+    label: 'Wants to wait', 
+    prompt: "My client wants to wait for rates to drop. Calculate how much interest they're paying each month on their high-rate debt right now. Show me the 'cost of waiting' using their actual credit card balances and rates."
+  }
+]
+```
+
+**Benefit Calculation:**
+```javascript
+[
+  { 
+    id: 'blended-rate', 
+    label: 'Calculate blended rate', 
+    prompt: "Calculate this client's current blended interest rate using the EXACT balances and rates shown for each account. Show the weighted average formula: (balance1 x rate1 + balance2 x rate2...) / total balance. Then compare to a 7% mortgage."
+  },
+  { 
+    id: 'cash-flow', 
+    label: 'Monthly cash flow', 
+    prompt: "Add up ALL the monthly payments this client is making across every account. Show me the total monthly burden and which specific debts are the biggest payment drains. How much would they free up monthly?"
+  },
+  { 
+    id: 'credit-score', 
+    label: 'Credit score impact', 
+    prompt: "Look at their credit utilization percentage and revolving balances. If we paid off their credit cards through consolidation, what would happen to their utilization? Explain how this could impact their credit score."
+  },
+  { 
+    id: 'interest-cost', 
+    label: 'Interest savings', 
+    prompt: "Calculate how much this client is paying in interest EACH MONTH on their high-rate accounts (especially credit cards at 20%+). Show me the dollar amount they're losing to interest and how much they'd save at a lower consolidated rate."
+  }
+]
+```
+
+### 4.10 Response Format
+
+Unlike other tools, Sales Coach returns natural language (not JSON):
+
+```typescript
+interface SalesCoachResponse {
+  message: string;      // Natural language response
+  usage?: {             // Token usage stats
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+}
+```
+
+### 4.11 UI Component (SalesCoach.jsx)
+
+**Note:** This is a one-shot interface, not a conversational chat. Users select from predefined topics and receive a single response. Free-form input is out of scope for now.
+
+#### Response Formatting
+
+The `FormattedResponse` component parses AI responses and renders them with rich formatting:
+
+| Markdown Element | Rendered As |
+|------------------|-------------|
+| `# Header` or `## Header` | Orange icon badge + bold header |
+| `### Subheader` | Gray icon + medium weight |
+| `- Bullet` or `* Bullet` | Gray pill background with bullet |
+| `1. Numbered` | Orange numbered circle |
+| `**bold text**` | Semibold weight |
+| `$1,234` or `$1,234/mo` | Green highlight pill |
+| `7.5%` | Blue highlight pill |
+
+#### Visual Formatting Example
+
+```
+┌────────────────────────────────────────────┐
+│  [🤖] AI Sales Coach                       │
+│       What do you see?                     │
+├────────────────────────────────────────────┤
+│                                            │
+│  [💡] Key Opportunities                    │
+│                                            │
+│  ┌────────────────────────────────────┐   │
+│  │ ① High credit utilization at       │   │
+│  │   [44.3%] - paying off cards       │   │
+│  │   could boost credit score         │   │
+│  │                                    │   │
+│  │ ② WFBNA Card: [$10,200] at [24.99%]│   │
+│  │   costing ~[$212/mo] in interest   │   │
+│  │                                    │   │
+│  │ ③ Total debt payments: [$2,446/mo] │   │
+│  │   significant cash flow drain      │   │
+│  └────────────────────────────────────┘   │
+│                                            │
+│  [← Try Another Topic]     [📋 Copy]       │
+└────────────────────────────────────────────┘
+```
+
+Numbers in brackets represent highlighted pills (green for dollars, blue for percentages).
+
+```
+--- Starter Selection View ---
+
++------------------------------------------+
+|  Sales Coach                              |  <- Header
++------------------------------------------+
+|  AI Sales Coach - Uses your loan data     |  <- Notice bar
++------------------------------------------+
+|                                           |
+|        [Sparkle Icon]                     |
+|   How can I help you today?               |
+|                                           |
+|  Handle Objections:                       |
+|  [Rate too high] [Closing costs]          |
+|  [Longer term] [Wait for rates]           |
+|                                           |
+|  Calculate Benefits:                      |
+|  [Blended rate] [Cash flow]               |
+|  [Break-even] [Debt payoff]               |
+|                                           |
+|  [Loaded Scenario: X debts selected]      |
++------------------------------------------+
+
+--- Response View (after selecting topic) ---
+
++------------------------------------------+
+|  [<-] Sales Coach            [Copy]       |  <- Header with back & copy
++------------------------------------------+
+|  AI Sales Coach - Uses your loan data     |
++------------------------------------------+
+|                                           |
+|  +------------------------------------+   |
+|  |  [Bot Icon] AI Sales Coach          |  |
+|  |  Topic: "Rate too high"             |  |
+|  |                                     |  |
+|  |  [Response text from AI...]         |  |
+|  +------------------------------------+   |
+|                                           |
+|  [<- Try Another Topic]  [Copy Response]  |  <- Action buttons
+|                                           |
++------------------------------------------+
+```
+
+### 4.12 Client Service (salesCoachLLM.js)
+
+```typescript
+// Build loan scenario from app data
+export function buildLoanScenario(
+  accounts: Account[], 
+  borrowerData: BorrowerData, 
+  advantageData?: AdvantageData
+): LoanScenario;
+
+// Send message to API
+export async function sendMessage(
+  messages: Message[], 
+  loanScenario: LoanScenario
+): Promise<{ message: string }>;
+
+// Pre-defined conversation starters
+export const CONVERSATION_STARTERS: {
+  objections: Starter[];
+  benefits: Starter[];
+};
+```
+
+### 4.13 Integration Points
+
+**AIPanel.jsx:**
+```javascript
+const COMPONENT_MAP = {
+  // ... existing
+  'SalesCoach': SalesCoach,
+};
+```
+
+**aiTools.config.js:**
+```javascript
+{
+  id: 'sales-coach',
+  label: 'Sales Coach',
+  description: 'Objection handling & benefit calc',
+  icon: MessageSquare,
+  category: 'conversation',
+  component: 'SalesCoach',
+  apiEndpoint: '/api/ai/sales-coach',
+  keywords: ['objection', 'sales', 'coach', 'benefit', 'calculation']
+}
+```
+
+**App.jsx:**
+```javascript
+const AI_TOOL_MAPPING = {
+  // ... existing
+  'sales-coach': 'Sales Coach'
+};
+```
+
+---
+
+## 5. JSON Repair Mechanism
 
 All API endpoints include automatic JSON repair on validation failure:
 
@@ -1272,7 +1857,7 @@ INSTRUCTIONS:
 
 ---
 
-## 5. Error Responses
+## 6. Error Responses
 
 ### 422 Validation Error
 ```json
@@ -1295,7 +1880,7 @@ INSTRUCTIONS:
 
 ---
 
-## 6. Local Development
+## 7. Local Development
 
 ### Setup
 ```bash
@@ -1322,7 +1907,7 @@ const API_BASE = import.meta.env.PROD
 
 ---
 
-## 7. Deployment (Vercel)
+## 8. Deployment (Vercel)
 
 ### vercel.json
 ```json
@@ -1346,7 +1931,7 @@ const API_BASE = import.meta.env.PROD
 
 ---
 
-## 8. Disclaimer
+## 9. Disclaimer
 
 All AI panels must display:
 

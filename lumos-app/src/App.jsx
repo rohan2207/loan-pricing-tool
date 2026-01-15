@@ -15,6 +15,7 @@ import { AIPopoutWindow } from './components/dashboard/AIPopoutWindow';
 import { GoodLeapSummary } from './components/dashboard/GoodLeapSummary';
 import { LiabilityAI } from './components/dashboard/LiabilityAI';
 import { GoodLeapAVM } from './components/dashboard/GoodLeapAVM';
+import { SalesCoach } from './components/dashboard/SalesCoach';
 import { GoodLeapAdvantage } from './components/advantage/GoodLeapAdvantage';
 import { GoodLeapAdvantageV2 } from './components/advantage/GoodLeapAdvantageV2';
 import { GoodLeapAdvantageV3 } from './components/advantage/GoodLeapAdvantageV3';
@@ -134,7 +135,8 @@ const borrowerData = {
 const AI_TOOL_MAPPING = {
   'call-prep': 'Call Prep Brief',
   'liability': 'Liability AI',
-  'avm': 'Property AVM'
+  'avm': 'Property AVM',
+  'sales-coach': 'Sales Coach'
 };
 
 function App() {
@@ -273,6 +275,8 @@ function App() {
         return <LiabilityAI accounts={accounts} borrowerData={borrowerData} onClose={() => setActiveQuickAction(null)} />;
       case 'Property AVM':
         return <GoodLeapAVM borrowerData={borrowerData} onClose={() => setActiveQuickAction(null)} />;
+      case 'Sales Coach':
+        return <SalesCoach accounts={accounts} borrowerData={borrowerData} onClose={() => setActiveQuickAction(null)} />;
       default:
         return null;
     }

@@ -64,6 +64,16 @@ export const AI_TOOLS = [
         component: 'GoodLeapAVM',
         apiEndpoint: '/api/ai/avm',
         keywords: ['avm', 'property', 'value', 'valuation', 'home', 'aus']
+    },
+    {
+        id: 'sales-coach',
+        label: 'Sales Coach',
+        description: 'Objection handling & benefit calc',
+        icon: MessageSquare,
+        category: 'conversation',
+        component: 'SalesCoach',
+        apiEndpoint: '/api/ai/sales-coach',
+        keywords: ['objection', 'sales', 'coach', 'benefit', 'calculation', 'response', 'handle']
     }
     // Future tools - just add entries here:
     // {
@@ -134,6 +144,8 @@ export const getCategoryColorClass = (categoryId) => {
     
     return colors[category.color] || 'bg-gray-100 text-gray-600';
 };
+
+
 
 
 

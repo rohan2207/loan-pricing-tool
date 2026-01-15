@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import callPrepHandler from '../api/ai/call-prep.js';
 import liabilityHandler from '../api/ai/liability.js';
 import avmHandler from '../api/ai/avm.js';
+import salesCoachHandler from '../api/ai/sales-coach.js';
 
 dotenv.config({ path: '.env.local' });
 
@@ -31,6 +32,7 @@ function wrapHandler(handler) {
 app.post('/api/ai/call-prep', wrapHandler(callPrepHandler));
 app.post('/api/ai/liability', wrapHandler(liabilityHandler));
 app.post('/api/ai/avm', wrapHandler(avmHandler));
+app.post('/api/ai/sales-coach', wrapHandler(salesCoachHandler));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -42,8 +44,11 @@ app.listen(PORT, () => {
     console.log(`   POST /api/ai/call-prep`);
     console.log(`   POST /api/ai/liability`);
     console.log(`   POST /api/ai/avm`);
+    console.log(`   POST /api/ai/sales-coach`);
     console.log(`   GET  /api/health`);
 });
+
+
 
 
 

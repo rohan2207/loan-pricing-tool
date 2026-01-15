@@ -95,3 +95,5 @@ export function CompoundGrowthChart({ data }) {
 
 
 
+
+
