@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from './components/layout/Layout';
-import { SummaryCards } from './components/dashboard/SummaryCards';
 import { MockScenarios } from './components/dashboard/MockScenarios';
 import { Tabs } from './components/dashboard/Tabs';
 
 import { LiabilitiesTab } from './components/dashboard/LiabilitiesTab';
-import { PropertyTab } from './components/dashboard/tabs/PropertyTab';
-import { CFLoanDataTab } from './components/dashboard/tabs/CFLoanDataTab';
-import { SalesComparablesTab } from './components/dashboard/tabs/SalesComparablesTab';
-import { URLATab } from './components/dashboard/tabs/URLATab';
 import { DebtWorksheet } from './components/dashboard/DebtWorksheet';
 import { QuickQuote } from './components/dashboard/QuickQuote';
 import { AIPopoutWindow } from './components/dashboard/AIPopoutWindow';
@@ -24,6 +19,10 @@ import { GoodLeapAdvantageV5 } from './components/advantage/GoodLeapAdvantageV5'
 import { ChartPreview } from './components/advantage/ChartPreview';
 import { ProposalPreview } from './components/advantage/ProposalPreview';
 import { GoodLeapAdvantageTabs } from './components/dashboard/GoodLeapAdvantageTabs';
+import { PricingCalculator } from './components/dashboard/PricingCalculator';
+import { PropertyTabs } from './components/dashboard/PropertyTabs';
+import { FigureView } from './components/dashboard/FigureView';
+import { Short1003View } from './components/dashboard/Short1003View';
 
 // Initial accounts data
 const initialAccounts = [
@@ -285,6 +284,31 @@ function App() {
   // Main content based on currentView
   const renderMainContent = () => {
     switch (currentView) {
+      case 'pricing':
+        return (
+          <PricingCalculator 
+            accounts={accounts}
+            borrowerData={borrowerData}
+          />
+        );
+      case 'property':
+        return (
+          <PropertyTabs 
+            borrowerData={borrowerData}
+          />
+        );
+      case 'figure':
+        return (
+          <FigureView 
+            borrowerData={borrowerData}
+          />
+        );
+      case 'short1003':
+        return (
+          <Short1003View 
+            borrowerData={borrowerData}
+          />
+        );
       case 'advantage':
         return (
           <GoodLeapAdvantage 
@@ -359,10 +383,6 @@ function App() {
                     onEnterPricingMode={handleEnterPricingMode}
                   />
                 )}
-                {activeTab === 'Property' && <PropertyTab />}
-                {activeTab === 'CF Loan Data' && <CFLoanDataTab />}
-                {activeTab === 'Sales Comparables' && <SalesComparablesTab />}
-                {activeTab === 'URLA' && <URLATab />}
               </div>
             </div>
           </>

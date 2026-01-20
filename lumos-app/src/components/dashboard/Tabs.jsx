@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
 
-const tabs = ['Liabilities', 'Property', 'CF Loan Data', 'Sales Comparables', 'URLA'];
+const tabs = ['Liabilities'];
 
 export function Tabs({ activeTab, onTabChange }) {
     return (

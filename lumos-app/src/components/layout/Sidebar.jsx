@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { 
     User,
     CreditCard,
+    Calculator,
+    Home,
+    FileText,
     ChevronDown
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -45,6 +48,62 @@ export function Sidebar({ currentView, onViewChange, activeQuickAction, onQuickA
                         label="Liabilities" 
                         active={currentView === 'dashboard'} 
                         onClick={() => handleNavClick('dashboard')} 
+                    />
+                </NavSection>
+
+                {/* Property Section */}
+                <NavSection 
+                    label="Property" 
+                    icon={<Home size={16} />}
+                    expanded={expandedSection === 'property-section'}
+                    onClick={() => toggleSection('property-section')}
+                >
+                    <NavItem 
+                        label="Property" 
+                        active={currentView === 'property'} 
+                        onClick={() => handleNavClick('property')} 
+                    />
+                </NavSection>
+
+                {/* Figure Section */}
+                <NavSection 
+                    label="Figure" 
+                    icon={<FileText size={16} />}
+                    expanded={expandedSection === 'figure-section'}
+                    onClick={() => toggleSection('figure-section')}
+                >
+                    <NavItem 
+                        label="Figure" 
+                        active={currentView === 'figure'} 
+                        onClick={() => handleNavClick('figure')} 
+                    />
+                </NavSection>
+
+                {/* Short 1003 Section */}
+                <NavSection 
+                    label="Short 1003" 
+                    icon={<FileText size={16} />}
+                    expanded={expandedSection === 'short1003-section'}
+                    onClick={() => toggleSection('short1003-section')}
+                >
+                    <NavItem 
+                        label="Short 1003" 
+                        active={currentView === 'short1003'} 
+                        onClick={() => handleNavClick('short1003')} 
+                    />
+                </NavSection>
+
+                {/* Pricing Section */}
+                <NavSection 
+                    label="Pricing" 
+                    icon={<Calculator size={16} />}
+                    expanded={expandedSection === 'pricing'}
+                    onClick={() => toggleSection('pricing')}
+                >
+                    <NavItem 
+                        label="Calculators" 
+                        active={currentView === 'pricing'} 
+                        onClick={() => handleNavClick('pricing')} 
                     />
                 </NavSection>
             </div>
