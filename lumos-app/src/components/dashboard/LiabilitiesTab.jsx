@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
-import { ChevronDown, ChevronRight, Home, ChevronUp, TrendingUp, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronRight, Home, ChevronUp } from 'lucide-react';
 
 export function LiabilitiesTab({ 
     accounts, 
@@ -90,20 +90,6 @@ export function LiabilitiesTab({
                 <p className="text-sm font-normal text-neutral-l1">Select debts to pay off at closing</p>
             </div>
             
-            {/* Big CTA Button */}
-            {onEnterPricingMode && (
-                <div className="mx-6 mt-4">
-                    <button
-                        onClick={onEnterPricingMode}
-                        className="w-full flex items-center justify-center gap-3 px-8 py-5 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-600 hover:via-orange-600 hover:to-rose-600 text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all transform hover:scale-[1.02] border-2 border-white/20"
-                    >
-                        <Sparkles size={24} className="animate-pulse" />
-                        <span className="text-xl tracking-wide">✨ TBD NAME TBD ✨</span>
-                        <TrendingUp size={24} />
-                    </button>
-                    <p className="text-center text-sm text-neutral-l1 mt-2">👆 Click here for pricing experience • Consolidate debts • Lower payments • Cash out equity</p>
-                </div>
-            )}
 
             {/* Utilization and Current Loan */}
             <div className="px-6 my-4">

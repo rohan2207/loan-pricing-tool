@@ -50,7 +50,7 @@ export function Layout({
                 onQuickActionChange={onQuickActionChange} 
             />
             <div className={cn(
-                "flex-1 min-w-0 transition-all duration-300 ml-56 flex flex-col", 
+                "flex-1 min-w-0 transition-all duration-300 ml-44 flex flex-col", 
                 hasFlyover ? "mr-[480px]" : isPanelVisible ? "mr-[320px]" : ""
             )}>
                 {/* Persistent Borrower Header - Shows on all screens */}
