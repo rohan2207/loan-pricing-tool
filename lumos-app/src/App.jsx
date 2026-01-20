@@ -23,6 +23,7 @@ import { PricingCalculator } from './components/dashboard/PricingCalculator';
 import { PropertyTabs } from './components/dashboard/PropertyTabs';
 import { FigureView } from './components/dashboard/FigureView';
 import { Short1003View } from './components/dashboard/Short1003View';
+import { LoanDetailsPopout } from './components/dashboard/LoanDetailsPopout';
 
 // Initial accounts data
 const initialAccounts = [
@@ -140,7 +141,9 @@ const AI_TOOL_MAPPING = {
 
 function App() {
   // Check if this is a popout window
-  const isPopout = new URLSearchParams(window.location.search).get('popout') === 'ai';
+  const urlParams = new URLSearchParams(window.location.search);
+  const isPopout = urlParams.get('popout') === 'ai';
+  const isLoanDetailsPopout = urlParams.get('view') === 'loan-details-popout';
 
   // Level 1 navigation - which full page view
   const [currentView, setCurrentView] = useState('dashboard');
@@ -393,6 +396,11 @@ function App() {
   // If this is a popout window, render only the AI panel
   if (isPopout) {
     return <AIPopoutWindow />;
+  }
+
+  // If this is the loan details popout window
+  if (isLoanDetailsPopout) {
+    return <LoanDetailsPopout />;
   }
 
   return (
