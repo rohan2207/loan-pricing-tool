@@ -154,4 +154,3 @@ export async function analyzeLiabilities(accounts, propertyValue = 785000, propo
         throw error;
     }
 }
-OKay n
