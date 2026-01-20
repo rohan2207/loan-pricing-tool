@@ -1,4 +1,116 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { AlertTriangle, CheckCircle, UserCheck, X } from 'lucide-react';
+
+// Property owners from the property data (would come from API in real app)
+const PROPERTY_OWNERS = [
+  { id: 1, firstName: 'RAFAEL', middleName: 'M', lastName: 'BRENNER', fullName: 'BRENNER RAFAEL M' },
+  { id: 2, firstName: 'MICHAL', middleName: 'R', lastName: 'BRENNER', fullName: 'BRENNER MICHAL R' },
+];
+
+// Function to check if borrower name matches any property owner
+function checkNameMatch(firstName, lastName, owners) {
+  if (!firstName || !lastName) return { matches: false, matchedOwner: null };
+  
+  const normalizedFirst = firstName.toUpperCase().trim();
+  const normalizedLast = lastName.toUpperCase().trim();
+  
+  for (const owner of owners) {
+    const ownerFirst = owner.firstName.toUpperCase();
+    const ownerLast = owner.lastName.toUpperCase();
+    
+    // Check various matching patterns
+    if (
+      (normalizedFirst === ownerFirst && normalizedLast === ownerLast) ||
+      (normalizedLast === ownerFirst && normalizedFirst === ownerLast) || // Swapped
+      normalizedFirst.includes(ownerFirst) ||
+      ownerFirst.includes(normalizedFirst)
+    ) {
+      return { matches: true, matchedOwner: owner };
+    }
+  }
+  
+  return { matches: false, matchedOwner: null };
+}
+
+// Name Mismatch Warning Component
+function NameMismatchWarning({ firstName, lastName, owners, onSelectOwner, onDismiss }) {
+  const [showOwnerSelection, setShowOwnerSelection] = useState(false);
+  
+  return (
+    <div className="mb-6 p-4 bg-warning-l3 border-l-4 border-warning rounded-r-lg">
+      <div className="flex items-start gap-3">
+        <AlertTriangle className="w-5 h-5 text-warning-d1 flex-shrink-0 mt-0.5" />
+        <div className="flex-1">
+          <h4 className="font-semibold text-warning-d2 text-sm">Name Mismatch Detected</h4>
+          <p className="text-sm text-warning-d2 mt-1">
+            The borrower name "<strong>{firstName} {lastName}</strong>" does not match any of the property owners on record.
+          </p>
+          <p className="text-xs text-warning-d1 mt-2">
+            Property owners: <strong>{owners.map(o => o.fullName).join(' & ')}</strong>
+          </p>
+          
+          <div className="flex items-center gap-2 mt-3">
+            <button
+              onClick={() => setShowOwnerSelection(!showOwnerSelection)}
+              className="px-3 py-1.5 text-xs font-medium bg-warning text-white rounded hover:bg-warning-d1 transition-colors flex items-center gap-1"
+            >
+              <UserCheck className="w-3.5 h-3.5" />
+              Use Property Owner
+            </button>
+            <button
+              onClick={onDismiss}
+              className="px-3 py-1.5 text-xs font-medium bg-white text-warning-d2 border border-warning rounded hover:bg-warning-l3 transition-colors"
+            >
+              Continue Anyway
+            </button>
+          </div>
+          
+          {showOwnerSelection && (
+            <div className="mt-3 p-3 bg-white rounded-lg border border-warning-l1">
+              <p className="text-xs font-medium text-neutral-d2 mb-2">Select an owner to use:</p>
+              <div className="space-y-2">
+                {owners.map((owner) => (
+                  <button
+                    key={owner.id}
+                    onClick={() => {
+                      onSelectOwner(owner);
+                      setShowOwnerSelection(false);
+                    }}
+                    className="w-full p-2 text-left text-sm bg-neutral-l5 hover:bg-primary-l4 rounded border border-neutral-l3 hover:border-primary transition-colors flex items-center justify-between"
+                  >
+                    <span>
+                      <span className="font-medium">{owner.firstName}</span>
+                      {owner.middleName && <span className="text-neutral-l1"> {owner.middleName}</span>}
+                      <span className="font-medium"> {owner.lastName}</span>
+                    </span>
+                    <span className="text-xs text-neutral-l1">Click to use</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        <button onClick={onDismiss} className="p-1 hover:bg-warning-l2 rounded">
+          <X className="w-4 h-4 text-warning-d1" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Name Match Success Component
+function NameMatchSuccess({ matchedOwner }) {
+  return (
+    <div className="mb-6 p-3 bg-success-l3 border-l-4 border-success rounded-r-lg">
+      <div className="flex items-center gap-2">
+        <CheckCircle className="w-4 h-4 text-success" />
+        <span className="text-sm text-success-d2">
+          <strong>Name verified:</strong> Borrower matches property owner "{matchedOwner.fullName}"
+        </span>
+      </div>
+    </div>
+  );
+}
 
 // Property Reference Panel Component
 function PropertyReferencePanel() {
@@ -63,6 +175,27 @@ function PropertyReferencePanel() {
 }
 
 export function FigureView({ borrowerData }) {
+  // Borrower name state
+  const [firstName, setFirstName] = useState('Ken');
+  const [lastName, setLastName] = useState('Customer');
+  const [dismissedWarning, setDismissedWarning] = useState(false);
+  
+  // Check name match
+  const nameMatchResult = checkNameMatch(firstName, lastName, PROPERTY_OWNERS);
+  const showMismatchWarning = !nameMatchResult.matches && !dismissedWarning && firstName && lastName;
+  
+  // Handle owner selection
+  const handleSelectOwner = (owner) => {
+    setFirstName(owner.firstName);
+    setLastName(owner.lastName);
+    setDismissedWarning(false);
+  };
+  
+  // Reset warning when name changes
+  useEffect(() => {
+    setDismissedWarning(false);
+  }, [firstName, lastName]);
+
   return (
     <div className="flex gap-6">
       {/* Main Form */}
@@ -77,7 +210,7 @@ export function FigureView({ borrowerData }) {
               <button
                 className="font-sans not-italic font-normal text-default py-1.5 px-4 min-w-fit w-fit h-fit flex items-center rounded-[4px] disabled:cursor-not-allowed text-white bg-secondary border border-secondary hover:bg-secondary-d1 hover:border-secondary-d1 active:bg-secondary-d2 active:border-secondary-d2 disabled:bg-neutral-l3 disabled:text-neutral-l1 disabled:border-neutral-l3 button-disabled"
                 data-testid="send-to-figure-btn"
-                disabled
+                disabled={showMismatchWarning}
                 type="submit"
                 style={{ minHeight: 'fit-content', minWidth: 'fit-content' }}
               >
@@ -88,6 +221,22 @@ export function FigureView({ borrowerData }) {
         </div>
 
         <div className="px-4 space-y-6">
+        
+        {/* Name Mismatch Warning */}
+        {showMismatchWarning && (
+          <NameMismatchWarning
+            firstName={firstName}
+            lastName={lastName}
+            owners={PROPERTY_OWNERS}
+            onSelectOwner={handleSelectOwner}
+            onDismiss={() => setDismissedWarning(true)}
+          />
+        )}
+        
+        {/* Name Match Success */}
+        {nameMatchResult.matches && nameMatchResult.matchedOwner && (
+          <NameMatchSuccess matchedOwner={nameMatchResult.matchedOwner} />
+        )}
         {/* Borrower Information Section */}
         <div className="p-6 border border-neutral-l3 rounded bg-white" data-testid="borrower-info-section">
           <div className="mb-6 flex items-start justify-between">
@@ -110,12 +259,15 @@ export function FigureView({ borrowerData }) {
                     <div className="relative w-full">
                       <input
                         type="text"
-                        className="flex h-10 w-full rounded-md border border-neutral-l3 bg-white px-3 py-2 text-default ring-offset-white placeholder:text-neutral-l1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-neutral-l3"
+                        className={`flex h-10 w-full rounded-md border bg-white px-3 py-2 text-default ring-offset-white placeholder:text-neutral-l1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-neutral-l3 ${
+                          showMismatchWarning ? 'border-warning bg-warning-l3/30' : nameMatchResult.matches ? 'border-success bg-success-l3/30' : 'border-neutral-l3'
+                        }`}
                         data-testid="borrower-first-name"
                         id="urla-form-borrowerFirstName"
                         name="borrowerFirstName"
                         form="urla-form"
-                        defaultValue="Ken"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
                       />
                     </div>
                   </div>
@@ -147,12 +299,15 @@ export function FigureView({ borrowerData }) {
                     <div className="relative w-full">
                       <input
                         type="text"
-                        className="flex h-10 w-full rounded-md border border-neutral-l3 bg-white px-3 py-2 text-default ring-offset-white placeholder:text-neutral-l1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-neutral-l3"
+                        className={`flex h-10 w-full rounded-md border bg-white px-3 py-2 text-default ring-offset-white placeholder:text-neutral-l1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-neutral-l3 ${
+                          showMismatchWarning ? 'border-warning bg-warning-l3/30' : nameMatchResult.matches ? 'border-success bg-success-l3/30' : 'border-neutral-l3'
+                        }`}
                         data-testid="borrower-last-name"
                         id="urla-form-borrowerLastName"
                         name="borrowerLastName"
                         form="urla-form"
-                        defaultValue="Customer"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
                       />
                     </div>
                   </div>
