@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CircleAlert, Pencil, Check, ChevronDown, ChevronRight, X, Settings2, SlidersHorizontal, ExternalLink, Maximize2 } from 'lucide-react';
+import { CircleAlert, Pencil, Check, ChevronDown, ChevronRight, X, Settings2, SlidersHorizontal, ExternalLink, Maximize2, ChevronLeft, ArrowRight } from 'lucide-react';
 
 // Slide-out Panel Component for Loan Details
 function LoanDetailsPanel({ isOpen, onClose }) {
@@ -627,6 +627,15 @@ export function PricingCalculator({ accounts = [], borrowerData = {} }) {
   
   // Slide-out panel state
   const [showLoanDetails, setShowLoanDetails] = useState(false);
+  
+  // Design option for Present vs Proposed comparison (A, B, C, D)
+  const [comparisonDesign, setComparisonDesign] = useState('B');
+  
+  // Selected scenario for presentation
+  const [selectedScenario, setSelectedScenario] = useState(1);
+  
+  // Carousel position for Option D
+  const [carouselIndex, setCarouselIndex] = useState(0);
 
   // Listen for messages from popout window
   useEffect(() => {
@@ -668,8 +677,72 @@ export function PricingCalculator({ accounts = [], borrowerData = {} }) {
   const interestSaved = 0;
   const estCashBack = 0;
 
-  const programs = ['Conventional', 'FHA', 'VA', 'FHA Streamline', 'VA IRRRL'];
+  const programs = ['Conventional', 'FHA', 'VA'];
   const terms = [30, 20, 15, 10];
+  
+  // Mock scenario data for comparison
+  const scenarios = [
+    {
+      id: 0,
+      name: 'Current',
+      label: 'Present',
+      payment: currentPayment,
+      pi: 1710,
+      taxes: 450,
+      insurance: 120,
+      mi: 0,
+      debts: totalMonthlyPayments,
+      rate: 3.75,
+      term: 30,
+      savings: 0,
+      isPresent: true
+    },
+    {
+      id: 1,
+      name: 'Best Rate',
+      label: 'Scenario 1',
+      payment: 4171,
+      pi: 3447,
+      taxes: 450,
+      insurance: 120,
+      mi: 154,
+      debts: 0,
+      rate: 6.875,
+      term: 30,
+      savings: currentPayment - 4171,
+      cashout: 15000
+    },
+    {
+      id: 2,
+      name: 'Lower Payment',
+      label: 'Scenario 2',
+      payment: 3890,
+      pi: 3150,
+      taxes: 450,
+      insurance: 120,
+      mi: 170,
+      debts: 0,
+      rate: 7.25,
+      term: 30,
+      savings: currentPayment - 3890,
+      cashout: 0
+    },
+    {
+      id: 3,
+      name: 'Max Cash Out',
+      label: 'Scenario 3',
+      payment: 4450,
+      pi: 3726,
+      taxes: 450,
+      insurance: 120,
+      mi: 154,
+      debts: 0,
+      rate: 7.0,
+      term: 30,
+      savings: currentPayment - 4450,
+      cashout: 45000
+    }
+  ];
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-US', { 
@@ -732,128 +805,441 @@ export function PricingCalculator({ accounts = [], borrowerData = {} }) {
           </div>
         </div>
 
-        {/* Three Column Grid - Present, Proposed, Value Props */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Present Mortgage Card */}
-          <div className="flex flex-col p-4 bg-[#fff8f2] border border-[#f2d4ba] rounded">
-            <h3 className="font-bold text-sm text-[#0f172b] mb-3">Present Mortgage</h3>
-            <div className="flex flex-col flex-1">
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Mortgage</span>
-                <span className="text-sm text-[#45556c]">${presentMortgage}</span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Escrows?</span>
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={() => setEscrowsEnabled(!escrowsEnabled)}
-                    className={`relative w-8 h-5 rounded-full transition-colors ${escrowsEnabled ? 'bg-[#432c9e]' : 'bg-gray-300'}`}
+        {/* Multi-Scenario Comparison Section */}
+        <div className="bg-white border border-neutral-l3 rounded-lg overflow-hidden">
+          {/* Design Option Toggle */}
+          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#432c9e] to-[#6b5ce7] text-white">
+            <h3 className="font-bold text-sm">Present vs Proposed Comparison</h3>
+            <div className="flex items-center gap-1 bg-white/20 rounded-lg p-1">
+              {['A', 'B', 'C', 'D'].map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => setComparisonDesign(opt)}
+                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
+                    comparisonDesign === opt
+                      ? 'bg-white text-[#432c9e] shadow-sm'
+                      : 'text-white/80 hover:bg-white/10'
+                  }`}
+                >
+                  Option {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Option A: Horizontal Tabs */}
+          {comparisonDesign === 'A' && (
+            <div className="p-4">
+              {/* Tab Headers */}
+              <div className="flex border-b border-neutral-l3 mb-4">
+                {scenarios.map((s, i) => (
+                  <button
+                    key={s.id}
+                    onClick={() => setSelectedScenario(i)}
+                    className={`flex-1 py-3 px-4 text-sm font-medium transition-all border-b-2 ${
+                      selectedScenario === i
+                        ? 'border-[#432c9e] text-[#432c9e] bg-[#f8f7fc]'
+                        : 'border-transparent text-neutral-d1 hover:text-[#432c9e] hover:bg-neutral-l5'
+                    }`}
                   >
-                    <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${escrowsEnabled ? 'left-3.5' : 'left-0.5'}`}></span>
+                    <div className="text-center">
+                      <div className="font-bold">{s.isPresent ? 'CURRENT' : s.label}</div>
+                      <div className="text-lg font-bold mt-1">{formatCurrency(s.payment)}/mo</div>
+                      {!s.isPresent && s.savings > 0 && (
+                        <div className="text-xs text-green-600 mt-0.5">Save {formatCurrency(s.savings)}</div>
+                      )}
+                    </div>
                   </button>
-                  <span className="text-sm text-[#323232]">{escrowsEnabled ? 'Yes' : 'No'}</span>
+                ))}
+              </div>
+              
+              {/* Selected Scenario Details */}
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <h4 className="font-bold text-sm text-neutral-d2 border-b pb-2">Payment Breakdown</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-d1">P&I</span>
+                      <span className="font-medium">{formatCurrency(scenarios[selectedScenario].pi)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-d1">Taxes</span>
+                      <span className="font-medium">{formatCurrency(scenarios[selectedScenario].taxes)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-d1">Insurance</span>
+                      <span className="font-medium">{formatCurrency(scenarios[selectedScenario].insurance)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-d1">MI/MIP</span>
+                      <span className="font-medium">{formatCurrency(scenarios[selectedScenario].mi)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-d1">Debts</span>
+                      <span className={`font-medium ${scenarios[selectedScenario].debts === 0 ? 'text-green-600' : ''}`}>
+                        {scenarios[selectedScenario].debts === 0 ? '$0 (Paid Off)' : formatCurrency(scenarios[selectedScenario].debts)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm font-bold pt-2 border-t">
+                      <span>Total Payment</span>
+                      <span>{formatCurrency(scenarios[selectedScenario].payment)}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <h4 className="font-bold text-sm text-neutral-d2 border-b pb-2">Loan Details</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-d1">Rate</span>
+                      <span className="font-medium">{scenarios[selectedScenario].rate}%</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-d1">Term</span>
+                      <span className="font-medium">{scenarios[selectedScenario].term} years</span>
+                    </div>
+                    {scenarios[selectedScenario].cashout !== undefined && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-neutral-d1">Cash Out</span>
+                        <span className="font-medium text-[#432c9e]">{formatCurrency(scenarios[selectedScenario].cashout)}</span>
+                      </div>
+                    )}
+                  </div>
+                  {!scenarios[selectedScenario].isPresent && (
+                    <button className="w-full mt-4 py-2 px-4 bg-[#432c9e] text-white text-sm font-bold rounded-lg hover:bg-[#362480] transition-colors">
+                      ✓ Present This Scenario
+                    </button>
+                  )}
                 </div>
               </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Debts</span>
-                <span className="text-sm text-[#45556c]">{formatCurrency(totalDebts)}</span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Debt Payoff Total</span>
-                <span className="text-sm text-[#45556c]">{formatCurrency(totalDebts)}</span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Remaining Debt</span>
-                <span className="text-sm text-[#45556c]">$0</span>
-              </div>
             </div>
-            <div className="border-t border-[#f2d4ba] pt-2 mt-2">
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Current Payment</span>
-                <span className="text-sm text-[#45556c] font-semibold">{formatCurrency(currentPayment)}</span>
-              </div>
-            </div>
-          </div>
+          )}
 
-          {/* Proposed Mortgage Card */}
-          <div className="flex flex-col p-4 bg-[#ededfe] border border-[#dbdbfc] rounded">
-            <h3 className="font-bold text-sm text-[#0f172b] mb-3">Proposed Mortgage</h3>
-            <div className="flex flex-col flex-1">
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Mortgage</span>
-                <span className="text-sm text-[#45556c]">${proposedMortgage}</span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Taxes</span>
-                <div className="flex items-center gap-1.5">
-                  <button className="text-[#432c9e] hover:text-[#200f51] p-0.5" aria-label="Edit Taxes">
-                    <Pencil className="w-3.5 h-3.5" />
-                  </button>
-                  <span className="text-sm text-[#45556c] min-w-12 text-right">${taxes}</span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Insurance</span>
-                <div className="flex items-center gap-1.5">
-                  <button className="text-[#432c9e] hover:text-[#200f51] p-0.5" aria-label="Edit Insurance">
-                    <Pencil className="w-3.5 h-3.5" />
-                  </button>
-                  <span className="text-sm text-[#45556c] min-w-12 text-right">${insurance}</span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Discount</span>
-                <span className="text-sm text-[#45556c]">${discount}</span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Mortgage Insurance</span>
-                <span className="text-sm text-[#45556c]">${mortgageInsurance}</span>
+          {/* Option B: Side-by-Side Cards */}
+          {comparisonDesign === 'B' && (
+            <div className="p-4">
+              <div className="grid grid-cols-4 gap-3">
+                {scenarios.map((s) => (
+                  <div 
+                    key={s.id}
+                    className={`rounded-lg border-2 overflow-hidden transition-all cursor-pointer ${
+                      selectedScenario === s.id 
+                        ? 'border-[#432c9e] shadow-lg' 
+                        : 'border-neutral-l3 hover:border-[#432c9e]/50'
+                    }`}
+                    onClick={() => setSelectedScenario(s.id)}
+                  >
+                    {/* Card Header */}
+                    <div className={`px-3 py-2 text-center ${
+                      s.isPresent ? 'bg-[#fff8f2]' : 'bg-[#f8f7fc]'
+                    }`}>
+                      <div className="text-xs font-bold text-neutral-d1 uppercase">
+                        {s.isPresent ? 'Current' : s.name}
+                      </div>
+                      {!s.isPresent && (
+                        <div className="text-[10px] text-neutral-l1">{s.label}</div>
+                      )}
+                    </div>
+                    
+                    {/* Payment */}
+                    <div className="px-3 py-3 text-center border-b border-neutral-l3">
+                      <div className="text-xl font-bold text-[#0f172b]">{formatCurrency(s.payment)}</div>
+                      <div className="text-xs text-neutral-l1">/month</div>
+                      {!s.isPresent && s.savings > 0 && (
+                        <div className="text-xs font-bold text-green-600 mt-1">
+                          Save {formatCurrency(s.savings)}/mo
+                        </div>
+                      )}
+                      {!s.isPresent && s.savings < 0 && (
+                        <div className="text-xs font-bold text-rose-500 mt-1">
+                          +{formatCurrency(Math.abs(s.savings))}/mo
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Breakdown */}
+                    <div className="px-3 py-2 text-xs space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-neutral-l1">P&I</span>
+                        <span className="font-medium">{formatCurrency(s.pi)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-neutral-l1">Escrow</span>
+                        <span className="font-medium">{formatCurrency(s.taxes + s.insurance)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-neutral-l1">Debts</span>
+                        <span className={`font-medium ${s.debts === 0 && !s.isPresent ? 'text-green-600' : ''}`}>
+                          {s.debts === 0 && !s.isPresent ? '$0 ✓' : formatCurrency(s.debts)}
+                        </span>
+                      </div>
+                      {s.cashout !== undefined && s.cashout > 0 && (
+                        <div className="flex justify-between pt-1 border-t border-neutral-l3">
+                          <span className="text-[#432c9e]">Cash Out</span>
+                          <span className="font-bold text-[#432c9e]">{formatCurrency(s.cashout)}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Present Button */}
+                    {!s.isPresent && (
+                      <div className="px-3 pb-3">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setSelectedScenario(s.id); }}
+                          className={`w-full py-1.5 text-xs font-bold rounded-md transition-all ${
+                            selectedScenario === s.id
+                              ? 'bg-[#432c9e] text-white'
+                              : 'bg-neutral-l4 text-neutral-d1 hover:bg-[#edeffe] hover:text-[#432c9e]'
+                          }`}
+                        >
+                          {selectedScenario === s.id ? '✓ Selected' : 'Present'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-            <div className="border-t border-[#dbdbfc] pt-2 mt-2">
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">New Payment</span>
-                <span className="text-sm text-[#45556c] font-semibold">${newPayment}</span>
-              </div>
-            </div>
-          </div>
+          )}
 
-          {/* Value Propositions Card */}
-          <div className="flex flex-col p-4 bg-[#edf6f2] border border-[#cfe7db] rounded">
-            <h3 className="font-bold text-sm text-[#0f172b] mb-3">Value Propositions</h3>
-            <div className="flex flex-col flex-1">
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Monthly Savings</span>
-                <span className="text-sm text-[#45556c] font-semibold">{formatCurrency(monthlySavings)}</span>
+          {/* Option C: Aligned Table Comparison */}
+          {comparisonDesign === 'C' && (
+            <div className="p-4">
+              {/* Scenario Radio Buttons */}
+              <div className="flex items-center justify-center gap-2 mb-6">
+                <span className="text-sm text-neutral-d1 mr-2">Compare with:</span>
+                {scenarios.filter(s => !s.isPresent).map((s) => (
+                  <label 
+                    key={s.id}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer transition-all ${
+                      selectedScenario === s.id 
+                        ? 'bg-[#432c9e] text-white' 
+                        : 'bg-neutral-l4 text-neutral-d1 hover:bg-[#edeffe]'
+                    }`}
+                  >
+                    <input 
+                      type="radio" 
+                      name="scenario" 
+                      checked={selectedScenario === s.id}
+                      onChange={() => setSelectedScenario(s.id)}
+                      className="sr-only"
+                    />
+                    <span className="text-sm font-medium">{s.name}</span>
+                  </label>
+                ))}
               </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Annual Savings</span>
-                <span className="text-sm text-[#45556c] font-semibold">{formatCurrency(annualSavings)}</span>
-              </div>
-              <div className="my-2"></div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm font-semibold text-[#45556c]">Extra Payment</span>
-                <div className="flex items-center gap-1.5">
-                  <button className="text-[#2e7d32] hover:text-[#1b5e20] p-0.5" aria-label="Edit Extra Payment">
-                    <Pencil className="w-3.5 h-3.5" />
-                  </button>
-                  <span className="text-sm font-semibold text-[#45556c] min-w-12 text-right">${extraPayment}</span>
+              
+              {/* Aligned Comparison Table */}
+              <div className="border border-neutral-l3 rounded-lg overflow-hidden">
+                {/* Table Header */}
+                <div className="grid grid-cols-[1fr_140px_140px] bg-neutral-l5">
+                  <div className="px-4 py-3 text-sm font-bold text-neutral-d2"></div>
+                  <div className="px-4 py-3 text-sm font-bold text-center bg-[#fff8f2] border-l border-neutral-l3">
+                    PRESENT
+                  </div>
+                  <div className="px-4 py-3 text-sm font-bold text-center bg-[#edeffe] border-l border-neutral-l3 text-[#432c9e]">
+                    PROPOSED
+                  </div>
                 </div>
+                
+                {/* P&I Row */}
+                <div className="grid grid-cols-[1fr_140px_140px] border-t border-neutral-l3">
+                  <div className="px-4 py-2.5 text-sm text-neutral-d1">Principal & Interest</div>
+                  <div className="px-4 py-2.5 text-sm text-right font-medium bg-[#fff8f2]/50 border-l border-neutral-l3">
+                    {formatCurrency(scenarios[0].pi)}
+                  </div>
+                  <div className="px-4 py-2.5 text-sm text-right font-medium bg-[#edeffe]/50 border-l border-neutral-l3 text-[#432c9e]">
+                    {formatCurrency(scenarios[selectedScenario]?.pi || 0)}
+                  </div>
+                </div>
+                
+                {/* Taxes Row */}
+                <div className="grid grid-cols-[1fr_140px_140px] border-t border-neutral-l3">
+                  <div className="px-4 py-2.5 text-sm text-neutral-d1">Taxes</div>
+                  <div className="px-4 py-2.5 text-sm text-right font-medium bg-[#fff8f2]/50 border-l border-neutral-l3">
+                    {formatCurrency(scenarios[0].taxes)}
+                  </div>
+                  <div className="px-4 py-2.5 text-sm text-right font-medium bg-[#edeffe]/50 border-l border-neutral-l3">
+                    {formatCurrency(scenarios[selectedScenario]?.taxes || 0)}
+                  </div>
+                </div>
+                
+                {/* Insurance Row */}
+                <div className="grid grid-cols-[1fr_140px_140px] border-t border-neutral-l3">
+                  <div className="px-4 py-2.5 text-sm text-neutral-d1">Insurance</div>
+                  <div className="px-4 py-2.5 text-sm text-right font-medium bg-[#fff8f2]/50 border-l border-neutral-l3">
+                    {formatCurrency(scenarios[0].insurance)}
+                  </div>
+                  <div className="px-4 py-2.5 text-sm text-right font-medium bg-[#edeffe]/50 border-l border-neutral-l3">
+                    {formatCurrency(scenarios[selectedScenario]?.insurance || 0)}
+                  </div>
+                </div>
+                
+                {/* MI/MIP Row */}
+                <div className="grid grid-cols-[1fr_140px_140px] border-t border-neutral-l3">
+                  <div className="px-4 py-2.5 text-sm text-neutral-d1">MI/MIP</div>
+                  <div className="px-4 py-2.5 text-sm text-right font-medium bg-[#fff8f2]/50 border-l border-neutral-l3">
+                    {formatCurrency(scenarios[0].mi)}
+                  </div>
+                  <div className="px-4 py-2.5 text-sm text-right font-medium bg-[#edeffe]/50 border-l border-neutral-l3">
+                    {formatCurrency(scenarios[selectedScenario]?.mi || 0)}
+                  </div>
+                </div>
+                
+                {/* Mortgage Total Subtotal */}
+                <div className="grid grid-cols-[1fr_140px_140px] border-t-2 border-neutral-l2 bg-neutral-l5/50">
+                  <div className="px-4 py-2.5 text-sm font-semibold text-neutral-d2">Total Mortgage Payment</div>
+                  <div className="px-4 py-2.5 text-sm text-right font-bold bg-[#fff8f2]/70 border-l border-neutral-l3">
+                    {formatCurrency(scenarios[0].pi + scenarios[0].taxes + scenarios[0].insurance + scenarios[0].mi)}
+                  </div>
+                  <div className="px-4 py-2.5 text-sm text-right font-bold bg-[#edeffe]/70 border-l border-neutral-l3 text-[#432c9e]">
+                    {formatCurrency((scenarios[selectedScenario]?.pi || 0) + (scenarios[selectedScenario]?.taxes || 0) + (scenarios[selectedScenario]?.insurance || 0) + (scenarios[selectedScenario]?.mi || 0))}
+                  </div>
+                </div>
+                
+                {/* Debts Being Paid Off Row */}
+                <div className="grid grid-cols-[1fr_140px_140px] border-t border-neutral-l3">
+                  <div className="px-4 py-2.5 text-sm text-neutral-d1">Debts Being Paid Off</div>
+                  <div className="px-4 py-2.5 text-sm text-right font-medium bg-[#fff8f2]/50 border-l border-neutral-l3 text-rose-600">
+                    {formatCurrency(scenarios[0].debts)}
+                  </div>
+                  <div className="px-4 py-2.5 text-sm text-right font-medium bg-[#edeffe]/50 border-l border-neutral-l3 text-green-600">
+                    $0 (Paid Off) ✓
+                  </div>
+                </div>
+                
+                {/* Cash Out Row (if applicable) */}
+                {scenarios[selectedScenario]?.cashout > 0 && (
+                  <div className="grid grid-cols-[1fr_140px_140px] border-t border-neutral-l3">
+                    <div className="px-4 py-2.5 text-sm text-neutral-d1">Cash Out at Closing</div>
+                    <div className="px-4 py-2.5 text-sm text-right font-medium bg-[#fff8f2]/50 border-l border-neutral-l3 text-neutral-l1">
+                      —
+                    </div>
+                    <div className="px-4 py-2.5 text-sm text-right font-bold bg-[#edeffe]/50 border-l border-neutral-l3 text-[#432c9e]">
+                      {formatCurrency(scenarios[selectedScenario].cashout)}
+                    </div>
+                  </div>
+                )}
+                
+                {/* TOTAL Row */}
+                <div className="grid grid-cols-[1fr_140px_140px] border-t-2 border-[#432c9e]">
+                  <div className="px-4 py-3 text-sm font-bold text-neutral-d3 bg-neutral-l4">TOTAL MONTHLY</div>
+                  <div className="px-4 py-3 text-right font-bold text-lg bg-[#fff8f2] border-l border-neutral-l3">
+                    {formatCurrency(scenarios[0].payment)}
+                  </div>
+                  <div className="px-4 py-3 text-right font-bold text-lg bg-[#edeffe] border-l border-neutral-l3 text-[#432c9e]">
+                    {formatCurrency(scenarios[selectedScenario]?.payment || 0)}
+                  </div>
+                </div>
+                
+                {/* Savings Row */}
+                {scenarios[selectedScenario]?.savings !== 0 && (
+                  <div className={`grid grid-cols-[1fr_140px_140px] border-t border-neutral-l3 ${scenarios[selectedScenario]?.savings > 0 ? 'bg-green-50' : 'bg-rose-50'}`}>
+                    <div className="px-4 py-3 text-sm font-bold text-neutral-d2">
+                      {scenarios[selectedScenario]?.savings > 0 ? '💰 Monthly Savings' : '⚠️ Monthly Increase'}
+                    </div>
+                    <div className="px-4 py-3 border-l border-neutral-l3"></div>
+                    <div className={`px-4 py-3 text-right font-bold text-lg border-l border-neutral-l3 ${scenarios[selectedScenario]?.savings > 0 ? 'text-green-600' : 'text-rose-600'}`}>
+                      {scenarios[selectedScenario]?.savings > 0 ? '' : '+'}{formatCurrency(Math.abs(scenarios[selectedScenario]?.savings || 0))}
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Years Saved</span>
-                <span className="text-sm text-[#45556c] font-semibold">{yearsSaved}</span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Interest Saved</span>
-                <span className="text-sm text-[#45556c] font-semibold">${interestSaved}</span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-sm text-[#45556c]">Est. Cash Back</span>
-                <span className="text-sm text-[#45556c] font-semibold">${estCashBack}</span>
+              
+              {/* Present Button */}
+              <div className="mt-4 flex justify-end">
+                <button className="px-6 py-2.5 bg-[#432c9e] text-white font-bold rounded-lg hover:bg-[#362480] transition-colors">
+                  ✓ Present This Comparison
+                </button>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* Option D: Carousel/Slider */}
+          {comparisonDesign === 'D' && (
+            <div className="p-4">
+              {/* Carousel Navigation */}
+              <div className="flex items-center justify-between mb-4">
+                <button 
+                  onClick={() => setCarouselIndex(Math.max(0, carouselIndex - 1))}
+                  disabled={carouselIndex === 0}
+                  className="p-2 rounded-full bg-neutral-l4 hover:bg-neutral-l3 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <div className="text-center">
+                  <div className="text-sm text-neutral-l1">
+                    Scenario {carouselIndex + 1} of {scenarios.length}
+                  </div>
+                  <div className="text-lg font-bold text-[#432c9e]">
+                    {scenarios[carouselIndex].isPresent ? 'Current Situation' : scenarios[carouselIndex].name}
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setCarouselIndex(Math.min(scenarios.length - 1, carouselIndex + 1))}
+                  disabled={carouselIndex === scenarios.length - 1}
+                  className="p-2 rounded-full bg-neutral-l4 hover:bg-neutral-l3 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+              
+              {/* Current Slide */}
+              <div className={`rounded-xl p-6 ${scenarios[carouselIndex].isPresent ? 'bg-[#fff8f2] border border-[#f2d4ba]' : 'bg-[#f8f7fc] border-2 border-[#432c9e]'}`}>
+                <div className="text-center mb-6">
+                  <div className="text-4xl font-bold text-[#0f172b]">{formatCurrency(scenarios[carouselIndex].payment)}</div>
+                  <div className="text-sm text-neutral-l1">/month total payment</div>
+                  {!scenarios[carouselIndex].isPresent && scenarios[carouselIndex].savings > 0 && (
+                    <div className="inline-block mt-2 px-4 py-1 bg-green-100 text-green-700 text-sm font-bold rounded-full">
+                      Save {formatCurrency(scenarios[carouselIndex].savings)}/month
+                    </div>
+                  )}
+                </div>
+                
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div className="bg-white rounded-lg p-3">
+                    <div className="text-xs text-neutral-l1 uppercase mb-1">Rate</div>
+                    <div className="text-lg font-bold">{scenarios[carouselIndex].rate}%</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-3">
+                    <div className="text-xs text-neutral-l1 uppercase mb-1">P&I</div>
+                    <div className="text-lg font-bold">{formatCurrency(scenarios[carouselIndex].pi)}</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-3">
+                    <div className="text-xs text-neutral-l1 uppercase mb-1">Debts</div>
+                    <div className={`text-lg font-bold ${scenarios[carouselIndex].debts === 0 && !scenarios[carouselIndex].isPresent ? 'text-green-600' : ''}`}>
+                      {scenarios[carouselIndex].debts === 0 && !scenarios[carouselIndex].isPresent ? '$0 ✓' : formatCurrency(scenarios[carouselIndex].debts)}
+                    </div>
+                  </div>
+                </div>
+                
+                {scenarios[carouselIndex].cashout > 0 && (
+                  <div className="mt-4 p-3 bg-[#edeffe] rounded-lg text-center">
+                    <div className="text-xs text-[#432c9e] uppercase mb-1">Cash Out Available</div>
+                    <div className="text-xl font-bold text-[#432c9e]">{formatCurrency(scenarios[carouselIndex].cashout)}</div>
+                  </div>
+                )}
+                
+                {!scenarios[carouselIndex].isPresent && (
+                  <button className="w-full mt-4 py-3 bg-[#432c9e] text-white font-bold rounded-lg hover:bg-[#362480] transition-colors">
+                    ✓ Present This Scenario
+                  </button>
+                )}
+              </div>
+              
+              {/* Dot indicators */}
+              <div className="flex justify-center gap-2 mt-4">
+                {scenarios.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCarouselIndex(i)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all ${
+                      carouselIndex === i ? 'bg-[#432c9e] w-6' : 'bg-neutral-l3 hover:bg-neutral-l2'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Configurations Section */}
