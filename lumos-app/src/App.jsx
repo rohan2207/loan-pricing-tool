@@ -24,6 +24,7 @@ import { PropertyTabs } from './components/dashboard/PropertyTabs';
 import { FigureView } from './components/dashboard/FigureView';
 import { Short1003View } from './components/dashboard/Short1003View';
 import { LoanDetailsPopout } from './components/dashboard/LoanDetailsPopout';
+import { PropertyTester } from './components/dashboard/PropertyTester';
 
 // Initial accounts data
 const initialAccounts = [
@@ -312,6 +313,8 @@ function App() {
             borrowerData={borrowerData}
           />
         );
+      case 'propertyTester':
+        return <PropertyTester />;
       case 'advantage':
         return (
           <GoodLeapAdvantage 

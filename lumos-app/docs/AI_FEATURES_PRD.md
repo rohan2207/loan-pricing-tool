@@ -1119,83 +1119,171 @@ const LiabilityAIResponseSchema = z.object({
 
 ---
 
-## 3. GoodLeap AVM
+## 3. GoodLeap AVM (with OpenAI Web Search)
 
-**Purpose:** Select and explain a working property value for AUS submission.
+**Purpose:** Select and explain a working property value for AUS submission and PIW optimization using real-time property data from multiple sources.
 
-### 3.1 Model Parameters
+### 3.1 Architecture Overview
+
+The AVM tool uses OpenAI's **Responses API** with the built-in `web_search` tool to fetch real-time property valuations from multiple sources (Zillow, Redfin, Realtor.com, etc.) instead of hardcoded values.
+
+```mermaid
+sequenceDiagram
+    participant UI as GoodLeapAVM.jsx
+    participant Service as avmWebSearch.js
+    participant API as api/ai/avm.js
+    participant OpenAI as OpenAI Responses API
+    participant Web as Web Sources
+
+    UI->>Service: getPropertyValuations(property)
+    Service->>API: POST /api/ai/avm
+    API->>OpenAI: responses.create with web_search tool
+    OpenAI->>Web: Search Zillow, Redfin, Realtor, tax records
+    Web-->>OpenAI: Property data and valuations
+    OpenAI-->>API: Structured response with citations
+    API->>API: Transform to UI schema
+    API-->>Service: AVMResponse with PIW calculations
+    Service-->>UI: Display in UI
+```
+
+### 3.2 Model Parameters
 
 | Parameter | Value |
 |-----------|-------|
-| Model | `gpt-4o-mini` |
-| Temperature | `0.05` |
-| Max Tokens | `700` |
-| top_p | `1` |
-| frequency_penalty | `0` |
-| presence_penalty | `0` |
+| Model | `gpt-4o` |
+| API | Responses API (not Chat Completions) |
+| Tools | `[{ type: 'web_search' }]` |
 
-### 3.2 Input Data (POST Body)
+### 3.3 Input Data (POST Body)
 
 ```typescript
 interface PropertyInput {
-  address?: string;
-  city?: string;
-  state?: string;
+  address?: string;      // Default: '2116 Shrewsbury Dr'
+  city?: string;         // Default: 'McKinney'
+  state?: string;        // Default: 'TX'
+  zip?: string;          // Default: '75071'
   livingArea?: number;
   yearBuilt?: number;
-  avmValue?: number;
-  avmLow?: number;
-  avmHigh?: number;
-  confidence?: number;
-  zillowValue?: number;
-  redfinValue?: number;
-  realtorValue?: number;
+  bedrooms?: number;
+  bathrooms?: number;
 }
 ```
 
-### 3.3 System Prompt
+### 3.4 System Prompt
 
 ```
-You are a mortgage property valuation assistant.
-Your job is to select and explain a working property value for AUS usage using internal and external AVMs.
+You are an AI valuation tool used by a mortgage sales team.
+Your objective is to deliver accurate, defensible, AVM-based residential property valuations to support AUS submissions (Fannie Mae and Freddie Mac) and maximize the probability of a Property Inspection Waiver (PIW).
 
-Follow all rules strictly.
-Do not invent values.
-Do not change section order or labels.
+You must prioritize credibility, data consistency, and conservative optimization for underwriting outcomes.
 
-SELECTION RULES:
-1) Prefer internal AVM when supported by low variance
-2) Avoid highest value unless supported by multiple sources
-3) Favor consistency and explainability over optimism
-4) Do not reference LTV, guidelines, or approval guarantees
+## Input Handling
 
-Output valid JSON only.
+The property address will be provided. You must:
+1. Parse and normalize the address into standard USPS format.
+2. Validate that street, city, state, and ZIP code are present.
+3. If the address is incomplete or cannot be validated, respond with the error format specified below.
+
+## Data Collection Requirements
+
+You must gather current, real-world data by searching and cross-referencing the following sources where available:
+
+**Primary AVM and Listing Sources:**
+- Zillow (Zestimate, property facts, sale history)
+- Redfin (estimate, comps, days on market)
+- Realtor.com (value estimate, tax data, sale history)
+- Homes.com (value range and trend context)
+
+**Secondary and Public Sources:**
+- Trulia
+- County assessor and public tax records
+
+**Rules:**
+- Use real-time data via web search.
+- Cross-check values across sources.
+- Use null where data is unavailable.
+- Never fabricate values, dates, ranges, or comps.
+- Do not average blindly. Weight sources based on consistency and recency.
+
+## AVM Estimate Guidelines
+
+1. Anchor to the most defensible value for underwriting, not the highest.
+2. Favor tighter ranges when AVMs cluster.
+3. Widen ranges when AVMs diverge or data is stale.
+4. If estimated value exceeds $999,999, note that PIW eligibility is unlikely.
+
+## PIW Calculation Rules
+
+- Rate and Term PIW max = 90% of primary PIW value
+- Cash-Out PIW max = 70% of primary PIW value
+- Use conservative rounding when required by AUS logic.
+- Do not inflate values to force PIW eligibility.
+
+## AUS Optimization Logic
+
+When selecting values:
+1. Prefer AVMs with strong alignment and recent sales support.
+2. Avoid values significantly above recent closed comps.
+3. If recent sale occurred within 12 months, treat it as a strong anchor.
+4. Tax assessment may be used only as a fallback, not a primary driver.
+5. If no AVMs are available, default to most recent sale or assessed value and state: "Insufficient data for confidence rating."
+
+Output valid JSON only. No markdown, no explanation outside the JSON.
 ```
 
-### 3.4 Computed Facts
+### 3.5 Web Search Response Schema
+
+The AI returns this structure which is then transformed for the UI:
 
 ```typescript
-function computeFacts(property) {
-  const values = [internalAvm, zillowValue, redfinValue, realtorValue].filter(v => v);
-  const sourceCount = values.length;
-  const minValue = Math.min(...values);
-  const maxValue = Math.max(...values);
-  const medianValue = median(values);
-  const variancePercent = ((maxValue - minValue) / medianValue * 100);
-  
-  // Confidence based on variance
-  let confidenceLevel = 'High';
-  if (variancePercent > 10) confidenceLevel = 'Low';
-  else if (variancePercent > 5) confidenceLevel = 'Medium';
-  
-  return { sourceCount, minValue, maxValue, medianValue, variancePercent, ... };
-}
+const WebSearchAVMSchema = z.object({
+  property_details: z.object({
+    address: z.string(),
+    parcel_number: z.string().nullable().optional(),
+    neighborhood: z.string().nullable().optional(),
+    lot_size: z.string().nullable().optional(),
+    living_area_sqft: z.number().nullable().optional(),
+    bedrooms: z.number().nullable().optional(),
+    bathrooms: z.number().nullable().optional(),
+    year_built: z.number().nullable().optional(),
+    last_sale_date: z.string().nullable().optional(),
+    last_sale_price: z.number().nullable().optional(),
+    tax_assessed_value: z.number().nullable().optional(),
+    tax_year: z.number().nullable().optional()
+  }),
+  source_valuations: z.object({
+    zillow: z.object({ value: z.number().nullable(), notes: z.string().optional() }),
+    redfin: z.object({ value: z.number().nullable(), notes: z.string().optional() }),
+    realtor: z.object({ value: z.number().nullable(), notes: z.string().optional() }),
+    homes_com: z.object({ value: z.number().nullable(), notes: z.string().optional() }).optional(),
+    trulia: z.object({ value: z.number().nullable(), notes: z.string().optional() }).optional(),
+    tax_assessment: z.object({ value: z.number().nullable(), notes: z.string().optional() }).optional()
+  }),
+  avm_estimate: z.object({
+    low_estimate: z.number(),
+    high_estimate: z.number(),
+    most_likely_value: z.number(),
+    confidence: z.enum(['Low', 'Moderate', 'High']),
+    justification: z.string()
+  }),
+  piw_recommendations: z.object({
+    primary_piw_value: z.number(),
+    alternate_lower_value: z.number(),
+    rate_term_piw_max: z.number(),      // 90% of primary value
+    cash_out_piw_max: z.number(),       // 70% of primary value
+    piw_eligible: z.boolean(),
+    notes: z.string().optional()
+  }),
+  important_notes: z.array(z.string())
+});
 ```
 
-### 3.5 Response Schema
+### 3.6 UI Response Schema (Transformed)
+
+The web search response is transformed to this schema for backward compatibility:
 
 ```typescript
-const AVMResponseSchema = z.object({
+const UIResponseSchema = z.object({
   aus_recommended: z.object({
     value: z.number(),
     confidence: z.enum(['High', 'Medium', 'Low']),
@@ -1232,9 +1320,96 @@ const AVMResponseSchema = z.object({
     internal_alignment: z.boolean(),
     suitable_for_aus: z.enum(['Yes', 'Use with caution'])
   }),
-  important_notes: z.array(z.string())
+  important_notes: z.array(z.string()),
+  // New PIW calculations field
+  piw_calculations: z.object({
+    primary_value: z.number(),
+    rate_term_max: z.number(),
+    cash_out_max: z.number(),
+    piw_eligible: z.boolean(),
+    notes: z.string().optional()
+  }).optional()
 });
 ```
+
+### 3.7 Error Handling
+
+The AVM API includes comprehensive error handling with specific error codes:
+
+| Error Code | Description | User Action |
+|------------|-------------|-------------|
+| `API_KEY_MISSING` | No OpenAI API key configured | Contact administrator |
+| `INVALID_API_KEY` | API key is invalid | Check configuration |
+| `QUOTA_EXCEEDED` | OpenAI billing issue | Check billing |
+| `RESPONSES_API_UNAVAILABLE` | Web search not available on plan | Upgrade API access |
+| `RATE_LIMITED` | Too many requests | Wait and retry |
+| `SERVICE_UNAVAILABLE` | OpenAI temporarily down | Retry later |
+| `EMPTY_RESPONSE` | No content returned | Retry |
+| `JSON_PARSE_FAILED` | Malformed AI response | Retry |
+| `SCHEMA_VALIDATION_FAILED` | Response doesn't match schema | Contact support |
+| `NETWORK_ERROR` | Connection failed | Check network |
+
+**Client-side error class:**
+```typescript
+class AVMError extends Error {
+  constructor(message, errorCode, details = null, rawData = null) {
+    super(message);
+    this.name = 'AVMError';
+    this.errorCode = errorCode;
+    this.details = details;
+    this.rawData = rawData;
+    this.timestamp = new Date().toISOString();
+  }
+}
+```
+
+### 3.8 UI Components
+
+**PIW Eligibility Section:**
+```
++------------------------------------------+
+|  [Calculator] PIW Eligibility  [Eligible] |
++------------------------------------------+
+|  +----------------+  +----------------+   |
+|  | Rate & Term    |  | Cash-Out Max   |   |
+|  | $706,500       |  | $549,500       |   |
+|  | 90% of PIW     |  | 70% of PIW     |   |
+|  +----------------+  +----------------+   |
+|                                           |
+|  Primary PIW Value: $785,000              |
+|                                           |
+|  [!] Values over $999,999 unlikely PIW    |
++------------------------------------------+
+```
+
+**Error Display:**
+```
++------------------------------------------+
+|  [!] Failed to load valuations            |
+|                                           |
+|  [RESPONSES_API_UNAVAILABLE]              |
+|                                           |
+|  +------------------------------------+   |
+|  | The OpenAI Responses API with web  |   |
+|  | search requires special access.    |   |
+|  +------------------------------------+   |
+|                                           |
+|  [v] Technical Details                    |
+|  +------------------------------------+   |
+|  | Error Code: RESPONSES_API_...      |   |
+|  | Timestamp: 2026-01-21T...          |   |
+|  | Details: ...                       |   |
+|  +------------------------------------+   |
+|                                           |
+|  [Retry]                                  |
++------------------------------------------+
+```
+
+### 3.9 Environment Requirements
+
+- OpenAI API key with access to **Responses API** and `web_search` tool
+- Model: `gpt-4o` (supports web search)
+- Note: The Responses API may require specific API tier access
 
 ---
 

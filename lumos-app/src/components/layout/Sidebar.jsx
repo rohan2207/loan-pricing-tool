@@ -5,7 +5,8 @@ import {
     Calculator,
     Home,
     FileText,
-    ChevronDown
+    ChevronDown,
+    FlaskConical
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -104,6 +105,20 @@ export function Sidebar({ currentView, onViewChange, activeQuickAction, onQuickA
                         label="Calculators" 
                         active={currentView === 'pricing'} 
                         onClick={() => handleNavClick('pricing')} 
+                    />
+                </NavSection>
+
+                {/* Testing Section */}
+                <NavSection 
+                    label="Testing" 
+                    icon={<FlaskConical size={16} />}
+                    expanded={expandedSection === 'testing'}
+                    onClick={() => toggleSection('testing')}
+                >
+                    <NavItem 
+                        label="Property Tester" 
+                        active={currentView === 'propertyTester'} 
+                        onClick={() => handleNavClick('propertyTester')} 
                     />
                 </NavSection>
             </div>
