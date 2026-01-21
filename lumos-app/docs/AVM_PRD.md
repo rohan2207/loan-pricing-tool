@@ -137,10 +137,10 @@ POST /api/ai/avm
 | Calculation | Formula | Example ($747K value) |
 |-------------|---------|----------------------|
 | **Rate & Term Max** | Value × 90% | $672,300 |
-| **Cash-Out Max** | Value × 80% | $597,600 |
+| **Cash-Out Max** | Value × 70% | $522,900 |
 | **PIW Eligible** | Value < $1,000,000 | ✅ Yes |
 
-> **Note:** PIW is not available for properties valued over $999,999.
+> **⚠️ Important:** PIWs are NOT given when estimated value exceeds $999,999.
 
 ---
 

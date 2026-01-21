@@ -43,78 +43,81 @@ export default async function handler(req, res) {
             messages: [
                 {
                     role: 'system',
-                    content: `You are an AI valuation tool for a mortgage sales team. Your objective is to deliver accurate, defensible, AVM-based residential property valuations to support AUS (Automated Underwriting System) submissions and maximize the probability of a Property Inspection Waiver (PIW).
+                    content: `You are an AI valuation tool for a mortgage sales team.
+Your goal is to provide accurate, AVM-based home valuations to help run AUS (Freddie Mac / Fannie Mae) and maximize the chance of a Property Inspection Waiver (PIW).
 
-PRIORITY: Credibility, data consistency, and CONSERVATIVE optimization for underwriting outcomes.
-
-VALUATION RULES:
-- Anchor to the most DEFENSIBLE value for underwriting, NOT the highest
-- Favor tighter ranges when values cluster
-- Widen ranges when values diverge
+RULES:
+- Cross-reference values for consistency
+- Use null where information is unavailable
+- Never fabricate data
+- Anchor to most DEFENSIBLE value for underwriting
 - iBuyers (Opendoor, Offerpad) typically offer 5-10% below market
-- If value exceeds $999,999, PIW eligibility is unlikely
+- PIWs are NOT given when estimated value exceeds $999,999
 
-AUS OPTIMIZATION:
-- Prefer values with strong alignment across sources
-- Avoid values significantly above recent closed comps
-- Use conservative rounding for AUS submissions
-
-Return JSON only.`
+Return JSON only. Professional, factual tone.`
                 },
                 {
                     role: 'user',
-                    content: `Provide property valuations for AUS submission and PIW optimization.
+                    content: `Analyze this property for AUS submission and PIW optimization.
 
-PROPERTY DETAILS:
-Address: ${fullAddress}
-Square Feet: ${sqft}
-Bedrooms: ${beds}
-Bathrooms: ${baths}
-Year Built: ${yearBuilt}
+ADDRESS: ${fullAddress}
+SQUARE FEET: ${sqft}
+BEDROOMS: ${beds}
+BATHROOMS: ${baths}
+YEAR BUILT: ${yearBuilt}
 
-Estimate what each platform would show for this property and explain your reasoning:
+Provide complete analysis in this JSON structure:
 
-1. Zillow (Zestimate - typically market-aligned)
-2. Redfin (usually slightly conservative)
-3. Realtor.com (MLS-based)
-4. Homes.com (consumer estimate)
-5. Trulia (Zillow-owned, similar to Zestimate)
-6. Opendoor (iBuyer - typically 5-10% below market)
-7. Offerpad (iBuyer cash offer)
-8. Homelight (agent-based estimate)
-9. Knock (trade-in value)
-10. Orchard (move-first value)
-
-Return JSON:
 {
-  "sources": [
-    { "name": "Zillow", "value": number, "reasoning": "explanation" },
-    { "name": "Redfin", "value": number, "reasoning": "explanation" },
-    { "name": "Realtor.com", "value": number, "reasoning": "explanation" },
-    { "name": "Homes.com", "value": number, "reasoning": "explanation" },
-    { "name": "Trulia", "value": number, "reasoning": "explanation" },
-    { "name": "Opendoor", "value": number, "reasoning": "explanation" },
-    { "name": "Offerpad", "value": number, "reasoning": "explanation" },
-    { "name": "Homelight", "value": number, "reasoning": "explanation" },
-    { "name": "Knock", "value": number, "reasoning": "explanation" },
-    { "name": "Orchard", "value": number, "reasoning": "explanation" }
+  "property_details": {
+    "normalized_address": "full normalized address",
+    "city": "city",
+    "state": "state",
+    "zip": "zip",
+    "county": "county if known or null",
+    "neighborhood": "subdivision or neighborhood if known",
+    "lot_size": "lot size if known or null",
+    "living_area_sqft": ${sqft},
+    "bedrooms": ${beds},
+    "bathrooms": ${baths},
+    "year_built": ${yearBuilt},
+    "stories": "number or null",
+    "construction": "type or null",
+    "last_sale_date": "date or null",
+    "last_sale_price": number or null,
+    "hoa_monthly": number or null,
+    "tax_assessed_value": number or null,
+    "tax_year": number or null,
+    "annual_tax": number or null
+  },
+  "source_valuations": [
+    { "name": "Zillow", "value": number, "notes": "Zestimate context" },
+    { "name": "Redfin", "value": number, "notes": "AVM context" },
+    { "name": "Realtor.com", "value": number, "notes": "estimate context" },
+    { "name": "Homes.com", "value": number, "notes": "value range context" },
+    { "name": "Trulia", "value": number, "notes": "context" },
+    { "name": "Xome", "value": number or null, "notes": "if available" },
+    { "name": "Opendoor", "value": number, "notes": "iBuyer ~5-10% below market" },
+    { "name": "Offerpad", "value": number, "notes": "iBuyer cash offer" },
+    { "name": "Homelight", "value": number, "notes": "agent-based" },
+    { "name": "Knock", "value": number, "notes": "trade-in value" }
   ],
+  "valuation_context": "Short context sentence about source consistency or variance",
   "avm_estimate": {
     "low_estimate": number,
     "high_estimate": number,
-    "most_likely_value": number,
+    "most_likely_as_is_value": number,
     "confidence": "Low|Moderate|High",
-    "justification": "one sentence explaining data quality and AVM agreement"
+    "justification": "One sentence explaining data quality and AVM agreement"
   },
-  "aus_recommendation": {
+  "piw_recommendation": {
     "primary_piw_value": number,
     "alternate_lower_value": number,
-    "rate_term_max_90pct": number,
-    "cash_out_max_80pct": number,
+    "rate_term_max_90pct": "calculate 90% of primary PIW value",
+    "cash_out_max_70pct": "calculate 70% of primary PIW value",
     "piw_eligible": boolean,
-    "notes": "any caveats for underwriting"
-  },
-  "methodology": "brief explanation of overall approach"
+    "piw_notes": "PIW eligibility note - remember PIW not available over $999,999"
+  }
 }`
                 }
             ]
@@ -131,43 +134,128 @@ Return JSON:
             parsed = { sources: [] };
         }
         
-        // Add internal value as first source if provided
+        // Extract property details
+        const propertyDetails = parsed.property_details || {
+            normalized_address: fullAddress,
+            living_area_sqft: sqft,
+            bedrooms: beds,
+            bathrooms: baths,
+            year_built: yearBuilt
+        };
+        
+        // Build sources array - add internal AVM first if provided
         const sources = [];
         if (internalValue && internalValue > 0) {
-            sources.push({ name: 'Internal AVM', value: internalValue, type: 'internal', reasoning: 'GoodLeap internal valuation model' });
+            sources.push({ name: 'Internal AVM', value: internalValue, type: 'internal', notes: 'GoodLeap internal valuation model' });
         }
-        sources.push(...(parsed.sources || []).map(s => ({ ...s, type: 'external' })));
         
-        const methodology = parsed.methodology || 'Based on area market data and property characteristics';
+        // Add external sources from AI response
+        const aiSources = parsed.source_valuations || parsed.sources || [];
+        sources.push(...aiSources.map(s => ({ 
+            name: s.name, 
+            value: s.value, 
+            type: 'external', 
+            notes: s.notes || s.reasoning || '' 
+        })).filter(s => s.value && s.value > 0));
+        
+        const valuationContext = parsed.valuation_context || '';
         const avmEstimate = parsed.avm_estimate || {};
-        const ausRec = parsed.aus_recommendation || {};
+        const piwRec = parsed.piw_recommendation || parsed.aus_recommendation || {};
         
         // Calculate stats from all sources
         const values = sources.map(s => s.value).filter(v => v > 0);
-        const minValue = Math.min(...values);
-        const maxValue = Math.max(...values);
-        const avgValue = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+        const minValue = values.length ? Math.min(...values) : 0;
+        const maxValue = values.length ? Math.max(...values) : 0;
+        const avgValue = values.length ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : 0;
         
         // Use AI's AVM estimate if available, otherwise fall back to calculated
-        const mostLikelyValue = avmEstimate.most_likely_value || avgValue;
+        const mostLikelyValue = avmEstimate.most_likely_as_is_value || avmEstimate.most_likely_value || avgValue;
         const lowEstimate = avmEstimate.low_estimate || minValue;
         const highEstimate = avmEstimate.high_estimate || maxValue;
-        const confidence = avmEstimate.confidence || 'Medium';
+        const confidence = avmEstimate.confidence || 'Moderate';
         
         console.log(`📊 Found ${sources.length} sources`);
         console.log(`💰 Range: $${minValue.toLocaleString()} - $${maxValue.toLocaleString()}`);
         console.log(`📈 Average: $${avgValue.toLocaleString()}`);
         
         // PIW calculations - use AI recommendation or calculate
-        const piwPrimaryValue = ausRec.primary_piw_value || mostLikelyValue;
-        const rateTermMax = ausRec.rate_term_max_90pct || Math.round(piwPrimaryValue * 0.9);
-        const cashOutMax = ausRec.cash_out_max_80pct || Math.round(piwPrimaryValue * 0.8);
-        const piwEligible = ausRec.piw_eligible !== undefined ? ausRec.piw_eligible : (piwPrimaryValue < 1000000);
+        // Rate/Term Max = 90% of PIW value, Cash-Out Max = 70% of PIW value
+        const piwPrimaryValue = piwRec.primary_piw_value || mostLikelyValue;
+        const piwAlternateValue = piwRec.alternate_lower_value || lowEstimate;
+        const rateTermMax = typeof piwRec.rate_term_max_90pct === 'number' 
+            ? piwRec.rate_term_max_90pct 
+            : Math.round(piwPrimaryValue * 0.9);
+        const cashOutMax = typeof piwRec.cash_out_max_70pct === 'number' 
+            ? piwRec.cash_out_max_70pct 
+            : Math.round(piwPrimaryValue * 0.7);
+        const piwEligible = piwRec.piw_eligible !== undefined 
+            ? piwRec.piw_eligible 
+            : (piwPrimaryValue < 1000000);
         
         // Build UI response
         const uiResponse = {
+            // Section 1: Property Details
+            property_details: {
+                address: propertyDetails.normalized_address || fullAddress,
+                city: propertyDetails.city || city,
+                state: propertyDetails.state || state,
+                zip: propertyDetails.zip || zip,
+                county: propertyDetails.county || null,
+                neighborhood: propertyDetails.neighborhood || null,
+                lot_size: propertyDetails.lot_size || null,
+                living_area_sqft: propertyDetails.living_area_sqft || sqft,
+                bedrooms: propertyDetails.bedrooms || beds,
+                bathrooms: propertyDetails.bathrooms || baths,
+                year_built: propertyDetails.year_built || yearBuilt,
+                stories: propertyDetails.stories || null,
+                construction: propertyDetails.construction || null,
+                last_sale_date: propertyDetails.last_sale_date || null,
+                last_sale_price: propertyDetails.last_sale_price || null,
+                hoa_monthly: propertyDetails.hoa_monthly || null,
+                tax_assessed_value: propertyDetails.tax_assessed_value || null,
+                tax_year: propertyDetails.tax_year || null,
+                annual_tax: propertyDetails.annual_tax || null
+            },
+            
+            // Section 2: Source Valuations
+            source_comparison: {
+                source1: sources[0] ? { label: sources[0].name, value: sources[0].value, notes: sources[0].notes, found_actual: true } : null,
+                source2: sources[1] ? { label: sources[1].name, value: sources[1].value, notes: sources[1].notes, found_actual: true } : null,
+                source3: sources[2] ? { label: sources[2].name, value: sources[2].value, notes: sources[2].notes, found_actual: true } : null,
+                source4: sources[3] ? { label: sources[3].name, value: sources[3].value, notes: sources[3].notes, found_actual: true } : null,
+                source5: sources[4] ? { label: sources[4].name, value: sources[4].value, notes: sources[4].notes, found_actual: true } : null,
+                total_sources: sources.length,
+                actual_sources_found: sources.length,
+                value_range: { min: minValue, max: maxValue },
+                variance_percent: mostLikelyValue > 0 ? Math.round((maxValue - minValue) / mostLikelyValue * 100) : 0,
+                valuation_context: valuationContext,
+                all_sources: sources
+            },
+            
+            // Section 3: AVM Estimate and Confidence (Required)
+            avm_estimate: {
+                low_estimate: lowEstimate,
+                high_estimate: highEstimate,
+                most_likely_as_is_value: mostLikelyValue,
+                confidence: confidence,
+                justification: avmEstimate.justification || 'Based on cross-referenced AVM sources and market data'
+            },
+            
+            // Section 4: PIW Recommendation for AUS
+            piw_recommendation: {
+                primary_piw_value: piwPrimaryValue,
+                alternate_lower_value: piwAlternateValue,
+                rate_term_max_90pct: rateTermMax,
+                cash_out_max_70pct: cashOutMax,
+                piw_eligible: piwEligible,
+                piw_notes: piwRec.piw_notes || (piwEligible 
+                    ? 'PIW may be available based on value and property type' 
+                    : 'PIW NOT available - estimated value exceeds $999,999 threshold')
+            },
+            
+            // Legacy fields for backward compatibility
             aus_recommended: {
-                value: lowEstimate, // Conservative for AUS
+                value: lowEstimate,
                 confidence: confidence,
                 reason: avmEstimate.justification || `Conservative value from ${sources.length} sources for AUS submission`
             },
@@ -179,7 +267,7 @@ Return JSON:
                 },
                 blended: {
                     value: mostLikelyValue,
-                    label: 'Most Likely',
+                    label: 'Most Likely As-Is',
                     description: `AI estimated market value from ${sources.length} sources`
                 },
                 aggressive: {
@@ -188,46 +276,28 @@ Return JSON:
                     description: 'May exceed appraisal - use with caution'
                 }
             },
-            source_comparison: {
-                source1: sources[0] ? { label: sources[0].name, value: sources[0].value, found_actual: true } : null,
-                source2: sources[1] ? { label: sources[1].name, value: sources[1].value, found_actual: true } : null,
-                source3: sources[2] ? { label: sources[2].name, value: sources[2].value, found_actual: true } : null,
-                source4: sources[3] ? { label: sources[3].name, value: sources[3].value, found_actual: true } : null,
-                source5: sources[4] ? { label: sources[4].name, value: sources[4].value, found_actual: true } : null,
-                total_sources: sources.length,
-                actual_sources_found: sources.length,
-                value_range: { min: minValue, max: maxValue },
-                variance_percent: Math.round((maxValue - minValue) / mostLikelyValue * 100),
-                all_sources: sources
-            },
             underwriting_readiness: {
                 multiple_sources: sources.length >= 3,
-                has_actual_sources: true,
-                variance_within_tolerance: (maxValue - minValue) / mostLikelyValue < 0.15,
-                suitable_for_aus: sources.length >= 3 && (maxValue - minValue) / mostLikelyValue < 0.15 ? 'Yes' : 'Review Recommended'
+                has_actual_sources: sources.length > 0,
+                variance_within_tolerance: mostLikelyValue > 0 ? (maxValue - minValue) / mostLikelyValue < 0.15 : false,
+                suitable_for_aus: sources.length >= 3 && mostLikelyValue > 0 && (maxValue - minValue) / mostLikelyValue < 0.15 ? 'Yes' : 'Review Recommended'
             },
             important_notes: [
                 `Found ${sources.length} valuation sources`,
                 `AUS Recommended: $${lowEstimate.toLocaleString()} (conservative)`,
-                `Most Likely: $${mostLikelyValue.toLocaleString()}`,
+                `Most Likely As-Is: $${mostLikelyValue.toLocaleString()}`,
                 `Range: $${minValue.toLocaleString()} - $${maxValue.toLocaleString()}`,
-                ausRec.notes || ''
+                piwEligible ? '' : '⚠️ PIW not available - value exceeds $999,999'
             ].filter(n => n),
-            methodology: methodology,
-            disclaimer: '* Values are estimates based on AI analysis and historical data. May not reflect current market conditions. Always verify with current listings and consider ordering an appraisal for high-value transactions.',
+            disclaimer: '* Values are estimates based on AI analysis. Always verify with current listings.',
+            
+            // Legacy piw_calculations for backward compatibility
             piw_calculations: {
                 primary_value: piwPrimaryValue,
                 rate_term_max: rateTermMax,
                 cash_out_max: cashOutMax,
                 piw_eligible: piwEligible,
-                notes: ausRec.notes || (piwEligible ? 'PIW may be available based on value and property type' : 'PIW not available - value exceeds $999,999 threshold')
-            },
-            avm_analysis: {
-                low_estimate: lowEstimate,
-                high_estimate: highEstimate,
-                most_likely_value: mostLikelyValue,
-                confidence: confidence,
-                justification: avmEstimate.justification || 'Based on comparable market data'
+                notes: piwRec.piw_notes || (piwEligible ? 'PIW may be available' : 'PIW not available over $999,999')
             }
         };
         
