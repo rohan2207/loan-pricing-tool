@@ -74,45 +74,59 @@ POST /api/ai/avm
 ```json
 {
   "aus_recommended": {
-    "value": 747000,
-    "confidence": "Medium",
-    "reason": "Average of 11 sources"
+    "value": 700000,
+    "confidence": "Moderate",
+    "reason": "Conservative value from 11 sources for AUS submission"
   },
   "value_options": {
     "conservative": {
       "value": 700000,
-      "label": "✅ Conservative",
-      "description": "Lowest value - safest for AUS"
+      "label": "✅ Conservative (AUS)",
+      "description": "Lowest value - recommended for AUS submission"
     },
     "blended": {
       "value": 747000,
-      "label": "Average",
-      "description": "Average of 11 sources"
+      "label": "Most Likely",
+      "description": "AI estimated market value from 11 sources"
     },
     "aggressive": {
       "value": 780000,
       "label": "⚠️ Highest",
-      "description": "May exceed appraisal"
+      "description": "May exceed appraisal - use with caution"
     }
   },
   "source_comparison": {
     "total_sources": 11,
     "variance_percent": 10,
     "all_sources": [
-      { "name": "Internal AVM", "value": 750000, "type": "internal" },
-      { "name": "Zillow", "value": 770000, "type": "external", "reasoning": "..." },
-      { "name": "Redfin", "value": 750000, "type": "external", "reasoning": "..." }
+      { "name": "Internal AVM", "value": 750000, "type": "internal", "reasoning": "GoodLeap internal model" },
+      { "name": "Zillow", "value": 770000, "type": "external", "reasoning": "Zestimate based on..." },
+      { "name": "Redfin", "value": 750000, "type": "external", "reasoning": "Conservative estimate..." },
+      { "name": "Opendoor", "value": 700000, "type": "external", "reasoning": "iBuyer 8% below market..." }
     ]
+  },
+  "underwriting_readiness": {
+    "multiple_sources": true,
+    "has_actual_sources": true,
+    "variance_within_tolerance": true,
+    "suitable_for_aus": "Yes"
   },
   "piw_calculations": {
     "primary_value": 747000,
     "rate_term_max": 672300,
     "cash_out_max": 597600,
     "piw_eligible": true,
-    "notes": "PIW may be available"
+    "notes": "PIW may be available based on value and property type"
   },
-  "methodology": "Based on area market data and property characteristics",
-  "disclaimer": "* Values are estimates based on historical data and may not reflect current market conditions. Always verify with current listings."
+  "avm_analysis": {
+    "low_estimate": 700000,
+    "high_estimate": 780000,
+    "most_likely_value": 747000,
+    "confidence": "Moderate",
+    "justification": "Strong agreement across 11 sources with 10% variance"
+  },
+  "methodology": "Based on area market data, comparable sales, and platform-specific algorithms",
+  "disclaimer": "* Values are estimates based on AI analysis and historical data. May not reflect current market conditions."
 }
 ```
 
@@ -179,48 +193,83 @@ Checks:
 ### System Prompt
 
 ```
-You are a real estate valuation expert. You know property values in Texas markets. 
-Always provide numeric values based on your knowledge. Return JSON only.
+You are an AI valuation tool for a mortgage sales team. Your objective is to deliver 
+accurate, defensible, AVM-based residential property valuations to support AUS 
+(Automated Underwriting System) submissions and maximize the probability of a 
+Property Inspection Waiver (PIW).
+
+PRIORITY: Credibility, data consistency, and CONSERVATIVE optimization for 
+underwriting outcomes.
+
+VALUATION RULES:
+- Anchor to the most DEFENSIBLE value for underwriting, NOT the highest
+- Favor tighter ranges when values cluster
+- Widen ranges when values diverge
+- iBuyers (Opendoor, Offerpad) typically offer 5-10% below market
+- If value exceeds $999,999, PIW eligibility is unlikely
+
+AUS OPTIMIZATION:
+- Prefer values with strong alignment across sources
+- Avoid values significantly above recent closed comps
+- Use conservative rounding for AUS submissions
+
+Return JSON only.
 ```
 
 ### User Prompt Template
 
 ```
-What would be the home value for this property on each platform?
+Provide property valuations for AUS submission and PIW optimization.
 
+PROPERTY DETAILS:
 Address: {fullAddress}
 Square Feet: {sqft}
 Bedrooms: {beds}
 Bathrooms: {baths}
 Year Built: {yearBuilt}
 
-Provide the value each platform would show AND explain how you calculated it:
+Estimate what each platform would show for this property and explain your reasoning:
 
-1. Zillow
-2. Redfin
-3. Realtor.com
-4. Homes.com
-5. Trulia
-6. Opendoor
-7. Offerpad
-8. Homelight
-9. Knock
-10. Orchard
+1. Zillow (Zestimate - typically market-aligned)
+2. Redfin (usually slightly conservative)
+3. Realtor.com (MLS-based)
+4. Homes.com (consumer estimate)
+5. Trulia (Zillow-owned, similar to Zestimate)
+6. Opendoor (iBuyer - typically 5-10% below market)
+7. Offerpad (iBuyer cash offer)
+8. Homelight (agent-based estimate)
+9. Knock (trade-in value)
+10. Orchard (move-first value)
 
 Return JSON:
 {
   "sources": [
-    { "name": "Zillow", "value": number, "reasoning": "how you calculated this" },
-    { "name": "Redfin", "value": number, "reasoning": "how you calculated this" },
-    { "name": "Realtor.com", "value": number, "reasoning": "how you calculated this" },
-    { "name": "Homes.com", "value": number, "reasoning": "how you calculated this" },
-    { "name": "Trulia", "value": number, "reasoning": "how you calculated this" },
-    { "name": "Opendoor", "value": number, "reasoning": "how you calculated this" },
-    { "name": "Offerpad", "value": number, "reasoning": "how you calculated this" },
-    { "name": "Homelight", "value": number, "reasoning": "how you calculated this" },
-    { "name": "Knock", "value": number, "reasoning": "how you calculated this" },
-    { "name": "Orchard", "value": number, "reasoning": "how you calculated this" }
+    { "name": "Zillow", "value": number, "reasoning": "explanation" },
+    { "name": "Redfin", "value": number, "reasoning": "explanation" },
+    { "name": "Realtor.com", "value": number, "reasoning": "explanation" },
+    { "name": "Homes.com", "value": number, "reasoning": "explanation" },
+    { "name": "Trulia", "value": number, "reasoning": "explanation" },
+    { "name": "Opendoor", "value": number, "reasoning": "explanation" },
+    { "name": "Offerpad", "value": number, "reasoning": "explanation" },
+    { "name": "Homelight", "value": number, "reasoning": "explanation" },
+    { "name": "Knock", "value": number, "reasoning": "explanation" },
+    { "name": "Orchard", "value": number, "reasoning": "explanation" }
   ],
+  "avm_estimate": {
+    "low_estimate": number,
+    "high_estimate": number,
+    "most_likely_value": number,
+    "confidence": "Low|Moderate|High",
+    "justification": "one sentence explaining data quality and AVM agreement"
+  },
+  "aus_recommendation": {
+    "primary_piw_value": number,
+    "alternate_lower_value": number,
+    "rate_term_max_90pct": number,
+    "cash_out_max_80pct": number,
+    "piw_eligible": boolean,
+    "notes": "any caveats for underwriting"
+  },
   "methodology": "brief explanation of overall approach"
 }
 ```
