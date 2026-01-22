@@ -999,10 +999,21 @@ export function ChartPreview({ chartType, data }) {
         }
     };
 
+    // Testing banner for templated data
+    const TestingBanner = () => data?.isTemplated ? (
+        <div className="bg-amber-100 border-b border-amber-200 px-4 py-2 flex items-center gap-2 flex-shrink-0">
+            <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+            <span className="text-amber-700 text-sm font-medium">
+                TEMPLATED DATA - FOR TESTING ONLY
+            </span>
+        </div>
+    ) : null;
+
     // Charts with their own full-height layout (no wrapper header)
     if (['debt-consolidation', 'payment-savings', 'cash-back', 'accelerated-payoff', 'compound-growth', 'cash-flow-window', 'disposable-income'].includes(chartType)) {
         return (
             <div className="h-full flex flex-col bg-white">
+                <TestingBanner />
                 {renderChart()}
             </div>
         );
@@ -1010,6 +1021,7 @@ export function ChartPreview({ chartType, data }) {
 
     return (
         <div className="h-full flex flex-col">
+            <TestingBanner />
             {/* Header */}
             <div className="bg-stone-800 text-white px-4 py-3 flex-shrink-0">
                 <h2 className="font-medium">{chartTitles[chartType] || 'Chart Preview'}</h2>

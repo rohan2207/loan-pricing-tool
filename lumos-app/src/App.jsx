@@ -132,12 +132,44 @@ const borrowerData = {
   ]
 };
 
+// Template chart data for testing - used by chart quick actions
+const TEMPLATE_CHART_DATA = {
+  isTemplated: true,  // Flag to show testing banner
+  // Payment breakdown
+  currentMortgagePI: 1710,
+  currentEscrow: 570,
+  currentMI: 0,
+  debtsPaidOff: 2446,
+  debtsRemaining: 154,
+  proposedPI: 3499,
+  proposedEscrow: 570,
+  proposedMI: 0,
+  // Loan details
+  newLoanAmount: 588750,
+  amt: 588750,
+  cashout: 63436,
+  debtsPayoff: 525314,
+  // Sample accounts for debt worksheet
+  accounts: [
+    { creditor: 'REGIONS BANK', accountType: 'Mortgage', payment: '$1,710', balance: '$247,500', willPay: true },
+    { creditor: 'PENFED', accountType: 'Mortgage', payment: '$1,250', balance: '$180,000', willPay: true },
+    { creditor: 'CHASE AUTO', accountType: 'Auto', payment: '$450', balance: '$18,000', willPay: true },
+    { creditor: '5/3 DIVIDEND', accountType: 'Installment', payment: '$121', balance: '$12,645', willPay: true },
+    { creditor: 'WFBNA AUTO', accountType: 'Installment', payment: '$446', balance: '$11,219', willPay: true },
+    { creditor: 'WFBNA CARD', accountType: 'Revolving', payment: '$154', balance: '$10,200', willPay: true },
+  ]
+};
+
 // Map AI tool IDs from config to quick action names
 const AI_TOOL_MAPPING = {
   'call-prep': 'Call Prep Brief',
   'liability': 'Liability AI',
   'avm': 'Property AVM',
-  'sales-coach': 'Sales Coach'
+  'sales-coach': 'Sales Coach',
+  'debt-worksheet': 'Debt Worksheet Chart',
+  'payment-savings': 'Payment Savings Chart',
+  'cash-back': 'Cash Back Chart',
+  'accelerated-payoff': 'Accelerated Payoff Chart'
 };
 
 function App() {
@@ -280,6 +312,15 @@ function App() {
         return <GoodLeapAVM borrowerData={borrowerData} onClose={() => setActiveQuickAction(null)} />;
       case 'Sales Coach':
         return <SalesCoach accounts={accounts} borrowerData={borrowerData} onClose={() => setActiveQuickAction(null)} />;
+      // Chart tools with templated test data
+      case 'Debt Worksheet Chart':
+        return <ChartPreview chartType="debt-consolidation" data={TEMPLATE_CHART_DATA} />;
+      case 'Payment Savings Chart':
+        return <ChartPreview chartType="payment-savings" data={TEMPLATE_CHART_DATA} />;
+      case 'Cash Back Chart':
+        return <ChartPreview chartType="cash-back" data={TEMPLATE_CHART_DATA} />;
+      case 'Accelerated Payoff Chart':
+        return <ChartPreview chartType="accelerated-payoff" data={TEMPLATE_CHART_DATA} />;
       default:
         return null;
     }

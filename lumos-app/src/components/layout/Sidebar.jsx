@@ -6,7 +6,10 @@ import {
     Home,
     FileText,
     ChevronDown,
-    FlaskConical
+    FlaskConical,
+    BarChart3,
+    TrendingUp,
+    DollarSign
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -105,6 +108,35 @@ export function Sidebar({ currentView, onViewChange, activeQuickAction, onQuickA
                         label="Calculators" 
                         active={currentView === 'pricing'} 
                         onClick={() => handleNavClick('pricing')} 
+                    />
+                </NavSection>
+
+                {/* Charts Section */}
+                <NavSection 
+                    label="Charts" 
+                    icon={<BarChart3 size={16} />}
+                    expanded={expandedSection === 'charts'}
+                    onClick={() => toggleSection('charts')}
+                >
+                    <NavItem 
+                        label="Debt Worksheet" 
+                        active={activeQuickAction === 'Debt Worksheet Chart'} 
+                        onClick={() => onQuickActionChange('debt-worksheet')} 
+                    />
+                    <NavItem 
+                        label="Payment Savings" 
+                        active={activeQuickAction === 'Payment Savings Chart'} 
+                        onClick={() => onQuickActionChange('payment-savings')} 
+                    />
+                    <NavItem 
+                        label="Cash Back" 
+                        active={activeQuickAction === 'Cash Back Chart'} 
+                        onClick={() => onQuickActionChange('cash-back')} 
+                    />
+                    <NavItem 
+                        label="Accelerated Payoff" 
+                        active={activeQuickAction === 'Accelerated Payoff Chart'} 
+                        onClick={() => onQuickActionChange('accelerated-payoff')} 
                     />
                 </NavSection>
 

@@ -27,6 +27,7 @@ export const CATEGORIES = [
     { id: 'conversation', label: 'Conversation', color: 'blue' },
     { id: 'analysis', label: 'Analysis', color: 'purple' },
     { id: 'valuation', label: 'Valuation', color: 'green' },
+    { id: 'charts', label: 'Charts', color: 'teal' },
     { id: 'compliance', label: 'Compliance', color: 'amber' }
 ];
 
@@ -74,6 +75,47 @@ export const AI_TOOLS = [
         component: 'SalesCoach',
         apiEndpoint: '/api/ai/sales-coach',
         keywords: ['objection', 'sales', 'coach', 'benefit', 'calculation', 'response', 'handle']
+    },
+    // Chart tools - visual presentations
+    {
+        id: 'debt-worksheet',
+        label: 'Debt Worksheet',
+        description: 'Debt consolidation breakdown',
+        icon: CreditCard,
+        category: 'charts',
+        component: 'ChartPreview',
+        chartType: 'debt-consolidation',
+        keywords: ['debt', 'consolidation', 'worksheet', 'payoff', 'chart']
+    },
+    {
+        id: 'payment-savings',
+        label: 'Payment Savings',
+        description: 'Current vs proposed comparison',
+        icon: TrendingUp,
+        category: 'charts',
+        component: 'ChartPreview',
+        chartType: 'payment-savings',
+        keywords: ['payment', 'savings', 'comparison', 'chart', 'monthly']
+    },
+    {
+        id: 'cash-back',
+        label: 'Cash Back',
+        description: 'Cash out calculator',
+        icon: DollarSign,
+        category: 'charts',
+        component: 'ChartPreview',
+        chartType: 'cash-back',
+        keywords: ['cash', 'back', 'cashout', 'money', 'calculator', 'chart']
+    },
+    {
+        id: 'accelerated-payoff',
+        label: 'Accelerated Payoff',
+        description: 'Mortgage payoff acceleration',
+        icon: Clock,
+        category: 'charts',
+        component: 'ChartPreview',
+        chartType: 'accelerated-payoff',
+        keywords: ['accelerated', 'payoff', 'mortgage', 'early', 'principal', 'chart']
     }
     // Future tools - just add entries here:
     // {
@@ -139,6 +181,7 @@ export const getCategoryColorClass = (categoryId) => {
         blue: 'bg-blue-100 text-blue-700',
         purple: 'bg-purple-100 text-purple-700',
         green: 'bg-green-100 text-green-700',
+        teal: 'bg-teal-100 text-teal-700',
         amber: 'bg-amber-100 text-amber-700'
     };
     
