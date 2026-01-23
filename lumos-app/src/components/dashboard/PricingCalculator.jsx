@@ -34,6 +34,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
   // Monthly amounts
   const monthlyTaxes = 450;
   const monthlyInsurance = 120;
+  const monthlySubordinateLien = 350; // Second mortgage / HELOC
   const monthlyDebtsPaid = 4156; // Debts being paid off
   const monthlyDebtsNotPaid = 523; // Debts NOT being paid off
 
@@ -52,7 +53,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
   // Current Finances calculations
   const currentPI = 1710;
   const currentMI = 0;
-  const currentMortgageTotal = currentPI + (escrowsEnabled ? monthlyTaxes + monthlyInsurance : 0) + currentMI;
+  const currentMortgageTotal = currentPI + monthlySubordinateLien + (escrowsEnabled ? monthlyTaxes + monthlyInsurance : 0) + currentMI;
   const currentTotal = currentMortgageTotal + monthlyDebtsPaid + monthlyDebtsNotPaid;
 
   // Goodleap Opportunity calculations
@@ -357,6 +358,10 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                     <span className="text-sm text-[#6b7280]">Principal & Interest</span>
                     <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(currentPI)}</span>
                   </div>
+                  <div className="flex justify-between px-4 py-2.5">
+                    <span className="text-sm text-[#6b7280]">Subordinate Lien</span>
+                    <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(monthlySubordinateLien)}</span>
+                  </div>
                   {escrowsEnabled && (
                     <>
                       <div className="flex justify-between px-4 py-2.5">
@@ -402,6 +407,10 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                   <div className="flex justify-between px-4 py-2.5">
                     <span className="text-sm text-[#6b7280]">Principal & Interest</span>
                     <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(proposedPI)}</span>
+                  </div>
+                  <div className="flex justify-between px-4 py-2.5">
+                    <span className="text-sm text-[#6b7280]">Subordinate Lien</span>
+                    <span className="text-sm font-bold text-green-600">$0 ✓</span>
                   </div>
                   {escrowsEnabled && (
                     <>
