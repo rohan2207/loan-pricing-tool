@@ -944,9 +944,9 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
           </div>
         </div>
 
-        {/* Present vs Proposed - Compact Table on Left, Charts on Right */}
-        <div className="flex gap-4">
-          <div className="w-[480px] flex-shrink-0">
+        {/* Present vs Proposed - 50% each */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
             <div className="bg-white border border-neutral-l3 rounded-lg overflow-hidden">
               <div className="px-3 py-2 bg-gradient-to-r from-[#432c9e] to-[#6b5ce7] text-white">
                 <h3 className="font-bold text-sm">Present vs Proposed</h3>
@@ -1022,7 +1022,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
           </div>
 
           {/* Right Side - Charts & Debts NOT Being Paid */}
-          <div className="flex-1 space-y-4">
+          <div className="space-y-4">
             {/* Charts Section */}
             <div className="bg-white border border-neutral-l3 rounded-lg overflow-hidden">
               <div className="px-3 py-2 bg-gradient-to-r from-stone-600 to-stone-500 text-white flex items-center gap-2">
