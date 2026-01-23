@@ -915,17 +915,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
           </div>
         </div>
 
-        {/* Quick Chart Actions */}
-        <div className="flex items-center gap-2 px-2">
-          <BarChart3 className="w-4 h-4 text-stone-400" />
-          <span className="text-xs font-semibold text-stone-400 uppercase">Charts:</span>
-          <button onClick={() => onSelectChart?.('debt-worksheet')} className="px-2 py-1 bg-stone-100 hover:bg-purple-100 rounded text-xs font-medium text-stone-600 hover:text-purple-700 transition-all">Debt</button>
-          <button onClick={() => onSelectChart?.('payment-savings')} className="px-2 py-1 bg-stone-100 hover:bg-teal-100 rounded text-xs font-medium text-stone-600 hover:text-teal-700 transition-all">Savings</button>
-          <button onClick={() => onSelectChart?.('cash-back')} className="px-2 py-1 bg-stone-100 hover:bg-emerald-100 rounded text-xs font-medium text-stone-600 hover:text-emerald-700 transition-all">Cash</button>
-          <button onClick={() => onSelectChart?.('accelerated-payoff')} className="px-2 py-1 bg-stone-100 hover:bg-purple-100 rounded text-xs font-medium text-stone-600 hover:text-purple-700 transition-all">Payoff</button>
-        </div>
-
-        {/* Present vs Proposed - Compact Table on Left */}
+        {/* Present vs Proposed - Compact Table on Left, Charts on Right */}
         <div className="flex gap-4">
           <div className="w-[480px] flex-shrink-0">
             <div className="bg-white border border-neutral-l3 rounded-lg overflow-hidden">
@@ -1002,38 +992,81 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
             </div>
           </div>
 
-          {/* Debts NOT Being Paid Section */}
-          <div className="flex-1">
+          {/* Right Side - Charts & Debts NOT Being Paid */}
+          <div className="flex-1 space-y-4">
+            {/* Charts Section */}
+            <div className="bg-white border border-neutral-l3 rounded-lg overflow-hidden">
+              <div className="px-3 py-2 bg-gradient-to-r from-stone-600 to-stone-500 text-white flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                <h3 className="font-bold text-sm">Quick Charts</h3>
+              </div>
+              <div className="p-4 grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => onSelectChart?.('debt-worksheet')}
+                  className="flex flex-col items-center justify-center p-4 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition-all group"
+                >
+                  <CreditCard className="w-8 h-8 text-purple-500 mb-2 group-hover:scale-110 transition-transform" />
+                  <span className="text-sm font-semibold text-purple-700">Debt Worksheet</span>
+                  <span className="text-[10px] text-purple-500">Consolidation breakdown</span>
+                </button>
+                <button
+                  onClick={() => onSelectChart?.('payment-savings')}
+                  className="flex flex-col items-center justify-center p-4 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg transition-all group"
+                >
+                  <TrendingUp className="w-8 h-8 text-teal-500 mb-2 group-hover:scale-110 transition-transform" />
+                  <span className="text-sm font-semibold text-teal-700">Payment Savings</span>
+                  <span className="text-[10px] text-teal-500">Monthly comparison</span>
+                </button>
+                <button
+                  onClick={() => onSelectChart?.('cash-back')}
+                  className="flex flex-col items-center justify-center p-4 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-all group"
+                >
+                  <DollarSign className="w-8 h-8 text-emerald-500 mb-2 group-hover:scale-110 transition-transform" />
+                  <span className="text-sm font-semibold text-emerald-700">Cash Back</span>
+                  <span className="text-[10px] text-emerald-500">Cash at closing</span>
+                </button>
+                <button
+                  onClick={() => onSelectChart?.('accelerated-payoff')}
+                  className="flex flex-col items-center justify-center p-4 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-lg transition-all group"
+                >
+                  <Clock className="w-8 h-8 text-violet-500 mb-2 group-hover:scale-110 transition-transform" />
+                  <span className="text-sm font-semibold text-violet-700">Accelerated Payoff</span>
+                  <span className="text-[10px] text-violet-500">Extra payment impact</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Debts NOT Being Paid Section */}
             {accounts.filter(a => !a.willPay).length > 0 && (
-              <div>
-                <div className="text-xs font-semibold text-amber-700 uppercase mb-2">Debts NOT Being Paid Off</div>
-                <div className="border border-amber-200 rounded-lg overflow-hidden bg-amber-50">
-                  <table className="w-full text-sm">
-                    <thead className="bg-amber-100">
-                      <tr>
-                        <th className="px-3 py-1.5 text-left font-semibold text-amber-800">Creditor</th>
-                        <th className="px-3 py-1.5 text-right font-semibold text-amber-800">Payment</th>
-                        <th className="px-3 py-1.5 text-right font-semibold text-amber-800">Balance</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {accounts.filter(a => !a.willPay).map((debt, i) => (
-                        <tr key={i} className="border-t border-amber-200">
-                          <td className="px-3 py-1.5 text-stone-700">{debt.creditor}</td>
-                          <td className="px-3 py-1.5 text-right text-stone-600">${(parseFloat(String(debt.payment).replace(/[$,]/g, '')) || 0).toLocaleString()}</td>
-                          <td className="px-3 py-1.5 text-right text-stone-600">${(parseFloat(String(debt.balance).replace(/[$,]/g, '')) || 0).toLocaleString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot className="bg-amber-100 border-t border-amber-300">
-                      <tr>
-                        <td className="px-3 py-1.5 font-bold text-amber-800">Total</td>
-                        <td className="px-3 py-1.5 text-right font-bold text-amber-800">${accounts.filter(a => !a.willPay).reduce((s, d) => s + (parseFloat(String(d.payment).replace(/[$,]/g, '')) || 0), 0).toLocaleString()}</td>
-                        <td className="px-3 py-1.5 text-right font-bold text-amber-800">${accounts.filter(a => !a.willPay).reduce((s, d) => s + (parseFloat(String(d.balance).replace(/[$,]/g, '')) || 0), 0).toLocaleString()}</td>
-                      </tr>
-                    </tfoot>
-                  </table>
+              <div className="bg-white border border-amber-200 rounded-lg overflow-hidden">
+                <div className="px-3 py-2 bg-amber-100">
+                  <h3 className="font-bold text-sm text-amber-800">Debts NOT Being Paid Off</h3>
                 </div>
+                <table className="w-full text-sm">
+                  <thead className="bg-amber-50">
+                    <tr>
+                      <th className="px-3 py-1.5 text-left font-semibold text-amber-700 text-xs">Creditor</th>
+                      <th className="px-3 py-1.5 text-right font-semibold text-amber-700 text-xs">Payment</th>
+                      <th className="px-3 py-1.5 text-right font-semibold text-amber-700 text-xs">Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {accounts.filter(a => !a.willPay).map((debt, i) => (
+                      <tr key={i} className="border-t border-amber-100">
+                        <td className="px-3 py-1 text-stone-700 text-xs">{debt.creditor}</td>
+                        <td className="px-3 py-1 text-right text-stone-600 text-xs">${(parseFloat(String(debt.payment).replace(/[$,]/g, '')) || 0).toLocaleString()}</td>
+                        <td className="px-3 py-1 text-right text-stone-600 text-xs">${(parseFloat(String(debt.balance).replace(/[$,]/g, '')) || 0).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="bg-amber-100 border-t border-amber-200">
+                    <tr>
+                      <td className="px-3 py-1.5 font-bold text-amber-800 text-xs">Total</td>
+                      <td className="px-3 py-1.5 text-right font-bold text-amber-800 text-xs">${accounts.filter(a => !a.willPay).reduce((s, d) => s + (parseFloat(String(d.payment).replace(/[$,]/g, '')) || 0), 0).toLocaleString()}</td>
+                      <td className="px-3 py-1.5 text-right font-bold text-amber-800 text-xs">${accounts.filter(a => !a.willPay).reduce((s, d) => s + (parseFloat(String(d.balance).replace(/[$,]/g, '')) || 0), 0).toLocaleString()}</td>
+                    </tr>
+                  </tfoot>
+                </table>
               </div>
             )}
           </div>
