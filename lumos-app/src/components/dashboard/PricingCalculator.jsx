@@ -25,7 +25,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
 
   // Options
   const programs = ['Conventional', 'FHA', 'VA'];
-  const terms = [30, 20, 15];
+  const terms = [30, 20, 15, 10];
   const occupancyOptions = ['Primary', 'Second Home', 'Investment'];
   const propertyTypes = ['Single Family', 'Condo', 'Townhouse', 'Multi-Family'];
   const unitOptions = [1, 2, 3, 4];
