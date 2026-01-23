@@ -711,7 +711,7 @@ export function ChartPreview({ chartType, data }) {
                                 <div className="space-y-2 text-sm">
                                     <div className="grid grid-cols-3 gap-2 text-stone-500 font-medium pb-2 border-b border-stone-100">
                                         <span></span>
-                                        <span className="text-right">Original</span>
+                                        <span className="text-right">Proposed Loan</span>
                                         <span className="text-right text-purple-600">Accelerated</span>
                                     </div>
                                     <div className="grid grid-cols-3 gap-2 py-1">
