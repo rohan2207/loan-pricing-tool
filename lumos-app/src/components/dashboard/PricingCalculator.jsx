@@ -329,10 +329,10 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
         {/* ==================== RIGHT SIDE: Value Propositions ==================== */}
         <div className="bg-white border-2 border-[#e5e7eb] rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-[#e5e7eb]">
-            <h2 className="text-xl font-bold text-[#1e1b4b]">Value Propositions</h2>
+            <h2 className="text-2xl font-bold text-[#0f172a]">Value Propositions</h2>
             {/* Escrows Toggle */}
             <div className="flex items-center gap-3">
-              <span className="text-xs font-medium text-[#6b7280]">Include Escrows</span>
+              <span className="text-sm font-medium text-[#374151]">Include Escrows</span>
               <button
                 onClick={() => setEscrowsEnabled(!escrowsEnabled)}
                 className={`relative w-12 h-6 rounded-full transition-colors ${escrowsEnabled ? 'bg-[#432c9e]' : 'bg-[#d1d5db]'}`}
@@ -344,117 +344,117 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
 
           {/* Compare Spread Section */}
           <div className="mb-6">
-            <h3 className="text-xs font-bold text-[#6b7280] uppercase tracking-wider mb-4">Monthly Payment Comparison</h3>
+            <h3 className="text-sm font-bold text-[#374151] uppercase tracking-wider mb-4">Monthly Payment Comparison</h3>
             
             <div className="grid grid-cols-2 gap-4">
               {/* Current Finances */}
               <div className="border-2 border-[#e5e7eb] rounded-xl overflow-hidden">
-                <div className="px-4 py-3 bg-[#fef6f0] border-b-2 border-[#f5e6d8]">
-                  <h4 className="text-sm font-bold text-[#92400e]">Current Finances</h4>
-                  <p className="text-[10px] text-[#b45309]">What you're paying now</p>
+                <div className="px-5 py-4 bg-[#fef6f0] border-b-2 border-[#f5e6d8]">
+                  <h4 className="text-base font-bold text-[#92400e]">Current Finances</h4>
+                  <p className="text-xs text-[#b45309]">What you're paying now</p>
                 </div>
                 <div className="divide-y divide-[#e5e7eb]">
-                  <div className="flex justify-between px-4 py-2.5">
-                    <span className="text-sm text-[#6b7280]">Principal & Interest</span>
-                    <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(currentPI)}</span>
+                  <div className="flex justify-between px-5 py-3">
+                    <span className="text-base text-[#374151]">Principal & Interest</span>
+                    <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(currentPI)}</span>
                   </div>
-                  <div className="flex justify-between px-4 py-2.5">
-                    <span className="text-sm text-[#6b7280]">Subordinate Lien</span>
-                    <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(monthlySubordinateLien)}</span>
+                  <div className="flex justify-between px-5 py-3">
+                    <span className="text-base text-[#374151]">Subordinate Lien</span>
+                    <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlySubordinateLien)}</span>
                   </div>
                   {escrowsEnabled && (
                     <>
-                      <div className="flex justify-between px-4 py-2.5">
-                        <span className="text-sm text-[#6b7280]">Taxes</span>
-                        <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(monthlyTaxes)}</span>
+                      <div className="flex justify-between px-5 py-3">
+                        <span className="text-base text-[#374151]">Taxes</span>
+                        <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlyTaxes)}</span>
                       </div>
-                      <div className="flex justify-between px-4 py-2.5">
-                        <span className="text-sm text-[#6b7280]">Insurance</span>
-                        <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(monthlyInsurance)}</span>
+                      <div className="flex justify-between px-5 py-3">
+                        <span className="text-base text-[#374151]">Insurance</span>
+                        <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlyInsurance)}</span>
                       </div>
                     </>
                   )}
-                  <div className="flex justify-between px-4 py-2.5">
-                    <span className="text-sm text-[#6b7280]">Mortgage Insurance</span>
-                    <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(currentMI)}</span>
+                  <div className="flex justify-between px-5 py-3">
+                    <span className="text-base text-[#374151]">Mortgage Insurance</span>
+                    <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(currentMI)}</span>
                   </div>
-                  <div className="flex justify-between px-4 py-2.5 bg-[#fef6f0]">
-                    <span className="text-sm font-semibold text-[#92400e]">Mortgage Total</span>
-                    <span className="text-sm font-bold text-[#92400e]">{formatCurrency(currentMortgageTotal)}</span>
+                  <div className="flex justify-between px-5 py-3 bg-[#fef6f0]">
+                    <span className="text-base font-bold text-[#92400e]">Mortgage Total</span>
+                    <span className="text-base font-bold text-[#92400e]">{formatCurrency(currentMortgageTotal)}</span>
                   </div>
-                  <div className="flex justify-between px-4 py-2.5">
-                    <span className="text-sm text-[#6b7280]">Monthly Debts (Paid Off)</span>
-                    <span className="text-sm font-medium text-rose-600">{formatCurrency(monthlyDebtsPaid)}</span>
+                  <div className="flex justify-between px-5 py-3">
+                    <span className="text-base text-[#374151]">Monthly Debts (Paid Off)</span>
+                    <span className="text-base font-semibold text-rose-600">{formatCurrency(monthlyDebtsPaid)}</span>
                   </div>
-                  <div className="flex justify-between px-4 py-2.5">
-                    <span className="text-sm text-[#6b7280]">Monthly Debts (NOT Paid)</span>
-                    <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(monthlyDebtsNotPaid)}</span>
+                  <div className="flex justify-between px-5 py-3">
+                    <span className="text-base text-[#374151]">Monthly Debts (NOT Paid)</span>
+                    <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlyDebtsNotPaid)}</span>
                   </div>
-                  <div className="flex justify-between px-4 py-3 bg-[#fef6f0] border-t-2 border-[#f5e6d8]">
-                    <span className="text-sm font-bold text-[#92400e]">Total Monthly</span>
-                    <span className="text-lg font-bold text-[#92400e]">{formatCurrency(currentTotal)}</span>
+                  <div className="flex justify-between px-5 py-4 bg-[#fef6f0] border-t-2 border-[#f5e6d8]">
+                    <span className="text-lg font-bold text-[#92400e]">Total Monthly</span>
+                    <span className="text-xl font-bold text-[#92400e]">{formatCurrency(currentTotal)}</span>
                   </div>
                 </div>
               </div>
 
               {/* Goodleap Opportunity */}
               <div className="border-2 border-[#e5e7eb] rounded-xl overflow-hidden">
-                <div className="px-4 py-3 bg-[#f5f3ff] border-b-2 border-[#e9e5ff]">
-                  <h4 className="text-sm font-bold text-[#432c9e]">GoodLeap Opportunity</h4>
-                  <p className="text-[10px] text-[#6b5ce7]">Your new payment</p>
+                <div className="px-5 py-4 bg-[#f5f3ff] border-b-2 border-[#e9e5ff]">
+                  <h4 className="text-base font-bold text-[#432c9e]">GoodLeap Opportunity</h4>
+                  <p className="text-xs text-[#6b5ce7]">Your new payment</p>
                 </div>
                 <div className="divide-y divide-[#e5e7eb]">
-                  <div className="flex justify-between px-4 py-2.5">
-                    <span className="text-sm text-[#6b7280]">Principal & Interest</span>
-                    <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(proposedPI)}</span>
+                  <div className="flex justify-between px-5 py-3">
+                    <span className="text-base text-[#374151]">Principal & Interest</span>
+                    <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(proposedPI)}</span>
                   </div>
-                  <div className="flex justify-between px-4 py-2.5">
-                    <span className="text-sm text-[#6b7280]">Subordinate Lien</span>
-                    <span className="text-sm font-bold text-green-600">$0 ✓</span>
+                  <div className="flex justify-between px-5 py-3">
+                    <span className="text-base text-[#374151]">Subordinate Lien</span>
+                    <span className="text-base font-bold text-green-600">$0 ✓</span>
                   </div>
                   {escrowsEnabled && (
                     <>
-                      <div className="flex justify-between px-4 py-2.5">
-                        <span className="text-sm text-[#6b7280]">Taxes</span>
-                        <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(monthlyTaxes)}</span>
+                      <div className="flex justify-between px-5 py-3">
+                        <span className="text-base text-[#374151]">Taxes</span>
+                        <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlyTaxes)}</span>
                       </div>
-                      <div className="flex justify-between px-4 py-2.5">
-                        <span className="text-sm text-[#6b7280]">Insurance</span>
-                        <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(monthlyInsurance)}</span>
+                      <div className="flex justify-between px-5 py-3">
+                        <span className="text-base text-[#374151]">Insurance</span>
+                        <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlyInsurance)}</span>
                       </div>
                     </>
                   )}
-                  <div className="flex justify-between px-4 py-2.5">
-                    <span className="text-sm text-[#6b7280]">Mortgage Insurance</span>
-                    <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(proposedMI)}</span>
+                  <div className="flex justify-between px-5 py-3">
+                    <span className="text-base text-[#374151]">Mortgage Insurance</span>
+                    <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(proposedMI)}</span>
                   </div>
-                  <div className="flex justify-between px-4 py-2.5 bg-[#f5f3ff]">
-                    <span className="text-sm font-semibold text-[#432c9e]">Mortgage Total</span>
-                    <span className="text-sm font-bold text-[#432c9e]">{formatCurrency(proposedMortgageTotal)}</span>
+                  <div className="flex justify-between px-5 py-3 bg-[#f5f3ff]">
+                    <span className="text-base font-bold text-[#432c9e]">Mortgage Total</span>
+                    <span className="text-base font-bold text-[#432c9e]">{formatCurrency(proposedMortgageTotal)}</span>
                   </div>
-                  <div className="flex justify-between px-4 py-2.5">
-                    <span className="text-sm text-[#6b7280]">Monthly Debts (Paid Off)</span>
-                    <span className="text-sm font-bold text-green-600">$0 ✓</span>
+                  <div className="flex justify-between px-5 py-3">
+                    <span className="text-base text-[#374151]">Monthly Debts (Paid Off)</span>
+                    <span className="text-base font-bold text-green-600">$0 ✓</span>
                   </div>
-                  <div className="flex justify-between px-4 py-2.5">
-                    <span className="text-sm text-[#6b7280]">Monthly Debts (NOT Paid)</span>
-                    <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(monthlyDebtsNotPaid)}</span>
+                  <div className="flex justify-between px-5 py-3">
+                    <span className="text-base text-[#374151]">Monthly Debts (NOT Paid)</span>
+                    <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlyDebtsNotPaid)}</span>
                   </div>
-                  <div className="flex justify-between px-4 py-3 bg-[#f5f3ff] border-t-2 border-[#e9e5ff]">
-                    <span className="text-sm font-bold text-[#432c9e]">Total Monthly</span>
-                    <span className="text-lg font-bold text-[#432c9e]">{formatCurrency(proposedTotal)}</span>
+                  <div className="flex justify-between px-5 py-4 bg-[#f5f3ff] border-t-2 border-[#e9e5ff]">
+                    <span className="text-lg font-bold text-[#432c9e]">Total Monthly</span>
+                    <span className="text-xl font-bold text-[#432c9e]">{formatCurrency(proposedTotal)}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Savings Banner */}
-            <div className={`mt-4 p-4 rounded-xl border-2 ${monthlySavings > 0 ? 'bg-green-50 border-green-200' : 'bg-rose-50 border-rose-200'}`}>
+            <div className={`mt-4 p-5 rounded-xl border-2 ${monthlySavings > 0 ? 'bg-green-50 border-green-200' : 'bg-rose-50 border-rose-200'}`}>
               <div className="flex justify-between items-center">
-                <span className={`text-sm font-bold ${monthlySavings > 0 ? 'text-green-800' : 'text-rose-800'}`}>
+                <span className={`text-lg font-bold ${monthlySavings > 0 ? 'text-green-800' : 'text-rose-800'}`}>
                   {monthlySavings > 0 ? '💰 Monthly Savings' : '⚠️ Monthly Increase'}
                 </span>
-                <span className={`text-2xl font-bold ${monthlySavings > 0 ? 'text-green-600' : 'text-rose-600'}`}>
+                <span className={`text-3xl font-bold ${monthlySavings > 0 ? 'text-green-600' : 'text-rose-600'}`}>
                   {formatCurrency(Math.abs(monthlySavings))}
                 </span>
               </div>
@@ -463,44 +463,44 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
 
           {/* Cash From/To Borrower Section */}
           <div className="mb-6">
-            <h3 className="text-xs font-bold text-[#6b7280] uppercase tracking-wider mb-4">Cash at Closing</h3>
+            <h3 className="text-sm font-bold text-[#374151] uppercase tracking-wider mb-4">Cash at Closing</h3>
             
             <div className="border-2 border-[#e5e7eb] rounded-xl overflow-hidden">
-              <div className="px-4 py-3 bg-[#f0fdf4] border-b-2 border-[#dcfce7]">
-                <h4 className="text-sm font-bold text-[#166534]">Cash From/To Borrower</h4>
+              <div className="px-5 py-4 bg-[#f0fdf4] border-b-2 border-[#dcfce7]">
+                <h4 className="text-base font-bold text-[#166534]">Cash From/To Borrower</h4>
               </div>
               <div className="divide-y divide-[#e5e7eb]">
-                <div className="flex justify-between px-4 py-3">
-                  <span className="text-sm text-[#6b7280]">Cashout Amount</span>
-                  <span className="text-sm font-medium text-[#1e1b4b]">{formatCurrency(cashout)}</span>
+                <div className="flex justify-between px-5 py-3">
+                  <span className="text-base text-[#374151]">Cashout Amount</span>
+                  <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(cashout)}</span>
                 </div>
                 {discountPoints > 0 && (
-                  <div className="flex justify-between px-4 py-3">
-                    <span className="text-sm text-[#6b7280]">Less: Discount Points ({selectedRate?.pointsLabel})</span>
-                    <span className="text-sm font-medium text-rose-600">-{formatCurrency(discountPoints)}</span>
+                  <div className="flex justify-between px-5 py-3">
+                    <span className="text-base text-[#374151]">Less: Discount Points ({selectedRate?.pointsLabel})</span>
+                    <span className="text-base font-semibold text-rose-600">-{formatCurrency(discountPoints)}</span>
                   </div>
                 )}
                 {discountPoints < 0 && (
-                  <div className="flex justify-between px-4 py-3">
-                    <span className="text-sm text-[#6b7280]">Plus: Lender Credit ({selectedRate?.pointsLabel})</span>
-                    <span className="text-sm font-medium text-green-600">+{formatCurrency(Math.abs(discountPoints))}</span>
+                  <div className="flex justify-between px-5 py-3">
+                    <span className="text-base text-[#374151]">Plus: Lender Credit ({selectedRate?.pointsLabel})</span>
+                    <span className="text-base font-semibold text-green-600">+{formatCurrency(Math.abs(discountPoints))}</span>
                   </div>
                 )}
-                <div className="flex justify-between px-4 py-3">
-                  <span className="text-sm text-[#6b7280]">Less: Fees ({feesPercent}%)</span>
-                  <span className="text-sm font-medium text-rose-600">-{formatCurrency(fees)}</span>
+                <div className="flex justify-between px-5 py-3">
+                  <span className="text-base text-[#374151]">Less: Fees ({feesPercent}%)</span>
+                  <span className="text-base font-semibold text-rose-600">-{formatCurrency(fees)}</span>
                 </div>
                 {escrowsEnabled && (
-                  <div className="flex justify-between px-4 py-3">
-                    <span className="text-sm text-[#6b7280]">Less: Escrows (6 mo Taxes & Insurance)</span>
-                    <span className="text-sm font-medium text-rose-600">-{formatCurrency(escrowAmount)}</span>
+                  <div className="flex justify-between px-5 py-3">
+                    <span className="text-base text-[#374151]">Less: Escrows (6 mo Taxes & Insurance)</span>
+                    <span className="text-base font-semibold text-rose-600">-{formatCurrency(escrowAmount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between px-4 py-4 bg-[#f0fdf4] border-t-2 border-[#dcfce7]">
-                  <span className="text-sm font-bold text-[#166534]">
+                <div className="flex justify-between px-5 py-4 bg-[#f0fdf4] border-t-2 border-[#dcfce7]">
+                  <span className="text-lg font-bold text-[#166534]">
                     {cashFromToBorrower >= 0 ? 'Cash TO Borrower' : 'Cash FROM Borrower'}
                   </span>
-                  <span className={`text-xl font-bold ${cashFromToBorrower >= 0 ? 'text-green-600' : 'text-rose-600'}`}>
+                  <span className={`text-2xl font-bold ${cashFromToBorrower >= 0 ? 'text-green-600' : 'text-rose-600'}`}>
                     {formatCurrency(Math.abs(cashFromToBorrower))}
                   </span>
                 </div>
