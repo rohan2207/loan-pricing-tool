@@ -307,18 +307,16 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                         : 'border-[#e5e7eb] bg-white hover:border-[#432c9e]/30'
                     }`}
                   >
-                    <div className={`text-xl font-bold ${selectedRateIndex === index ? 'text-[#ff8300]' : 'text-[#0f172a]'}`}>
-                      {formatCurrency(rate.payment)}
-                    </div>
-                    <div className={`text-base font-semibold ${selectedRateIndex === index ? 'text-[#ff8300]' : 'text-[#432c9e]'}`}>
+                    <div className={`text-xl font-bold ${selectedRateIndex === index ? 'text-[#ff8300]' : 'text-[#432c9e]'}`}>
                       {rate.rate.toFixed(3)}%
                     </div>
-                    <div className="text-sm text-[#6b7280] mt-1">{rate.pointsLabel}</div>
-                    {rate.discountAmount !== 0 && (
-                      <div className={`text-sm font-semibold ${rate.discountAmount > 0 ? 'text-rose-500' : 'text-green-600'}`}>
-                        {rate.discountAmount > 0 ? `-${formatCurrency(rate.discountAmount)}` : `+${formatCurrency(Math.abs(rate.discountAmount))}`}
-                      </div>
-                    )}
+                    <div className={`text-base font-semibold ${selectedRateIndex === index ? 'text-[#ff8300]' : 'text-[#0f172a]'}`}>
+                      {formatCurrency(rate.payment)}
+                    </div>
+                    <div className="text-sm text-[#6b7280] mt-2">{rate.pointsLabel}</div>
+                    <div className={`text-sm font-semibold ${rate.discountAmount > 0 ? 'text-rose-500' : rate.discountAmount < 0 ? 'text-green-600' : 'text-[#6b7280]'}`}>
+                      {rate.discountAmount > 0 ? `-${formatCurrency(rate.discountAmount)}` : rate.discountAmount < 0 ? `+${formatCurrency(Math.abs(rate.discountAmount))}` : '$0'}
+                    </div>
                   </button>
                 ))}
               </div>
