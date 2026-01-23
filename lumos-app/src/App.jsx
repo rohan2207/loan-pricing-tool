@@ -334,6 +334,7 @@ function App() {
           <PricingCalculator 
             accounts={accounts}
             borrowerData={borrowerData}
+            onSelectChart={handleQuickActionChange}
           />
         );
       case 'property':
