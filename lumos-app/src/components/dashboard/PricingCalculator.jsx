@@ -872,42 +872,76 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
           </div>
         </div>
 
-        {/* Loan Inputs - Compact Row */}
-        <div className="flex items-end gap-3 bg-neutral-l5 rounded-lg p-3">
-          <div className="flex-1">
-            <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Loan Amt</label>
-            <input type="text" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)}
-              className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
+        {/* Loan Inputs - Two Row Grid */}
+        <div className="bg-neutral-l5 rounded-lg p-3 space-y-2">
+          {/* Row 1 */}
+          <div className="grid grid-cols-8 gap-2">
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Loan Amt</label>
+              <input type="text" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Debts</label>
+              <input type="text" disabled value={totalDebts.toLocaleString()}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-neutral-l4 mt-0.5" />
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Cashout</label>
+              <input type="text" value={cashout} onChange={(e) => setCashout(e.target.value)}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">DTI</label>
+              <input type="text" defaultValue="23.10%" className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">FICO</label>
+              <input type="text" defaultValue="692" className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Reserves</label>
+              <input type="text" defaultValue="0" className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Occupancy</label>
+              <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white mt-0.5">
+                <option>Primary</option>
+                <option>Second Home</option>
+                <option>Investment</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Prop Type</label>
+              <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white mt-0.5">
+                <option>Single Family</option>
+                <option>Condo</option>
+                <option>Townhouse</option>
+                <option>Multi-Family</option>
+              </select>
+            </div>
           </div>
-          <div className="flex-1">
-            <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Debts</label>
-            <input type="text" disabled value={totalDebts.toLocaleString()}
-              className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-neutral-l4 mt-0.5" />
+          {/* Row 2 */}
+          <div className="flex items-end gap-2">
+            <div className="w-24">
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Units</label>
+              <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white mt-0.5">
+                <option>1 Unit</option>
+                <option>2 Units</option>
+                <option>3 Units</option>
+                <option>4 Units</option>
+              </select>
+            </div>
+            <div className="w-32">
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Interest Rate</label>
+              <input type="text" placeholder="Search first" disabled
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-neutral-l4 mt-0.5 text-neutral-l1" />
+            </div>
+            <div className="flex-1"></div>
+            <button className="px-6 py-2 bg-[#ff8300] hover:bg-[#e67600] text-white font-bold rounded-lg transition-colors whitespace-nowrap shadow-md">
+              Search Rates
+            </button>
           </div>
-          <div className="flex-1">
-            <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Cashout</label>
-            <input type="text" value={cashout} onChange={(e) => setCashout(e.target.value)}
-              className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
-          </div>
-          <div className="w-20">
-            <label className="text-[10px] font-semibold text-neutral-d1 uppercase">DTI</label>
-            <input type="text" defaultValue="23.10%" className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
-          </div>
-          <div className="w-20">
-            <label className="text-[10px] font-semibold text-neutral-d1 uppercase">FICO</label>
-            <input type="text" defaultValue="692" className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
-          </div>
-          <div className="w-28">
-            <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Occupancy</label>
-            <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white mt-0.5">
-              <option>Primary</option>
-              <option>Second Home</option>
-              <option>Investment</option>
-            </select>
-          </div>
-          <button className="px-5 py-2 bg-[#ff8300] hover:bg-[#e67600] text-white font-bold rounded-lg transition-colors whitespace-nowrap">
-            Search Rates
-          </button>
         </div>
 
         {/* Present vs Proposed - Compact Table on Left, Charts on Right */}
