@@ -798,6 +798,46 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
           </p>
         </div>
 
+        {/* Quick Chart Actions */}
+        <div className="bg-gradient-to-r from-stone-50 to-stone-100 border border-stone-200 rounded-lg px-3 py-2">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <BarChart3 className="w-3.5 h-3.5 text-stone-500" />
+              <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wide">Charts</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => onSelectChart?.('debt-worksheet')}
+                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all"
+              >
+                <CreditCard className="w-3 h-3" />
+                Debt
+              </button>
+              <button
+                onClick={() => onSelectChart?.('payment-savings')}
+                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-700 transition-all"
+              >
+                <TrendingUp className="w-3 h-3" />
+                Savings
+              </button>
+              <button
+                onClick={() => onSelectChart?.('cash-back')}
+                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700 transition-all"
+              >
+                <DollarSign className="w-3 h-3" />
+                Cash
+              </button>
+              <button
+                onClick={() => onSelectChart?.('accelerated-payoff')}
+                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all"
+              >
+                <Clock className="w-3 h-3" />
+                Payoff
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* LTV/CLTV Display - Prominent */}
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-gradient-to-br from-[#432c9e] to-[#6b5ce7] rounded-xl p-4 text-white text-center">
