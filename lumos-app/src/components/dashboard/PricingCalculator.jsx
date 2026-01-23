@@ -791,440 +791,254 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
         </div>
 
         {/* Important Disclaimer Banner - Compact */}
-        <div className="flex gap-2 px-3 py-2 bg-[#fff4e5] border border-[#ff8401] rounded text-xs">
-          <CircleAlert className="w-4 h-4 text-[#ff8300] flex-shrink-0 mt-0.5" />
+        <div className="flex gap-2 px-3 py-1.5 bg-[#fff4e5] border border-[#ff8401] rounded text-xs">
+          <CircleAlert className="w-3 h-3 text-[#ff8300] flex-shrink-0 mt-0.5" />
           <p className="text-[#ff8401]">
-            <span className="font-bold">Important:</span> Estimates only, not guaranteed rates. A formal mortgage application with credit pull is required for accurate pricing.
+            <span className="font-bold">Important:</span> Estimates only. Credit pull required for accurate pricing.
           </p>
         </div>
 
-        {/* Quick Chart Actions */}
-        <div className="bg-gradient-to-r from-stone-50 to-stone-100 border border-stone-200 rounded-lg px-3 py-2">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <BarChart3 className="w-3.5 h-3.5 text-stone-500" />
-              <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wide">Charts</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => onSelectChart?.('debt-worksheet')}
-                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all"
-              >
-                <CreditCard className="w-3 h-3" />
-                Debt
-              </button>
-              <button
-                onClick={() => onSelectChart?.('payment-savings')}
-                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-700 transition-all"
-              >
-                <TrendingUp className="w-3 h-3" />
-                Savings
-              </button>
-              <button
-                onClick={() => onSelectChart?.('cash-back')}
-                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700 transition-all"
-              >
-                <DollarSign className="w-3 h-3" />
-                Cash
-              </button>
-              <button
-                onClick={() => onSelectChart?.('accelerated-payoff')}
-                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all"
-              >
-                <Clock className="w-3 h-3" />
-                Payoff
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* LTV/CLTV Display - Prominent */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-gradient-to-br from-[#432c9e] to-[#6b5ce7] rounded-xl p-4 text-white text-center">
-            <p className="text-xs text-white/70 uppercase tracking-wide mb-1">LTV</p>
-            <p className="text-3xl font-bold">{ltv}%</p>
-          </div>
-          <div className="bg-gradient-to-br from-[#432c9e] to-[#6b5ce7] rounded-xl p-4 text-white text-center">
-            <p className="text-xs text-white/70 uppercase tracking-wide mb-1">CLTV</p>
-            <p className="text-3xl font-bold">{ltv}%</p>
-          </div>
-          <div className="bg-gradient-to-br from-[#432c9e] to-[#6b5ce7] rounded-xl p-4 text-white text-center">
-            <p className="text-xs text-white/70 uppercase tracking-wide mb-1">HCLTV</p>
-            <p className="text-3xl font-bold">{ltv}%</p>
-          </div>
-        </div>
-
-        {/* Present vs Proposed Comparison - Option C Only */}
-        <div className="bg-white border border-neutral-l3 rounded-lg overflow-hidden">
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-[#432c9e] to-[#6b5ce7] text-white">
-            <h3 className="font-bold text-sm">Present vs Proposed Comparison</h3>
-            {/* Chart Buttons */}
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => onSelectChart?.('debt-worksheet')}
-                className="flex items-center gap-1 px-2 py-1 bg-white/20 hover:bg-white/30 rounded text-[10px] font-medium transition-all"
-              >
-                <CreditCard className="w-3 h-3" />
-                Debt
-              </button>
-              <button
-                onClick={() => onSelectChart?.('payment-savings')}
-                className="flex items-center gap-1 px-2 py-1 bg-white/20 hover:bg-white/30 rounded text-[10px] font-medium transition-all"
-              >
-                <TrendingUp className="w-3 h-3" />
-                Savings
-              </button>
-              <button
-                onClick={() => onSelectChart?.('cash-back')}
-                className="flex items-center gap-1 px-2 py-1 bg-white/20 hover:bg-white/30 rounded text-[10px] font-medium transition-all"
-              >
-                <DollarSign className="w-3 h-3" />
-                Cash
-              </button>
-              <button
-                onClick={() => onSelectChart?.('accelerated-payoff')}
-                className="flex items-center gap-1 px-2 py-1 bg-white/20 hover:bg-white/30 rounded text-[10px] font-medium transition-all"
-              >
-                <Clock className="w-3 h-3" />
-                Payoff
-              </button>
-            </div>
-          </div>
-
-          <div className="p-4">
-            {/* Aligned Comparison Table */}
-            <div className="border border-neutral-l3 rounded-lg overflow-hidden">
-              {/* Table Header */}
-              <div className="grid grid-cols-[1fr_140px_140px] bg-neutral-l5">
-                <div className="px-4 py-2 text-sm font-bold text-neutral-d2"></div>
-                <div className="px-4 py-2 text-sm font-bold text-center bg-[#fff8f2] border-l border-neutral-l3">
-                  PRESENT
-                </div>
-                <div className="px-4 py-2 text-sm font-bold text-center bg-[#edeffe] border-l border-neutral-l3 text-[#432c9e]">
-                  PROPOSED
-                </div>
-              </div>
-              
-              {/* P&I Row */}
-              <div className="grid grid-cols-[1fr_140px_140px] border-t border-neutral-l3">
-                <div className="px-4 py-2 text-sm text-neutral-d1">Principal & Interest</div>
-                <div className="px-4 py-2 text-sm text-right font-medium bg-[#fff8f2]/50 border-l border-neutral-l3">
-                  {formatCurrency(scenarios[0].pi)}
-                </div>
-                <div className="px-4 py-2 text-sm text-right font-medium bg-[#edeffe]/50 border-l border-neutral-l3 text-[#432c9e]">
-                  {formatCurrency(scenarios[selectedScenario]?.pi || 0)}
-                </div>
-              </div>
-              
-              {/* Taxes Row */}
-              <div className="grid grid-cols-[1fr_140px_140px] border-t border-neutral-l3">
-                <div className="px-4 py-2 text-sm text-neutral-d1">Taxes</div>
-                <div className="px-4 py-2 text-sm text-right font-medium bg-[#fff8f2]/50 border-l border-neutral-l3">
-                  {formatCurrency(scenarios[0].taxes)}
-                </div>
-                <div className="px-4 py-2 text-sm text-right font-medium bg-[#edeffe]/50 border-l border-neutral-l3">
-                  {formatCurrency(scenarios[selectedScenario]?.taxes || 0)}
-                </div>
-              </div>
-              
-              {/* Insurance Row */}
-              <div className="grid grid-cols-[1fr_140px_140px] border-t border-neutral-l3">
-                <div className="px-4 py-2 text-sm text-neutral-d1">Insurance</div>
-                <div className="px-4 py-2 text-sm text-right font-medium bg-[#fff8f2]/50 border-l border-neutral-l3">
-                  {formatCurrency(scenarios[0].insurance)}
-                </div>
-                <div className="px-4 py-2 text-sm text-right font-medium bg-[#edeffe]/50 border-l border-neutral-l3">
-                  {formatCurrency(scenarios[selectedScenario]?.insurance || 0)}
-                </div>
-              </div>
-              
-              {/* MI/MIP Row */}
-              <div className="grid grid-cols-[1fr_140px_140px] border-t border-neutral-l3">
-                <div className="px-4 py-2 text-sm text-neutral-d1">MI/MIP</div>
-                <div className="px-4 py-2 text-sm text-right font-medium bg-[#fff8f2]/50 border-l border-neutral-l3">
-                  {formatCurrency(scenarios[0].mi)}
-                </div>
-                <div className="px-4 py-2 text-sm text-right font-medium bg-[#edeffe]/50 border-l border-neutral-l3">
-                  {formatCurrency(scenarios[selectedScenario]?.mi || 0)}
-                </div>
-              </div>
-              
-              {/* Mortgage Total Subtotal */}
-              <div className="grid grid-cols-[1fr_140px_140px] border-t-2 border-neutral-l2 bg-neutral-l5/50">
-                <div className="px-4 py-2 text-sm font-semibold text-neutral-d2">Total Mortgage Payment</div>
-                <div className="px-4 py-2 text-sm text-right font-bold bg-[#fff8f2]/70 border-l border-neutral-l3">
-                  {formatCurrency(scenarios[0].pi + scenarios[0].taxes + scenarios[0].insurance + scenarios[0].mi)}
-                </div>
-                <div className="px-4 py-2 text-sm text-right font-bold bg-[#edeffe]/70 border-l border-neutral-l3 text-[#432c9e]">
-                  {formatCurrency((scenarios[selectedScenario]?.pi || 0) + (scenarios[selectedScenario]?.taxes || 0) + (scenarios[selectedScenario]?.insurance || 0) + (scenarios[selectedScenario]?.mi || 0))}
-                </div>
-              </div>
-              
-              {/* Debts Being Paid Off Row */}
-              <div className="grid grid-cols-[1fr_140px_140px] border-t border-neutral-l3">
-                <div className="px-4 py-2 text-sm text-neutral-d1">Debts Being Paid Off</div>
-                <div className="px-4 py-2 text-sm text-right font-medium bg-[#fff8f2]/50 border-l border-neutral-l3 text-rose-600">
-                  {formatCurrency(scenarios[0].debts)}
-                </div>
-                <div className="px-4 py-2 text-sm text-right font-medium bg-[#edeffe]/50 border-l border-neutral-l3 text-green-600">
-                  $0 (Paid Off) ✓
-                </div>
-              </div>
-              
-              {/* Cash Out Row (if applicable) */}
-              {scenarios[selectedScenario]?.cashout > 0 && (
-                <div className="grid grid-cols-[1fr_140px_140px] border-t border-neutral-l3">
-                  <div className="px-4 py-2 text-sm text-neutral-d1">Cash Out at Closing</div>
-                  <div className="px-4 py-2 text-sm text-right font-medium bg-[#fff8f2]/50 border-l border-neutral-l3 text-neutral-l1">
-                    —
-                  </div>
-                  <div className="px-4 py-2 text-sm text-right font-bold bg-[#edeffe]/50 border-l border-neutral-l3 text-[#432c9e]">
-                    {formatCurrency(scenarios[selectedScenario].cashout)}
-                  </div>
-                </div>
-              )}
-              
-              {/* TOTAL Row */}
-              <div className="grid grid-cols-[1fr_140px_140px] border-t-2 border-[#432c9e]">
-                <div className="px-4 py-2.5 text-sm font-bold text-neutral-d3 bg-neutral-l4">TOTAL MONTHLY</div>
-                <div className="px-4 py-2.5 text-right font-bold text-lg bg-[#fff8f2] border-l border-neutral-l3">
-                  {formatCurrency(scenarios[0].payment)}
-                </div>
-                <div className="px-4 py-2.5 text-right font-bold text-lg bg-[#edeffe] border-l border-neutral-l3 text-[#432c9e]">
-                  {formatCurrency(scenarios[selectedScenario]?.payment || 0)}
-                </div>
-              </div>
-              
-              {/* Savings/Increase Row */}
-              {scenarios[selectedScenario]?.savings !== 0 && (
-                <div className={`grid grid-cols-[1fr_140px_140px] border-t border-neutral-l3 ${scenarios[selectedScenario]?.savings > 0 ? 'bg-green-50' : 'bg-rose-50'}`}>
-                  <div className="px-4 py-2.5 text-sm font-bold text-neutral-d2">
-                    {scenarios[selectedScenario]?.savings > 0 ? '💰 Monthly Savings' : '⚠️ Monthly Increase'}
-                  </div>
-                  <div className="px-4 py-2.5 border-l border-neutral-l3"></div>
-                  <div className={`px-4 py-2.5 text-right font-bold text-lg border-l border-neutral-l3 ${scenarios[selectedScenario]?.savings > 0 ? 'text-green-600' : 'text-rose-600'}`}>
-                    {scenarios[selectedScenario]?.savings > 0 ? '' : '+'}{formatCurrency(Math.abs(scenarios[selectedScenario]?.savings || 0))}
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {/* Debts NOT Being Paid Section */}
-            {accounts.filter(a => !a.willPay).length > 0 && (
-              <div className="mt-4">
-                <div className="text-xs font-semibold text-stone-500 uppercase mb-2">Debts NOT Being Paid Off (Remaining)</div>
-                <div className="border border-amber-200 rounded-lg overflow-hidden bg-amber-50">
-                  <div className="grid grid-cols-[1fr_100px_100px] bg-amber-100 text-xs font-semibold text-amber-800">
-                    <div className="px-3 py-2">Creditor</div>
-                    <div className="px-3 py-2 text-right">Payment</div>
-                    <div className="px-3 py-2 text-right">Balance</div>
-                  </div>
-                  {accounts.filter(a => !a.willPay).map((debt, i) => (
-                    <div key={i} className="grid grid-cols-[1fr_100px_100px] border-t border-amber-200 text-sm">
-                      <div className="px-3 py-1.5 text-stone-700">{debt.creditor}</div>
-                      <div className="px-3 py-1.5 text-right text-stone-600">${(parseFloat(String(debt.payment).replace(/[$,]/g, '')) || 0).toLocaleString()}</div>
-                      <div className="px-3 py-1.5 text-right text-stone-600">${(parseFloat(String(debt.balance).replace(/[$,]/g, '')) || 0).toLocaleString()}</div>
-                    </div>
-                  ))}
-                  <div className="grid grid-cols-[1fr_100px_100px] border-t border-amber-300 bg-amber-100 text-sm font-bold">
-                    <div className="px-3 py-2 text-amber-800">Total Remaining</div>
-                    <div className="px-3 py-2 text-right text-amber-800">
-                      ${accounts.filter(a => !a.willPay).reduce((s, d) => s + (parseFloat(String(d.payment).replace(/[$,]/g, '')) || 0), 0).toLocaleString()}
-                    </div>
-                    <div className="px-3 py-2 text-right text-amber-800">
-                      ${accounts.filter(a => !a.willPay).reduce((s, d) => s + (parseFloat(String(d.balance).replace(/[$,]/g, '')) || 0), 0).toLocaleString()}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {/* Present Button */}
-            <div className="mt-4 flex justify-end">
-              <button className="px-6 py-2 bg-[#432c9e] text-white font-bold rounded-lg hover:bg-[#362480] transition-colors">
-                ✓ Present This Comparison
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Compact Configurations */}
-        <div className="bg-white border border-neutral-l3 rounded-lg p-4">
-          {/* Program & Term in one row */}
-          <div className="flex items-center gap-6 mb-4">
+        {/* Main Configuration Section - Prominent */}
+        <div className="bg-white border-2 border-[#432c9e] rounded-xl p-4">
+          {/* Program & Term Row */}
+          <div className="flex items-center gap-8 mb-4">
             <div className="flex items-center gap-3">
-              <span className="text-xs font-semibold text-[#200f51] uppercase">Program</span>
-              <div className="flex gap-1">
+              <span className="text-sm font-bold text-[#432c9e] uppercase">Program</span>
+              <div className="flex gap-1.5">
                 {programs.map((program) => (
                   <button
                     key={program}
                     onClick={() => setSelectedProgram(program)}
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition-colors ${
+                    className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
                       selectedProgram === program
-                        ? 'bg-[#432c9e] text-white'
+                        ? 'bg-[#432c9e] text-white shadow-md'
                         : 'bg-[#edeffe] text-[#432c9e] hover:bg-[#dbdbfc]'
                     }`}
                   >
-                    {selectedProgram === program && <Check className="w-3 h-3" />}
+                    {selectedProgram === program && <Check className="w-4 h-4 inline mr-1" />}
                     {program}
                   </button>
                 ))}
               </div>
             </div>
-            <div className="w-px h-6 bg-neutral-l3"></div>
+            <div className="h-8 w-px bg-[#432c9e]/20"></div>
             <div className="flex items-center gap-3">
-              <span className="text-xs font-semibold text-[#200f51] uppercase">Term</span>
-              <div className="flex gap-1">
+              <span className="text-sm font-bold text-[#432c9e] uppercase">Term</span>
+              <div className="flex gap-1.5">
                 {terms.map((term) => (
                   <button
                     key={term}
                     onClick={() => setSelectedTerm(term)}
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition-colors ${
+                    className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
                       selectedTerm === term
-                        ? 'bg-[#432c9e] text-white'
+                        ? 'bg-[#432c9e] text-white shadow-md'
                         : 'bg-[#edeffe] text-[#432c9e] hover:bg-[#dbdbfc]'
                     }`}
                   >
-                    {selectedTerm === term && <Check className="w-3 h-3" />}
+                    {selectedTerm === term && <Check className="w-4 h-4 inline mr-1" />}
                     {term}
                   </button>
                 ))}
               </div>
             </div>
-            <div className="w-px h-6 bg-neutral-l3"></div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-[#200f51] uppercase">Category</span>
-              <span className="px-2 py-1 bg-neutral-l5 rounded text-xs text-neutral-d1">Refinance</span>
-            </div>
           </div>
 
-          {/* LTV Slider - Compact */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <span className="text-xs font-semibold text-[#200f51] uppercase w-8">LTV</span>
-              <div className="flex-1 relative h-6">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={ltv}
-                  onChange={(e) => setLtv(parseInt(e.target.value))}
-                  className="w-full h-2 bg-neutral-l3 rounded-full appearance-none cursor-pointer accent-[#432c9e]"
-                  style={{
-                    background: `linear-gradient(to right, #432c9e ${ltv}%, #e5e5e5 ${ltv}%)`
-                  }}
-                />
+          {/* LTV Row with Slider */}
+          <div className="flex items-center gap-4 mb-4 p-3 bg-[#f8f7fc] rounded-lg">
+            <div className="flex items-center gap-6">
+              <div className="text-center">
+                <div className="text-[10px] text-[#432c9e] uppercase font-semibold">LTV</div>
+                <div className="text-2xl font-bold text-[#432c9e]">{ltv}%</div>
               </div>
-              <span className="text-sm font-bold text-[#432c9e] w-12 text-right">{ltv}%</span>
+              <div className="text-center">
+                <div className="text-[10px] text-[#432c9e] uppercase font-semibold">CLTV</div>
+                <div className="text-2xl font-bold text-[#432c9e]">{ltv}%</div>
+              </div>
+              <div className="text-center">
+                <div className="text-[10px] text-[#432c9e] uppercase font-semibold">HCLTV</div>
+                <div className="text-2xl font-bold text-[#432c9e]">{ltv}%</div>
+              </div>
+            </div>
+            <div className="flex-1">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={ltv}
+                onChange={(e) => setLtv(parseInt(e.target.value))}
+                className="w-full h-2 bg-neutral-l3 rounded-full appearance-none cursor-pointer accent-[#432c9e]"
+                style={{ background: `linear-gradient(to right, #432c9e ${ltv}%, #e5e5e5 ${ltv}%)` }}
+              />
             </div>
           </div>
 
-          {/* Input Fields - 6 column grid */}
+          {/* Inputs Grid */}
           <div className="grid grid-cols-6 gap-3">
-            <div className="space-y-1">
-              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Loan Amt</label>
-              <input
-                type="text"
-                value={loanAmount}
-                onChange={(e) => setLoanAmount(e.target.value)}
-                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm"
-              />
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Loan Amt</label>
+              <input type="text" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-1" />
             </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Debts</label>
-              <input
-                type="text"
-                disabled
-                value={totalDebts.toLocaleString()}
-                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-neutral-l5"
-              />
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Debts</label>
+              <input type="text" disabled value={totalDebts.toLocaleString()}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-neutral-l5 mt-1" />
             </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Cashout</label>
-              <input
-                type="text"
-                value={cashout}
-                onChange={(e) => setCashout(e.target.value)}
-                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm"
-              />
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Cashout</label>
+              <input type="text" value={cashout} onChange={(e) => setCashout(e.target.value)}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-1" />
             </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-medium text-neutral-d1 uppercase">DTI</label>
-              <input
-                type="text"
-                defaultValue="23.10%"
-                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm"
-              />
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">DTI</label>
+              <input type="text" defaultValue="23.10%" className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-1" />
             </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-medium text-neutral-d1 uppercase">FICO</label>
-              <input
-                type="text"
-                defaultValue="692"
-                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm"
-              />
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">FICO</label>
+              <input type="text" defaultValue="692" className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-1" />
             </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Reserves</label>
-              <input
-                type="text"
-                defaultValue="0"
-                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm"
-              />
-            </div>
-          </div>
-
-          {/* Second row of inputs */}
-          <div className="grid grid-cols-4 gap-3 mt-3">
-            <div className="space-y-1">
-              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Occupancy</label>
-              <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white">
-                <option>Primary Residence</option>
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Occupancy</label>
+              <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white mt-1">
+                <option>Primary</option>
                 <option>Second Home</option>
                 <option>Investment</option>
               </select>
             </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Property Type</label>
-              <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white">
-                <option>Single Family</option>
-                <option>Condo</option>
-                <option>Townhouse</option>
-                <option>Multi-Family</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Units</label>
-              <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white">
-                <option>1 Unit</option>
-                <option>2 Units</option>
-                <option>3 Units</option>
-                <option>4 Units</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Interest Rate</label>
-              <button
-                type="button"
-                disabled
-                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-neutral-l5 text-neutral-l1 text-left"
-              >
-                Search rates first
-              </button>
-            </div>
           </div>
 
           {/* Search Rates Button */}
-          <div className="flex justify-end mt-2">
-            <button
-              type="button"
-              className="font-sans not-italic font-normal text-sm py-1.5 px-4 min-w-fit w-fit h-fit flex items-center rounded-[4px] text-white bg-[#ff8300] hover:bg-[#e67600] border-none transition-colors"
-            >
+          <div className="flex justify-end mt-4">
+            <button className="px-6 py-2 bg-[#ff8300] hover:bg-[#e67600] text-white font-bold rounded-lg transition-colors">
               Search Rates
             </button>
           </div>
         </div>
+
+        {/* Quick Chart Actions */}
+        <div className="flex items-center gap-2 px-2">
+          <BarChart3 className="w-4 h-4 text-stone-400" />
+          <span className="text-xs font-semibold text-stone-400 uppercase">Charts:</span>
+          <button onClick={() => onSelectChart?.('debt-worksheet')} className="px-2 py-1 bg-stone-100 hover:bg-purple-100 rounded text-xs font-medium text-stone-600 hover:text-purple-700 transition-all">Debt</button>
+          <button onClick={() => onSelectChart?.('payment-savings')} className="px-2 py-1 bg-stone-100 hover:bg-teal-100 rounded text-xs font-medium text-stone-600 hover:text-teal-700 transition-all">Savings</button>
+          <button onClick={() => onSelectChart?.('cash-back')} className="px-2 py-1 bg-stone-100 hover:bg-emerald-100 rounded text-xs font-medium text-stone-600 hover:text-emerald-700 transition-all">Cash</button>
+          <button onClick={() => onSelectChart?.('accelerated-payoff')} className="px-2 py-1 bg-stone-100 hover:bg-purple-100 rounded text-xs font-medium text-stone-600 hover:text-purple-700 transition-all">Payoff</button>
+        </div>
+
+        {/* Present vs Proposed - Compact Table on Left */}
+        <div className="flex gap-4">
+          <div className="w-[480px] flex-shrink-0">
+            <div className="bg-white border border-neutral-l3 rounded-lg overflow-hidden">
+              <div className="px-3 py-2 bg-gradient-to-r from-[#432c9e] to-[#6b5ce7] text-white">
+                <h3 className="font-bold text-sm">Present vs Proposed</h3>
+              </div>
+              <table className="w-full text-sm">
+                <thead className="bg-neutral-l5">
+                  <tr>
+                    <th className="px-3 py-1.5 text-left font-medium text-neutral-d2"></th>
+                    <th className="px-3 py-1.5 text-right font-medium bg-[#fff8f2] w-24">Present</th>
+                    <th className="px-3 py-1.5 text-right font-medium bg-[#edeffe] text-[#432c9e] w-24">Proposed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-t border-neutral-l3">
+                    <td className="px-3 py-1.5 text-neutral-d1">P&I</td>
+                    <td className="px-3 py-1.5 text-right bg-[#fff8f2]/50">{formatCurrency(scenarios[0].pi)}</td>
+                    <td className="px-3 py-1.5 text-right bg-[#edeffe]/50 text-[#432c9e] font-medium">{formatCurrency(scenarios[selectedScenario]?.pi || 0)}</td>
+                  </tr>
+                  <tr className="border-t border-neutral-l3">
+                    <td className="px-3 py-1.5 text-neutral-d1">Taxes</td>
+                    <td className="px-3 py-1.5 text-right bg-[#fff8f2]/50">{formatCurrency(scenarios[0].taxes)}</td>
+                    <td className="px-3 py-1.5 text-right bg-[#edeffe]/50">{formatCurrency(scenarios[selectedScenario]?.taxes || 0)}</td>
+                  </tr>
+                  <tr className="border-t border-neutral-l3">
+                    <td className="px-3 py-1.5 text-neutral-d1">Insurance</td>
+                    <td className="px-3 py-1.5 text-right bg-[#fff8f2]/50">{formatCurrency(scenarios[0].insurance)}</td>
+                    <td className="px-3 py-1.5 text-right bg-[#edeffe]/50">{formatCurrency(scenarios[selectedScenario]?.insurance || 0)}</td>
+                  </tr>
+                  <tr className="border-t border-neutral-l3">
+                    <td className="px-3 py-1.5 text-neutral-d1">MI/MIP</td>
+                    <td className="px-3 py-1.5 text-right bg-[#fff8f2]/50">{formatCurrency(scenarios[0].mi)}</td>
+                    <td className="px-3 py-1.5 text-right bg-[#edeffe]/50">{formatCurrency(scenarios[selectedScenario]?.mi || 0)}</td>
+                  </tr>
+                  <tr className="border-t-2 border-neutral-l2 bg-neutral-l5/50">
+                    <td className="px-3 py-1.5 font-semibold">Mortgage Total</td>
+                    <td className="px-3 py-1.5 text-right font-bold bg-[#fff8f2]/70">{formatCurrency(scenarios[0].pi + scenarios[0].taxes + scenarios[0].insurance + scenarios[0].mi)}</td>
+                    <td className="px-3 py-1.5 text-right font-bold bg-[#edeffe]/70 text-[#432c9e]">{formatCurrency((scenarios[selectedScenario]?.pi || 0) + (scenarios[selectedScenario]?.taxes || 0) + (scenarios[selectedScenario]?.insurance || 0) + (scenarios[selectedScenario]?.mi || 0))}</td>
+                  </tr>
+                  <tr className="border-t border-neutral-l3">
+                    <td className="px-3 py-1.5 text-neutral-d1">Debts Paid Off</td>
+                    <td className="px-3 py-1.5 text-right bg-[#fff8f2]/50 text-rose-600">{formatCurrency(scenarios[0].debts)}</td>
+                    <td className="px-3 py-1.5 text-right bg-[#edeffe]/50 text-green-600">$0 ✓</td>
+                  </tr>
+                  {scenarios[selectedScenario]?.cashout > 0 && (
+                    <tr className="border-t border-neutral-l3">
+                      <td className="px-3 py-1.5 text-neutral-d1">Cash Out</td>
+                      <td className="px-3 py-1.5 text-right bg-[#fff8f2]/50 text-neutral-l1">—</td>
+                      <td className="px-3 py-1.5 text-right bg-[#edeffe]/50 font-bold text-[#432c9e]">{formatCurrency(scenarios[selectedScenario].cashout)}</td>
+                    </tr>
+                  )}
+                  <tr className="border-t-2 border-[#432c9e]">
+                    <td className="px-3 py-2 font-bold bg-neutral-l4">TOTAL</td>
+                    <td className="px-3 py-2 text-right font-bold text-lg bg-[#fff8f2]">{formatCurrency(scenarios[0].payment)}</td>
+                    <td className="px-3 py-2 text-right font-bold text-lg bg-[#edeffe] text-[#432c9e]">{formatCurrency(scenarios[selectedScenario]?.payment || 0)}</td>
+                  </tr>
+                  {scenarios[selectedScenario]?.savings !== 0 && (
+                    <tr className={scenarios[selectedScenario]?.savings > 0 ? 'bg-green-50' : 'bg-rose-50'}>
+                      <td className="px-3 py-2 font-bold">{scenarios[selectedScenario]?.savings > 0 ? '💰 Savings' : '⚠️ Increase'}</td>
+                      <td className="px-3 py-2"></td>
+                      <td className={`px-3 py-2 text-right font-bold text-lg ${scenarios[selectedScenario]?.savings > 0 ? 'text-green-600' : 'text-rose-600'}`}>
+                        {scenarios[selectedScenario]?.savings > 0 ? '' : '+'}{formatCurrency(Math.abs(scenarios[selectedScenario]?.savings || 0))}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+              <div className="p-2 flex justify-end border-t border-neutral-l3">
+                <button className="px-4 py-1.5 bg-[#432c9e] text-white text-sm font-bold rounded hover:bg-[#362480] transition-colors">
+                  ✓ Present
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Debts NOT Being Paid Section */}
+          <div className="flex-1">
+            {accounts.filter(a => !a.willPay).length > 0 && (
+              <div>
+                <div className="text-xs font-semibold text-amber-700 uppercase mb-2">Debts NOT Being Paid Off</div>
+                <div className="border border-amber-200 rounded-lg overflow-hidden bg-amber-50">
+                  <table className="w-full text-sm">
+                    <thead className="bg-amber-100">
+                      <tr>
+                        <th className="px-3 py-1.5 text-left font-semibold text-amber-800">Creditor</th>
+                        <th className="px-3 py-1.5 text-right font-semibold text-amber-800">Payment</th>
+                        <th className="px-3 py-1.5 text-right font-semibold text-amber-800">Balance</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {accounts.filter(a => !a.willPay).map((debt, i) => (
+                        <tr key={i} className="border-t border-amber-200">
+                          <td className="px-3 py-1.5 text-stone-700">{debt.creditor}</td>
+                          <td className="px-3 py-1.5 text-right text-stone-600">${(parseFloat(String(debt.payment).replace(/[$,]/g, '')) || 0).toLocaleString()}</td>
+                          <td className="px-3 py-1.5 text-right text-stone-600">${(parseFloat(String(debt.balance).replace(/[$,]/g, '')) || 0).toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot className="bg-amber-100 border-t border-amber-300">
+                      <tr>
+                        <td className="px-3 py-1.5 font-bold text-amber-800">Total</td>
+                        <td className="px-3 py-1.5 text-right font-bold text-amber-800">${accounts.filter(a => !a.willPay).reduce((s, d) => s + (parseFloat(String(d.payment).replace(/[$,]/g, '')) || 0), 0).toLocaleString()}</td>
+                        <td className="px-3 py-1.5 text-right font-bold text-amber-800">${accounts.filter(a => !a.willPay).reduce((s, d) => s + (parseFloat(String(d.balance).replace(/[$,]/g, '')) || 0), 0).toLocaleString()}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
       </div>
 
       {/* Loan Details Slide-out Panel */}
