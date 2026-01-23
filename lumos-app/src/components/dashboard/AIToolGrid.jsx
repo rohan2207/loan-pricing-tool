@@ -115,7 +115,6 @@ export function AIToolGrid({ onSelectTool, selectedCategory = 'all' }) {
                                         category?.color === 'purple' && "from-purple-500 to-purple-600",
                                         category?.color === 'green' && "from-green-500 to-green-600",
                                         category?.color === 'amber' && "from-amber-500 to-amber-600",
-                                        category?.color === 'teal' && "from-teal-500 to-teal-600",
                                         "group-hover:shadow-lg group-hover:shadow-current/20"
                                     )}>
                                         <Icon size={22} className="text-white" />
