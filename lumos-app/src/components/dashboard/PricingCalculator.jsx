@@ -798,121 +798,116 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
           </p>
         </div>
 
-        {/* Main Configuration Section - Prominent */}
-        <div className="bg-white border-2 border-[#432c9e] rounded-xl p-4">
-          {/* Program & Term Row */}
-          <div className="flex items-center gap-8 mb-4">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-bold text-[#432c9e] uppercase">Program</span>
-              <div className="flex gap-1.5">
-                {programs.map((program) => (
-                  <button
-                    key={program}
-                    onClick={() => setSelectedProgram(program)}
-                    className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                      selectedProgram === program
-                        ? 'bg-[#432c9e] text-white shadow-md'
-                        : 'bg-[#edeffe] text-[#432c9e] hover:bg-[#dbdbfc]'
-                    }`}
-                  >
-                    {selectedProgram === program && <Check className="w-4 h-4 inline mr-1" />}
-                    {program}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="h-8 w-px bg-[#432c9e]/20"></div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-bold text-[#432c9e] uppercase">Term</span>
-              <div className="flex gap-1.5">
-                {terms.map((term) => (
-                  <button
-                    key={term}
-                    onClick={() => setSelectedTerm(term)}
-                    className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                      selectedTerm === term
-                        ? 'bg-[#432c9e] text-white shadow-md'
-                        : 'bg-[#edeffe] text-[#432c9e] hover:bg-[#dbdbfc]'
-                    }`}
-                  >
-                    {selectedTerm === term && <Check className="w-4 h-4 inline mr-1" />}
-                    {term}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* LTV Row with Slider */}
-          <div className="flex items-center gap-4 mb-4 p-3 bg-[#f8f7fc] rounded-lg">
+        {/* Program Selection - BIG & Prominent */}
+        <div className="bg-gradient-to-r from-[#432c9e] to-[#6b5ce7] rounded-xl p-5 shadow-lg">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
-              <div className="text-center">
-                <div className="text-[10px] text-[#432c9e] uppercase font-semibold">LTV</div>
-                <div className="text-2xl font-bold text-[#432c9e]">{ltv}%</div>
+              <div>
+                <div className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-2">Select Program</div>
+                <div className="flex gap-2">
+                  {programs.map((program) => (
+                    <button
+                      key={program}
+                      onClick={() => setSelectedProgram(program)}
+                      className={`px-6 py-3 rounded-xl text-base font-bold transition-all ${
+                        selectedProgram === program
+                          ? 'bg-white text-[#432c9e] shadow-lg scale-105'
+                          : 'bg-white/20 text-white hover:bg-white/30 hover:scale-102'
+                      }`}
+                    >
+                      {selectedProgram === program && <Check className="w-5 h-5 inline mr-2" />}
+                      {program}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-[10px] text-[#432c9e] uppercase font-semibold">CLTV</div>
-                <div className="text-2xl font-bold text-[#432c9e]">{ltv}%</div>
-              </div>
-              <div className="text-center">
-                <div className="text-[10px] text-[#432c9e] uppercase font-semibold">HCLTV</div>
-                <div className="text-2xl font-bold text-[#432c9e]">{ltv}%</div>
+              <div className="w-px h-16 bg-white/20"></div>
+              <div>
+                <div className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-2">Loan Term</div>
+                <div className="flex gap-2">
+                  {terms.map((term) => (
+                    <button
+                      key={term}
+                      onClick={() => setSelectedTerm(term)}
+                      className={`px-5 py-3 rounded-xl text-base font-bold transition-all ${
+                        selectedTerm === term
+                          ? 'bg-white text-[#432c9e] shadow-lg scale-105'
+                          : 'bg-white/20 text-white hover:bg-white/30'
+                      }`}
+                    >
+                      {selectedTerm === term && <Check className="w-5 h-5 inline mr-1" />}
+                      {term}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-            <div className="flex-1">
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={ltv}
-                onChange={(e) => setLtv(parseInt(e.target.value))}
-                className="w-full h-2 bg-neutral-l3 rounded-full appearance-none cursor-pointer accent-[#432c9e]"
-                style={{ background: `linear-gradient(to right, #432c9e ${ltv}%, #e5e5e5 ${ltv}%)` }}
-              />
+            {/* LTV Display */}
+            <div className="flex items-center gap-4">
+              <div className="flex gap-3">
+                <div className="bg-white/20 rounded-lg px-4 py-2 text-center">
+                  <div className="text-white/70 text-[10px] uppercase">LTV</div>
+                  <div className="text-white text-2xl font-bold">{ltv}%</div>
+                </div>
+                <div className="bg-white/20 rounded-lg px-4 py-2 text-center">
+                  <div className="text-white/70 text-[10px] uppercase">CLTV</div>
+                  <div className="text-white text-2xl font-bold">{ltv}%</div>
+                </div>
+                <div className="bg-white/20 rounded-lg px-4 py-2 text-center">
+                  <div className="text-white/70 text-[10px] uppercase">HCLTV</div>
+                  <div className="text-white text-2xl font-bold">{ltv}%</div>
+                </div>
+              </div>
             </div>
           </div>
+          {/* LTV Slider */}
+          <div className="mt-4 flex items-center gap-4">
+            <span className="text-white/70 text-xs uppercase">Adjust LTV</span>
+            <input
+              type="range" min="0" max="100" value={ltv}
+              onChange={(e) => setLtv(parseInt(e.target.value))}
+              className="flex-1 h-2 rounded-full appearance-none cursor-pointer"
+              style={{ background: `linear-gradient(to right, white ${ltv}%, rgba(255,255,255,0.3) ${ltv}%)` }}
+            />
+          </div>
+        </div>
 
-          {/* Inputs Grid */}
-          <div className="grid grid-cols-6 gap-3">
-            <div>
-              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Loan Amt</label>
-              <input type="text" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)}
-                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-1" />
-            </div>
-            <div>
-              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Debts</label>
-              <input type="text" disabled value={totalDebts.toLocaleString()}
-                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-neutral-l5 mt-1" />
-            </div>
-            <div>
-              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Cashout</label>
-              <input type="text" value={cashout} onChange={(e) => setCashout(e.target.value)}
-                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-1" />
-            </div>
-            <div>
-              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">DTI</label>
-              <input type="text" defaultValue="23.10%" className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-1" />
-            </div>
-            <div>
-              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">FICO</label>
-              <input type="text" defaultValue="692" className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-1" />
-            </div>
-            <div>
-              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Occupancy</label>
-              <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white mt-1">
-                <option>Primary</option>
-                <option>Second Home</option>
-                <option>Investment</option>
-              </select>
-            </div>
+        {/* Loan Inputs - Compact Row */}
+        <div className="flex items-end gap-3 bg-neutral-l5 rounded-lg p-3">
+          <div className="flex-1">
+            <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Loan Amt</label>
+            <input type="text" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)}
+              className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
           </div>
-
-          {/* Search Rates Button */}
-          <div className="flex justify-end mt-4">
-            <button className="px-6 py-2 bg-[#ff8300] hover:bg-[#e67600] text-white font-bold rounded-lg transition-colors">
-              Search Rates
-            </button>
+          <div className="flex-1">
+            <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Debts</label>
+            <input type="text" disabled value={totalDebts.toLocaleString()}
+              className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-neutral-l4 mt-0.5" />
           </div>
+          <div className="flex-1">
+            <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Cashout</label>
+            <input type="text" value={cashout} onChange={(e) => setCashout(e.target.value)}
+              className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
+          </div>
+          <div className="w-20">
+            <label className="text-[10px] font-semibold text-neutral-d1 uppercase">DTI</label>
+            <input type="text" defaultValue="23.10%" className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
+          </div>
+          <div className="w-20">
+            <label className="text-[10px] font-semibold text-neutral-d1 uppercase">FICO</label>
+            <input type="text" defaultValue="692" className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
+          </div>
+          <div className="w-28">
+            <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Occupancy</label>
+            <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white mt-0.5">
+              <option>Primary</option>
+              <option>Second Home</option>
+              <option>Investment</option>
+            </select>
+          </div>
+          <button className="px-5 py-2 bg-[#ff8300] hover:bg-[#e67600] text-white font-bold rounded-lg transition-colors whitespace-nowrap">
+            Search Rates
+          </button>
         </div>
 
         {/* Present vs Proposed - Compact Table on Left, Charts on Right */}
