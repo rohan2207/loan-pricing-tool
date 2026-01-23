@@ -292,30 +292,30 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
           {calculated && (
             <div className="mt-6 pt-6 border-t-2 border-[#e5e7eb]">
               <div className="flex items-center justify-between mb-4">
-                <label className="text-sm font-semibold text-[#1e1b4b]">Select Your Rate</label>
-                <span className="text-xs text-[#6b7280]">Step 2 of 3</span>
+                <label className="text-base font-bold text-[#0f172a]">Select Your Rate</label>
+                <span className="text-sm text-[#6b7280]">Step 2 of 3</span>
               </div>
               
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 {rateOptions.map((rate, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedRateIndex(index)}
-                    className={`flex-1 p-3 rounded-xl border-2 transition-all text-center ${
+                    className={`flex-1 p-4 rounded-xl border-2 transition-all text-center ${
                       selectedRateIndex === index
                         ? 'border-[#ff8300] bg-[#fff8f0]'
                         : 'border-[#e5e7eb] bg-white hover:border-[#432c9e]/30'
                     }`}
                   >
-                    <div className={`text-lg font-bold ${selectedRateIndex === index ? 'text-[#ff8300]' : 'text-[#1e1b4b]'}`}>
+                    <div className={`text-xl font-bold ${selectedRateIndex === index ? 'text-[#ff8300]' : 'text-[#0f172a]'}`}>
                       {formatCurrency(rate.payment)}
                     </div>
-                    <div className={`text-sm font-semibold ${selectedRateIndex === index ? 'text-[#ff8300]' : 'text-[#432c9e]'}`}>
+                    <div className={`text-base font-semibold ${selectedRateIndex === index ? 'text-[#ff8300]' : 'text-[#432c9e]'}`}>
                       {rate.rate.toFixed(3)}%
                     </div>
-                    <div className="text-[10px] text-[#6b7280] mt-1">{rate.pointsLabel}</div>
+                    <div className="text-sm text-[#6b7280] mt-1">{rate.pointsLabel}</div>
                     {rate.discountAmount !== 0 && (
-                      <div className={`text-[10px] font-medium ${rate.discountAmount > 0 ? 'text-rose-500' : 'text-green-600'}`}>
+                      <div className={`text-sm font-semibold ${rate.discountAmount > 0 ? 'text-rose-500' : 'text-green-600'}`}>
                         {rate.discountAmount > 0 ? `-${formatCurrency(rate.discountAmount)}` : `+${formatCurrency(Math.abs(rate.discountAmount))}`}
                       </div>
                     )}
