@@ -487,7 +487,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                   </div>
                 )}
                 <div className="flex justify-between items-center px-5 py-3">
-                  <span className="text-base text-[#111827]">Estimated Fees</span>
+                  <span className="text-base text-[#111827]">Estimated Loan Fees</span>
                   <div className="flex items-center gap-1">
                     <span className="text-base text-rose-600">-</span>
                     <input
