@@ -19,6 +19,10 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
   // Escrows toggle
   const [escrowsEnabled, setEscrowsEnabled] = useState(true);
   
+  // Editable fees and escrows
+  const [estimatedFees, setEstimatedFees] = useState(3000);
+  const [estimatedEscrows, setEstimatedEscrows] = useState(3420);
+  
   // Rate selection state (appears after calculate)
   const [calculated, setCalculated] = useState(false);
   const [selectedRateIndex, setSelectedRateIndex] = useState(2); // Par rate default
@@ -65,10 +69,8 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
   const monthlySavings = currentTotal - proposedTotal;
   
   // Cash calculations
-  const feesPercent = 1.5;
-  const fees = (feesPercent / 100) * loanAmount;
-  const escrowAmount = escrowsEnabled ? 6 * (monthlyTaxes + monthlyInsurance) : 0;
-  const cashFromToBorrower = cashout - discountPoints - fees - escrowAmount;
+  const escrowAmount = escrowsEnabled ? estimatedEscrows : 0;
+  const cashFromToBorrower = cashout - discountPoints - estimatedFees - escrowAmount;
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-US', { 
@@ -484,14 +486,30 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                     <span className="text-base font-semibold text-green-600">+{formatCurrency(Math.abs(discountPoints))}</span>
                   </div>
                 )}
-                <div className="flex justify-between px-5 py-3">
-                  <span className="text-base text-[#111827]">Less: Fees ({feesPercent}%)</span>
-                  <span className="text-base font-semibold text-rose-600">-{formatCurrency(fees)}</span>
+                <div className="flex justify-between items-center px-5 py-3">
+                  <span className="text-base text-[#111827]">Estimated Fees</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-base text-rose-600">-</span>
+                    <input
+                      type="text"
+                      value={estimatedFees.toLocaleString()}
+                      onChange={(e) => setEstimatedFees(parseInt(e.target.value.replace(/,/g, '')) || 0)}
+                      className="w-24 px-2 py-1 border-2 border-[#e5e7eb] rounded-lg text-base font-semibold text-rose-600 text-right focus:border-[#432c9e] focus:outline-none"
+                    />
+                  </div>
                 </div>
                 {escrowsEnabled && (
-                  <div className="flex justify-between px-5 py-3">
-                    <span className="text-base text-[#111827]">Less: Escrows (6 mo Taxes & Insurance)</span>
-                    <span className="text-base font-semibold text-rose-600">-{formatCurrency(escrowAmount)}</span>
+                  <div className="flex justify-between items-center px-5 py-3">
+                    <span className="text-base text-[#111827]">Estimated Escrows</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-base text-rose-600">-</span>
+                      <input
+                        type="text"
+                        value={estimatedEscrows.toLocaleString()}
+                        onChange={(e) => setEstimatedEscrows(parseInt(e.target.value.replace(/,/g, '')) || 0)}
+                        className="w-24 px-2 py-1 border-2 border-[#e5e7eb] rounded-lg text-base font-semibold text-rose-600 text-right focus:border-[#432c9e] focus:outline-none"
+                      />
+                    </div>
                   </div>
                 )}
                 <div className="flex justify-between px-5 py-4 bg-[#f0fdf4] border-t-2 border-[#dcfce7]">
