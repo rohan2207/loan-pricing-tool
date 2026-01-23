@@ -22,7 +22,7 @@
 - [ ] Debts to Pay Off - editable input field
 - [ ] Cashout - editable input field
 - [ ] "Calculate Value Propositions" button
-- [ ] Rate Selection Cards (5 options: 2 buy-down, par, 2 credit) showing Rate, Payment, Cost in BPS, Cost in Dollars
+- [ ] Rate Selection Cards showing all available rates, defaulting to par rate. Each card displays: Rate, Payment, Cost in BPS, Cost in Dollars
 - [ ] Product Category dropdown (Refinance/Purchase)
 
 ---
