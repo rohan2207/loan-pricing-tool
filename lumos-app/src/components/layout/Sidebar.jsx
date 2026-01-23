@@ -97,15 +97,15 @@ export function Sidebar({ currentView, onViewChange, activeQuickAction, onQuickA
                     />
                 </NavSection>
 
-                {/* Pricing Section */}
+                {/* Pricing Scenarios Section */}
                 <NavSection 
-                    label="Pricing" 
+                    label="Pricing Scenarios" 
                     icon={<Calculator size={16} />}
                     expanded={expandedSection === 'pricing'}
                     onClick={() => toggleSection('pricing')}
                 >
                     <NavItem 
-                        label="Calculators" 
+                        label="Scenarios" 
                         active={currentView === 'pricing'} 
                         onClick={() => handleNavClick('pricing')} 
                     />

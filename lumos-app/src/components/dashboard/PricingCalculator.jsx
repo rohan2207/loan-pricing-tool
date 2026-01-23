@@ -18,8 +18,8 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
   const [selectedRateIndex, setSelectedRateIndex] = useState(2); // Par rate default
 
   // Options
-  const programs = ['Conventional', 'FHA', 'VA', 'FHA Streamline', 'VA IRRRL'];
-  const terms = [30, 20, 15, 'Non-standard'];
+  const programs = ['Conventional', 'FHA', 'VA'];
+  const terms = [30, 20, 15];
   const ltvMarks = [0, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
 
   // Rate options (5 total: 2 buy-down, 1 par, 2 credit)
@@ -92,7 +92,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
     <div className="p-6">
       {/* Page Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#1e1b4b]">Price</h1>
+        <h1 className="text-2xl font-bold text-[#1e1b4b]">Scenarios</h1>
         <p className="text-sm text-[#6b7280]">Interact below to build a quote</p>
       </div>
 
