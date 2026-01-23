@@ -247,32 +247,32 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
           </div>
 
           {/* Input Fields */}
-          <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="grid grid-cols-3 gap-4 mb-6">
             <div>
-              <label className="text-xs font-semibold text-[#1e1b4b] block mb-1.5">Loan amount</label>
+              <label className="text-sm font-bold text-[#0f172a] block mb-2">Loan Amount</label>
               <input
                 type="text"
                 value={loanAmount.toLocaleString()}
                 onChange={(e) => setLoanAmount(parseInt(e.target.value.replace(/,/g, '')) || 0)}
-                className="w-full px-3 py-2.5 border-2 border-[#e5e7eb] rounded-lg text-sm text-[#1e1b4b]"
+                className="w-full px-4 py-3 border-2 border-[#d1d5db] rounded-xl text-lg font-semibold text-[#0f172a] focus:border-[#432c9e] focus:outline-none transition-colors"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-[#1e1b4b] block mb-1.5">Debts to Pay Off</label>
+              <label className="text-sm font-bold text-[#0f172a] block mb-2">Debts to Pay Off</label>
               <input
                 type="text"
                 value={debts.toLocaleString()}
                 onChange={(e) => setDebts(parseInt(e.target.value.replace(/,/g, '')) || 0)}
-                className="w-full px-3 py-2.5 border-2 border-[#e5e7eb] rounded-lg text-sm text-[#1e1b4b]"
+                className="w-full px-4 py-3 border-2 border-[#d1d5db] rounded-xl text-lg font-semibold text-[#0f172a] focus:border-[#432c9e] focus:outline-none transition-colors"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-[#1e1b4b] block mb-1.5">Cashout</label>
+              <label className="text-sm font-bold text-[#0f172a] block mb-2">Cashout</label>
               <input
                 type="text"
                 value={cashout.toLocaleString()}
                 onChange={(e) => setCashout(parseInt(e.target.value.replace(/,/g, '')) || 0)}
-                className="w-full px-3 py-2.5 border-2 border-[#e5e7eb] rounded-lg text-sm text-[#1e1b4b]"
+                className="w-full px-4 py-3 border-2 border-[#d1d5db] rounded-xl text-lg font-semibold text-[#0f172a] focus:border-[#432c9e] focus:outline-none transition-colors"
               />
             </div>
           </div>
