@@ -6,6 +6,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
   const [productCategory, setProductCategory] = useState('Refinance');
   const [selectedProgram, setSelectedProgram] = useState('Conventional');
   const [selectedTerm, setSelectedTerm] = useState(30);
+  const [propertyValue, setPropertyValue] = useState(425000);
   const [ltv, setLtv] = useState(55);
   
   // Input state
@@ -145,19 +146,33 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
             </div>
           </div>
 
-          {/* Term Section */}
-          <div className="border-2 border-[#e5e7eb] rounded-xl p-4 mb-4">
-            <label className="text-sm font-semibold text-[#1e1b4b] block mb-3">Term</label>
-            <div className="flex flex-wrap gap-2">
-              {terms.map((term) => (
-                <PillButton
-                  key={term}
-                  selected={selectedTerm === term}
-                  onClick={() => setSelectedTerm(term)}
-                >
-                  {term}
-                </PillButton>
-              ))}
+          {/* Term and Property Value Row */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            {/* Term Section */}
+            <div className="border-2 border-[#e5e7eb] rounded-xl p-4">
+              <label className="text-sm font-semibold text-[#1e1b4b] block mb-3">Term</label>
+              <div className="flex flex-wrap gap-2">
+                {terms.map((term) => (
+                  <PillButton
+                    key={term}
+                    selected={selectedTerm === term}
+                    onClick={() => setSelectedTerm(term)}
+                  >
+                    {term}
+                  </PillButton>
+                ))}
+              </div>
+            </div>
+
+            {/* Property Value Section */}
+            <div className="border-2 border-[#e5e7eb] rounded-xl p-4">
+              <label className="text-sm font-bold text-[#0f172a] block mb-2">Property Value</label>
+              <input
+                type="text"
+                value={propertyValue.toLocaleString()}
+                onChange={(e) => setPropertyValue(parseInt(e.target.value.replace(/,/g, '')) || 0)}
+                className="w-full px-4 py-3 border-2 border-[#d1d5db] rounded-xl text-lg font-semibold text-[#0f172a] focus:border-[#432c9e] focus:outline-none transition-colors"
+              />
             </div>
           </div>
 
