@@ -1004,30 +1004,6 @@ export function PricingCalculator({ accounts = [], borrowerData = {} }) {
           {/* Option C: Aligned Table Comparison */}
           {comparisonDesign === 'C' && (
             <div className="p-4">
-              {/* Scenario Radio Buttons */}
-              <div className="flex items-center justify-center gap-2 mb-6">
-                <span className="text-sm text-neutral-d1 mr-2">Compare with:</span>
-                {scenarios.filter(s => !s.isPresent).map((s) => (
-                  <label 
-                    key={s.id}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer transition-all ${
-                      selectedScenario === s.id 
-                        ? 'bg-[#432c9e] text-white' 
-                        : 'bg-neutral-l4 text-neutral-d1 hover:bg-[#edeffe]'
-                    }`}
-                  >
-                    <input 
-                      type="radio" 
-                      name="scenario" 
-                      checked={selectedScenario === s.id}
-                      onChange={() => setSelectedScenario(s.id)}
-                      className="sr-only"
-                    />
-                    <span className="text-sm font-medium">{s.name}</span>
-                  </label>
-                ))}
-              </div>
-              
               {/* Aligned Comparison Table */}
               <div className="border border-neutral-l3 rounded-lg overflow-hidden">
                 {/* Table Header */}
