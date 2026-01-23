@@ -27,6 +27,7 @@ export function ChartPreview({ chartType, data }) {
     // Configurable chart parameters - use props from main UI if available
     const [compoundRate, setCompoundRate] = useState(chartConfig.compoundRate || 7);
     const [acceleratedPaymentPercent, setAcceleratedPaymentPercent] = useState(chartConfig.acceleratedPercent || 100);
+    const [extraPaymentAmount, setExtraPaymentAmount] = useState(null); // Direct dollar amount override
     const [cashFlowMonths, setCashFlowMonths] = useState(chartConfig.cashFlowMonths || 2);
     const [taxRate, setTaxRate] = useState(chartConfig.taxRate || 25);
     const [grossMonthlyIncome, setGrossMonthlyIncome] = useState(chartConfig.grossIncome || 12000);
@@ -567,7 +568,10 @@ export function ChartPreview({ chartType, data }) {
             case 'accelerated-payoff':
                 // Calculate how much faster they can pay off the loan with configurable extra payment
                 const maxExtraPayment = analysisData.monthlySavings || 657;
-                const extraPayment = Math.round((acceleratedPaymentPercent / 100) * maxExtraPayment);
+                // Use direct amount if set, otherwise calculate from percentage
+                const extraPayment = extraPaymentAmount !== null 
+                    ? extraPaymentAmount 
+                    : Math.round((acceleratedPaymentPercent / 100) * maxExtraPayment);
                 const loanAmt = analysisData.newLoanAmount || 628000;
                 const loanRate = (analysisData.rate || 7.0) / 100 / 12;
                 const originalTerm = 30; // years
@@ -595,12 +599,20 @@ export function ChartPreview({ chartType, data }) {
                 const originalTotalInterest = (originalPI * originalPayments) - loanAmt;
                 const interestSaved = originalTotalInterest - totalInterestWithExtra;
                 
-                // Handler for updating extra payment from input
+                // Handler for updating extra payment from direct input
                 const handleExtraPaymentChange = (newValue) => {
-                    const numValue = Math.max(0, Math.min(newValue, maxExtraPayment * 2)); // Allow up to 200%
-                    const newPercent = Math.round((numValue / maxExtraPayment) * 100);
-                    setAcceleratedPaymentPercent(newPercent);
+                    const numValue = Math.max(0, parseInt(newValue) || 0);
+                    setExtraPaymentAmount(numValue);
                 };
+                
+                // Handler for percentage buttons - resets to percentage mode
+                const handlePercentClick = (pct) => {
+                    setExtraPaymentAmount(null); // Clear direct amount
+                    setAcceleratedPaymentPercent(pct);
+                };
+                
+                // Calculate current percentage for display
+                const currentPercent = Math.round((extraPayment / maxExtraPayment) * 100);
                 
                 return (
                     <div className="h-full flex flex-col">
@@ -618,22 +630,21 @@ export function ChartPreview({ chartType, data }) {
                                     <input
                                         type="number"
                                         value={extraPayment}
-                                        onChange={(e) => handleExtraPaymentChange(parseInt(e.target.value) || 0)}
-                                        className="text-3xl font-bold text-purple-700 bg-transparent border-b-2 border-purple-300 focus:border-purple-500 outline-none w-24 text-center appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                        onChange={(e) => handleExtraPaymentChange(e.target.value)}
+                                        className="text-3xl font-bold text-purple-700 bg-transparent border-b-2 border-purple-300 focus:border-purple-500 outline-none w-28 text-center appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                                         min="0"
-                                        max={maxExtraPayment * 2}
                                     />
                                 </div>
-                                <p className="text-xs text-purple-500 mt-2">{acceleratedPaymentPercent}% of your ${maxExtraPayment.toLocaleString()} savings</p>
+                                <p className="text-xs text-purple-500 mt-2">{currentPercent}% of your ${maxExtraPayment.toLocaleString()} savings</p>
                                 
                                 {/* Quick adjustment buttons */}
                                 <div className="flex items-center justify-center gap-2 mt-3">
                                     {[25, 50, 75, 100].map(pct => (
                                         <button
                                             key={pct}
-                                            onClick={() => setAcceleratedPaymentPercent(pct)}
+                                            onClick={() => handlePercentClick(pct)}
                                             className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
-                                                acceleratedPaymentPercent === pct 
+                                                extraPaymentAmount === null && acceleratedPaymentPercent === pct 
                                                     ? 'bg-purple-600 text-white' 
                                                     : 'bg-white text-purple-600 border border-purple-300 hover:bg-purple-100'
                                             }`}
