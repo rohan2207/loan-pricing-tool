@@ -12,6 +12,9 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
   const [loanAmount, setLoanAmount] = useState(200000);
   const [debts, setDebts] = useState(150000);
   const [cashout, setCashout] = useState(50000);
+  const [occupancy, setOccupancy] = useState('Primary');
+  const [propertyType, setPropertyType] = useState('Single Family');
+  const [units, setUnits] = useState(1);
   
   // Rate selection state (appears after calculate)
   const [calculated, setCalculated] = useState(false);
@@ -20,6 +23,9 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
   // Options
   const programs = ['Conventional', 'FHA', 'VA'];
   const terms = [30, 20, 15];
+  const occupancyOptions = ['Primary', 'Second Home', 'Investment'];
+  const propertyTypes = ['Single Family', 'Condo', 'Townhouse', 'Multi-Family'];
+  const unitOptions = [1, 2, 3, 4];
   const ltvMarks = [0, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
 
   // Rate options (5 total: 2 buy-down, 1 par, 2 credit)
@@ -146,6 +152,57 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                   {term}
                 </PillButton>
               ))}
+            </div>
+          </div>
+
+          {/* Occupancy, Property Type, Units - Combined Row */}
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            {/* Occupancy */}
+            <div className="border border-[#e5e7eb] rounded-xl p-4">
+              <label className="text-sm font-semibold text-[#1e1b4b] block mb-3">Occupancy</label>
+              <div className="flex flex-col gap-2">
+                {occupancyOptions.map((occ) => (
+                  <PillButton
+                    key={occ}
+                    selected={occupancy === occ}
+                    onClick={() => setOccupancy(occ)}
+                  >
+                    {occ}
+                  </PillButton>
+                ))}
+              </div>
+            </div>
+
+            {/* Property Type */}
+            <div className="border border-[#e5e7eb] rounded-xl p-4">
+              <label className="text-sm font-semibold text-[#1e1b4b] block mb-3">Property Type</label>
+              <div className="flex flex-col gap-2">
+                {propertyTypes.map((type) => (
+                  <PillButton
+                    key={type}
+                    selected={propertyType === type}
+                    onClick={() => setPropertyType(type)}
+                  >
+                    {type}
+                  </PillButton>
+                ))}
+              </div>
+            </div>
+
+            {/* Number of Units */}
+            <div className="border border-[#e5e7eb] rounded-xl p-4">
+              <label className="text-sm font-semibold text-[#1e1b4b] block mb-3">Number of Units</label>
+              <div className="flex flex-col gap-2">
+                {unitOptions.map((unit) => (
+                  <PillButton
+                    key={unit}
+                    selected={units === unit}
+                    onClick={() => setUnits(unit)}
+                  >
+                    {unit} {unit === 1 ? 'Unit' : 'Units'}
+                  </PillButton>
+                ))}
+              </div>
             </div>
           </div>
 
