@@ -7,17 +7,17 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    
+
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-    
+
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
         return res.status(500).json({ error: 'OpenAI API key not configured', errorCode: 'API_KEY_MISSING' });
     }
-    
+
     const client = new OpenAI({ apiKey });
-    const property = req.body;
+        const property = req.body;
     const startTime = Date.now();
     
     const address = property.address || '2116 Shrewsbury Dr';
@@ -30,11 +30,11 @@ export default async function handler(req, res) {
     const yearBuilt = property.yearBuilt || 2017;
     const internalValue = property.internalValue || 750000;
     const fullAddress = `${address}, ${city}, ${state} ${zip}`;
-    
+
     console.log('══════════════════════════════════════════════');
     console.log('🏠 AVM - GPT-4 Property Values:', fullAddress);
     console.log('══════════════════════════════════════════════');
-    
+
     try {
         const response = await client.chat.completions.create({
             model: 'gpt-4o',
@@ -125,7 +125,7 @@ Provide complete analysis in this JSON structure:
         
         const content = response.choices[0]?.message?.content || '{}';
         console.log('📥 GPT Response:', content);
-        
+
         let parsed;
         try {
             parsed = JSON.parse(content);
@@ -177,7 +177,7 @@ Provide complete analysis in this JSON structure:
         console.log(`📊 Found ${sources.length} sources`);
         console.log(`💰 Range: $${minValue.toLocaleString()} - $${maxValue.toLocaleString()}`);
         console.log(`📈 Average: $${avgValue.toLocaleString()}`);
-        
+            
         // PIW calculations - use AI recommendation or calculate
         // Rate/Term Max = 90% of PIW value, Cash-Out Max = 70% of PIW value
         const piwPrimaryValue = piwRec.primary_piw_value || mostLikelyValue;
@@ -304,11 +304,11 @@ Provide complete analysis in this JSON structure:
         console.log(`⏱️ Complete in ${Date.now() - startTime}ms`);
         
         return res.status(200).json(uiResponse);
-        
+
     } catch (error) {
         console.error('❌ Error:', error.message);
         
-        return res.status(500).json({
+        return res.status(500).json({ 
             error: error.message,
             errorCode: 'API_ERROR'
         });

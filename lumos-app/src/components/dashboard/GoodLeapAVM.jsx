@@ -95,7 +95,7 @@ export function GoodLeapAVM({ borrowerData, onClose, onValueChange, embedded = f
                     timestamp: err.timestamp
                 });
             } else {
-                setError(err.message || 'Failed to fetch valuations');
+            setError(err.message || 'Failed to fetch valuations');
                 setErrorDetails({
                     code: 'UNKNOWN_ERROR',
                     details: err.stack,
@@ -608,17 +608,17 @@ Reason: ${avmData.aus_recommended?.reason}
                                                                         {source.notes}
                                                                     </p>
                                                                 )}
-                                                            </div>
+                                    </div>
                                                         ))}
-                                                    </div>
-                                                </div>
+                                    </div>
+                                    </div>
                                             )}
 
                                             {/* No sources found */}
                                             {allSources.length === 0 && (
                                                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center">
                                                     <p className="text-sm text-slate-600">No valuation sources found</p>
-                                                </div>
+                                    </div>
                                             )}
                                         </>
                                     );

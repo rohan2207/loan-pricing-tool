@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CircleAlert, Pencil, Check, ChevronDown, ChevronRight, X, Settings2, SlidersHorizontal, ExternalLink, Maximize2, ChevronLeft, ArrowRight, CreditCard, TrendingUp, DollarSign, Clock, BarChart3 } from 'lucide-react';
+import { CircleAlert, Pencil, Check, ChevronDown, ChevronRight, X, Settings2, SlidersHorizontal, ExternalLink, Maximize2, ChevronLeft, ArrowRight, CreditCard, TrendingUp, DollarSign, Clock, BarChart3, ToggleLeft, ToggleRight } from 'lucide-react';
 
 // Slide-out Panel Component for Loan Details
 function LoanDetailsPanel({ isOpen, onClose }) {
@@ -191,31 +191,6 @@ function LoanDetailsPanel({ isOpen, onClose }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">Cost of Improvements</label>
-                <input
-                  type="text"
-                  value={costOfImprovements}
-                  onChange={(e) => setCostOfImprovements(e.target.value)}
-                  placeholder="$"
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm"
-                />
-              </div>
-              <div className="col-span-2 flex items-end">
-                <button
-                  onClick={() => setSubordinateFinancing(!subordinateFinancing)}
-                  className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
-                    subordinateFinancing 
-                      ? 'bg-[#c9a227] text-white' 
-                      : 'bg-white border-2 border-[#c9a227] text-[#c9a227] hover:bg-[#fff4b3]'
-                  }`}
-                >
-                  Subordinate Financing
-                </button>
-              </div>
-            </div>
-
             {/* LTV Display */}
             <div className="grid grid-cols-3 gap-4 pt-2">
               <div className="text-center">
@@ -229,205 +204,6 @@ function LoanDetailsPanel({ isOpen, onClose }) {
               <div className="text-center">
                 <div className="text-xs text-neutral-l1">HCLTV</div>
                 <div className="text-lg font-bold text-[#0f172b]">33.75%</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Borrower Information Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-bold text-[#c9a227] uppercase tracking-wide border-b-2 border-[#c9a227] pb-2">
-              Borrower Information
-            </h3>
-            
-            <div className="grid grid-cols-4 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-[#c9a227]">Loan Level FICO</label>
-                <input
-                  type="text"
-                  value={fico}
-                  onChange={(e) => setFico(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-[#c9a227]">DTI Ratio</label>
-                <div className="flex items-center gap-1">
-                  <input
-                    type="text"
-                    value={dti}
-                    onChange={(e) => setDti(e.target.value)}
-                    className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm"
-                  />
-                  <span className="text-sm text-neutral-l1">%</span>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">Properties Financed</label>
-                <input
-                  type="text"
-                  value={propertiesFinanced}
-                  onChange={(e) => setPropertiesFinanced(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">Cash-Out Amount</label>
-                <input
-                  type="text"
-                  value={cashOutAmount}
-                  onChange={(e) => setCashOutAmount(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">Reserve Months</label>
-                <input
-                  type="text"
-                  value={reserveMonths}
-                  onChange={(e) => setReserveMonths(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">Citizenship</label>
-                <select 
-                  value={citizenship}
-                  onChange={(e) => setCitizenship(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-white"
-                >
-                  <option>U.S. Citizen</option>
-                  <option>Permanent Resident</option>
-                  <option>Non-Permanent Resident</option>
-                </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">Monthly Qualifying Income</label>
-                <input
-                  type="text"
-                  value={monthlyQualifyingIncome}
-                  onChange={(e) => setMonthlyQualifyingIncome(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Property Information Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-bold text-[#2563eb] uppercase tracking-wide border-b-2 border-[#2563eb] pb-2">
-              Property Information
-            </h3>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-[#2563eb]">Occupancy</label>
-                <select 
-                  value={occupancy}
-                  onChange={(e) => setOccupancy(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-white"
-                >
-                  <option>Primary Residence</option>
-                  <option>Second Home</option>
-                  <option>Investment Property</option>
-                </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-[#2563eb]">Property Type</label>
-                <select 
-                  value={propertyType}
-                  onChange={(e) => setPropertyType(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-neutral-l5"
-                >
-                  <option>Single Family</option>
-                  <option>Condo</option>
-                  <option>Townhouse</option>
-                  <option>Multi-Family</option>
-                  <option>Manufactured</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-[#2563eb]">Number of Units</label>
-                <select 
-                  value={numberOfUnits}
-                  onChange={(e) => setNumberOfUnits(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-white"
-                >
-                  <option>1 Unit</option>
-                  <option>2 Units</option>
-                  <option>3 Units</option>
-                  <option>4 Units</option>
-                </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">Number of Stories</label>
-                <input
-                  type="text"
-                  value={numberOfStories}
-                  onChange={(e) => setNumberOfStories(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-neutral-l5"
-                  readOnly
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">Property Address</label>
-                <input
-                  type="text"
-                  value={propertyAddress}
-                  onChange={(e) => setPropertyAddress(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">Property City</label>
-                <input
-                  type="text"
-                  value={propertyCity}
-                  onChange={(e) => setPropertyCity(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">Property Zip</label>
-                <input
-                  type="text"
-                  value={propertyZip}
-                  onChange={(e) => setPropertyZip(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">State</label>
-                <select 
-                  value={propertyState}
-                  onChange={(e) => setPropertyState(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-white"
-                >
-                  <option>North Carolina (NC)</option>
-                  <option>California (CA)</option>
-                  <option>Texas (TX)</option>
-                </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">County</label>
-                <select 
-                  value={propertyCounty}
-                  onChange={(e) => setPropertyCounty(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-white"
-                >
-                  <option>Forsyth</option>
-                </select>
               </div>
             </div>
           </div>
@@ -449,300 +225,108 @@ function LoanDetailsPanel({ isOpen, onClose }) {
           </button>
         </div>
       </div>
-
-      {/* Funding Fee Modal */}
-      {showFundingFeeModal && (
-        <>
-          <div 
-            className="fixed inset-0 bg-black/50 z-[60]"
-            onClick={() => setShowFundingFeeModal(false)}
-          />
-          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-lg shadow-2xl z-[70] p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-[#0f172b]">Total Loan Amount</h3>
-              <button 
-                onClick={() => setShowFundingFeeModal(false)}
-                className="p-1 hover:bg-neutral-l4 rounded"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={subsequentUse}
-                    onChange={(e) => setSubsequentUse(e.target.checked)}
-                    className="w-4 h-4"
-                  />
-                  Subsequent Use
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={exemptFromFundingFee}
-                    onChange={(e) => setExemptFromFundingFee(e.target.checked)}
-                    className="w-4 h-4"
-                  />
-                  Exempt from Funding Fee
-                </label>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-neutral-d1">Funding Fee</label>
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="text"
-                      value={fundingFeePercent}
-                      onChange={(e) => setFundingFeePercent(e.target.value)}
-                      className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm"
-                    />
-                    <span className="text-sm">%</span>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-neutral-d1">Funding Fee Amount</label>
-                  <input
-                    type="text"
-                    value={fundingFeeAmount}
-                    className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-neutral-l5"
-                    readOnly
-                  />
-                </div>
-              </div>
-
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={financeEntireFundingFee}
-                  onChange={(e) => setFinanceEntireFundingFee(e.target.checked)}
-                  className="w-4 h-4 accent-[#432c9e]"
-                />
-                Finance Entire Funding Fee
-              </label>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-neutral-d1">Fee Paid in Cash</label>
-                  <input
-                    type="text"
-                    value={feePaidInCash}
-                    className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-neutral-l5"
-                    readOnly
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-neutral-d1">Fee Financed</label>
-                  <input
-                    type="text"
-                    value={feeFinanced}
-                    className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-neutral-l5"
-                    readOnly
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 pt-2 border-t border-neutral-l3">
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-neutral-d1">Base Loan Amount</label>
-                  <input
-                    type="text"
-                    value={`$${baseLoanAmount}`}
-                    className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-neutral-l5"
-                    readOnly
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-neutral-d1">Total Loan Amount</label>
-                  <input
-                    type="text"
-                    value={`$${totalLoanAmount}`}
-                    className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-neutral-l5 font-bold"
-                    readOnly
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4">
-                <button
-                  onClick={() => setShowFundingFeeModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-neutral-d1 bg-white border border-neutral-l3 rounded hover:bg-neutral-l4"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => setShowFundingFeeModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-white bg-[#432c9e] rounded hover:bg-[#362480]"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
     </>
-  );
-}
-
-// Advanced Options Collapsible Section
-function AdvancedOptionsSection({ title, children, defaultOpen = false }) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-  
-  return (
-    <div className="border border-neutral-l3 rounded overflow-hidden">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 flex items-center justify-between bg-neutral-l5 hover:bg-neutral-l4 transition-colors"
-      >
-        <div className="flex items-center gap-2">
-          <Settings2 className="w-4 h-4 text-[#432c9e]" />
-          <span className="text-sm font-semibold text-[#0f172b]">{title}</span>
-        </div>
-        <ChevronDown className={`w-5 h-5 text-neutral-d1 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-      {isOpen && (
-        <div className="p-4 bg-white border-t border-neutral-l3">
-          {children}
-        </div>
-      )}
-    </div>
   );
 }
 
 export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectChart }) {
   // State for form values
-  const [escrowsEnabled, setEscrowsEnabled] = useState(true);
   const [selectedProgram, setSelectedProgram] = useState('Conventional');
   const [selectedTerm, setSelectedTerm] = useState(30);
-  const [ltv, setLtv] = useState(9);
-  const [loanAmount, setLoanAmount] = useState('71,494');
-  const [cashout, setCashout] = useState('');
-  const [taxes, setTaxes] = useState(0);
-  const [insurance, setInsurance] = useState(66);
-  const [extraPayment, setExtraPayment] = useState(0);
+  const [loanAmount, setLoanAmount] = useState(350000);
+  const [propertyValue, setPropertyValue] = useState(460000);
+  const [cashoutAmount, setCashoutAmount] = useState(15000);
+  const [fico, setFico] = useState(720);
+  const [dti, setDti] = useState(32);
+  const [occupancy, setOccupancy] = useState('Primary');
+  const [propertyType, setPropertyType] = useState('Single Family');
+  
+  // Rate search state
+  const [ratesLoaded, setRatesLoaded] = useState(false);
+  const [selectedRateIndex, setSelectedRateIndex] = useState(2); // Par rate default (middle)
+  
+  // Cash Out section state
+  const [feePercent, setFeePercent] = useState(1);
+  const [escrowsEnabled, setEscrowsEnabled] = useState(true);
   
   // Slide-out panel state
   const [showLoanDetails, setShowLoanDetails] = useState(false);
+
+  // Monthly taxes and insurance (for escrow calculation)
+  const monthlyTaxes = 450;
+  const monthlyInsurance = 120;
   
-  // Design option for Present vs Proposed comparison (A, B, C, D)
-  const [comparisonDesign, setComparisonDesign] = useState('B');
-  
-  // Selected scenario for presentation
-  const [selectedScenario, setSelectedScenario] = useState(1);
-  
-  // Carousel position for Option D
-  const [carouselIndex, setCarouselIndex] = useState(0);
+  // Calculate LTV
+  const ltv = Math.round((loanAmount / propertyValue) * 100);
 
-  // Listen for messages from popout window
-  useEffect(() => {
-    const handleMessage = (event) => {
-      if (event.data?.type === 'LOAN_DETAILS_UPDATE') {
-        console.log('Received loan details update from popout:', event.data.data);
-        // Here you could update the local state with the popout data
-        // For now, we'll show a notification
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
-
-  // Calculate totals from accounts
-  const totalDebts = accounts
-    .filter(a => a.willPay)
-    .reduce((sum, a) => sum + (parseFloat(String(a.balance).replace(/[$,]/g, '')) || 0), 0);
-  
-  const totalMonthlyPayments = accounts
-    .filter(a => a.willPay)
-    .reduce((sum, a) => sum + (parseFloat(String(a.payment).replace(/[$,]/g, '')) || 0), 0);
-
-  // Present mortgage values
-  const presentMortgage = 123;
-  const currentPayment = 4130;
-
-  // Proposed mortgage values
-  const proposedMortgage = 0;
-  const discount = 0;
-  const mortgageInsurance = 0;
-  const newPayment = proposedMortgage + taxes + insurance + mortgageInsurance;
-
-  // Value propositions
-  const monthlySavings = currentPayment - newPayment;
-  const annualSavings = monthlySavings * 12;
-  const yearsSaved = 0;
-  const interestSaved = 0;
-  const estCashBack = 0;
-
-  const programs = ['Conventional', 'FHA', 'VA'];
+  // Programs and terms
+  const programs = ['Conventional', 'FHA', 'VA', 'USDA'];
   const terms = [30, 20, 15, 10];
   
-  // Mock scenario data for comparison
-  const scenarios = [
-    {
-      id: 0,
-      name: 'Current',
-      label: 'Present',
-      payment: currentPayment,
-      pi: 1710,
-      taxes: 450,
-      insurance: 120,
-      mi: 0,
-      debts: totalMonthlyPayments,
-      rate: 3.75,
-      term: 30,
-      savings: 0,
-      isPresent: true
-    },
-    {
-      id: 1,
-      name: 'Best Rate',
-      label: 'Scenario 1',
-      payment: 4171,
-      pi: 3447,
-      taxes: 450,
-      insurance: 120,
-      mi: 154,
-      debts: 0,
-      rate: 6.875,
-      term: 30,
-      savings: currentPayment - 4171,
-      cashout: 15000
-    },
-    {
-      id: 2,
-      name: 'Lower Payment',
-      label: 'Scenario 2',
-      payment: 3890,
-      pi: 3150,
-      taxes: 450,
-      insurance: 120,
-      mi: 170,
-      debts: 0,
-      rate: 7.25,
-      term: 30,
-      savings: currentPayment - 3890,
-      cashout: 0
-    },
-    {
-      id: 3,
-      name: 'Max Cash Out',
-      label: 'Scenario 3',
-      payment: 4450,
-      pi: 3726,
-      taxes: 450,
-      insurance: 120,
-      mi: 154,
-      debts: 0,
-      rate: 7.0,
-      term: 30,
-      savings: currentPayment - 4450,
-      cashout: 45000
-    }
+  // Rate options (5 total: 2 buy-down, 1 par, 2 credit)
+  const rateOptions = [
+    { payment: 3368, rate: 6.625, points: -1, label: '1 Pts', sublabel: '-$5,250', type: 'buydown' },
+    { payment: 3456, rate: 6.875, points: -0.5, label: '0.5 Pts', sublabel: '-$2,625', type: 'buydown' },
+    { payment: 3500, rate: 7.000, points: 0, label: 'Par Rate', sublabel: '', type: 'par' },
+    { payment: 3544, rate: 7.125, points: 0.5, label: '0.5 Pts Credit', sublabel: '+$2,625', type: 'credit' },
+    { payment: 3633, rate: 7.375, points: 1, label: '1 Pts Credit', sublabel: '+$5,250', type: 'credit' },
   ];
+
+  // Present scenario (current situation)
+  const presentScenario = {
+    pi: 1710,
+    taxes: monthlyTaxes,
+    insurance: monthlyInsurance,
+    mi: 0,
+    debtsPaid: accounts.filter(a => a.willPay).reduce((sum, a) => sum + (parseFloat(String(a.payment).replace(/[$,]/g, '')) || 0), 0) || 4156,
+    debtsNotPaid: accounts.filter(a => !a.willPay).reduce((sum, a) => sum + (parseFloat(String(a.payment).replace(/[$,]/g, '')) || 0), 0) || 523,
+  };
+  presentScenario.mortgageTotal = presentScenario.pi + presentScenario.taxes + presentScenario.insurance + presentScenario.mi;
+  presentScenario.total = presentScenario.mortgageTotal + presentScenario.debtsPaid + presentScenario.debtsNotPaid;
+
+  // Proposed scenario (based on selected rate)
+  const selectedRate = rateOptions[selectedRateIndex];
+  const proposedScenario = {
+    pi: selectedRate?.payment || 3500,
+    taxes: monthlyTaxes,
+    insurance: monthlyInsurance,
+    mi: ltv > 80 ? 154 : 0,
+    debtsPaid: 0, // Paid off with refi
+    debtsNotPaid: presentScenario.debtsNotPaid, // Same - not being paid
+  };
+  proposedScenario.mortgageTotal = proposedScenario.pi + proposedScenario.taxes + proposedScenario.insurance + proposedScenario.mi;
+  proposedScenario.total = proposedScenario.mortgageTotal + proposedScenario.debtsPaid + proposedScenario.debtsNotPaid;
+
+  // Monthly savings calculation
+  const monthlySavings = presentScenario.total - proposedScenario.total;
+
+  // Cash Out Calculations
+  const pointsValue = (selectedRate?.points || 0) * loanAmount * 0.01;
+  const feesAmount = (feePercent / 100) * loanAmount;
+  const escrowAmount = escrowsEnabled ? 6 * (monthlyTaxes + monthlyInsurance) : 0;
+  const startingCash = cashoutAmount + pointsValue;
+  const cashToFromBorrower = startingCash - feesAmount - escrowAmount;
+
+  // Debts data
+  const debtsPaidList = accounts.filter(a => a.willPay);
+  const debtsNotPaidList = accounts.filter(a => !a.willPay);
+  
+  // Default debts if none provided
+  const defaultDebtsPaid = [
+    { creditor: 'Chase Visa', payment: 450, balance: 12500 },
+    { creditor: 'Bank of America', payment: 380, balance: 8900 },
+    { creditor: 'Car Loan', payment: 520, balance: 18000 },
+  ];
+  const defaultDebtsNotPaid = [
+    { creditor: 'Student Loan', payment: 350, balance: 45000 },
+    { creditor: 'Personal Loan', payment: 173, balance: 5200 },
+  ];
+
+  const displayDebtsPaid = debtsPaidList.length > 0 ? debtsPaidList : defaultDebtsPaid;
+  const displayDebtsNotPaid = debtsNotPaidList.length > 0 ? debtsNotPaidList : defaultDebtsNotPaid;
+
+  const totalDebtsPaidPayment = displayDebtsPaid.reduce((s, d) => s + (parseFloat(String(d.payment).replace(/[$,]/g, '')) || 0), 0);
+  const totalDebtsNotPaidPayment = displayDebtsNotPaid.reduce((s, d) => s + (parseFloat(String(d.payment).replace(/[$,]/g, '')) || 0), 0);
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-US', { 
@@ -753,354 +337,487 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
     }).format(value);
   };
 
+  const handleSearchRates = () => {
+    setRatesLoaded(true);
+    setSelectedRateIndex(2); // Default to Par
+  };
+
   return (
-    <div className="px-6 py-6">
-      <div className="flex flex-col gap-4 p-5 bg-white rounded-3xl">
-        {/* Header with Loan Details Buttons */}
+    <div className="px-6 py-4">
+      <div className="flex flex-col gap-4 p-4 bg-white rounded-2xl">
+        {/* Header */}
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-bold text-[#0f172b] rounded px-2 py-1">Calculators</h2>
+          <div>
+            <h2 className="text-xl font-bold text-[#0f172b]">Loan Pricing Calculator</h2>
+            <p className="text-xs text-neutral-l1">Configure loan parameters and compare scenarios</p>
+          </div>
           <div className="flex items-center gap-2">
-            {/* Pop Out to New Window Button */}
-            <button
-              onClick={() => {
-                const popoutWindow = window.open(
-                  window.location.origin + '?view=loan-details-popout',
-                  'LoanDetails',
-                  'width=700,height=800,scrollbars=yes,resizable=yes'
-                );
-                if (popoutWindow) {
-                  popoutWindow.focus();
-                }
-              }}
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#432c9e] bg-white border-2 border-[#432c9e] hover:bg-[#edeffe] rounded-lg transition-colors"
-              title="Open in new window"
-            >
-              <Maximize2 className="w-4 h-4" />
-              <span>Pop Out</span>
-            </button>
-            {/* Slide Panel Button */}
             <button
               onClick={() => setShowLoanDetails(true)}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#432c9e] hover:bg-[#362480] rounded-lg transition-colors shadow-sm"
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#432c9e] bg-[#edeffe] border-2 border-[#432c9e] hover:bg-[#dbdbfc] rounded-full transition-colors"
             >
               <SlidersHorizontal className="w-4 h-4" />
               <span>Loan Details</span>
-              <ExternalLink className="w-3.5 h-3.5 opacity-70" />
             </button>
           </div>
         </div>
 
-        {/* Important Disclaimer Banner - Compact */}
-        <div className="flex gap-2 px-3 py-1.5 bg-[#fff4e5] border border-[#ff8401] rounded text-xs">
-          <CircleAlert className="w-3 h-3 text-[#ff8300] flex-shrink-0 mt-0.5" />
-          <p className="text-[#ff8401]">
-            <span className="font-bold">Important:</span> Estimates only. Credit pull required for accurate pricing.
-          </p>
-        </div>
-
-        {/* Program Selection - BIG & Prominent */}
-        <div className="bg-gradient-to-r from-[#432c9e] to-[#6b5ce7] rounded-xl p-5 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <div>
-                <div className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-2">Select Program</div>
-                <div className="flex gap-2">
-                  {programs.map((program) => (
-                    <button
-                      key={program}
-                      onClick={() => setSelectedProgram(program)}
-                      className={`px-6 py-3 rounded-xl text-base font-bold transition-all ${
-                        selectedProgram === program
-                          ? 'bg-white text-[#432c9e] shadow-lg scale-105'
-                          : 'bg-white/20 text-white hover:bg-white/30 hover:scale-102'
-                      }`}
-                    >
-                      {selectedProgram === program && <Check className="w-5 h-5 inline mr-2" />}
-                      {program}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="w-px h-16 bg-white/20"></div>
-              <div>
-                <div className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-2">Loan Term</div>
-                <div className="flex gap-2">
-                  {terms.map((term) => (
-                    <button
-                      key={term}
-                      onClick={() => setSelectedTerm(term)}
-                      className={`px-5 py-3 rounded-xl text-base font-bold transition-all ${
-                        selectedTerm === term
-                          ? 'bg-white text-[#432c9e] shadow-lg scale-105'
-                          : 'bg-white/20 text-white hover:bg-white/30'
-                      }`}
-                    >
-                      {selectedTerm === term && <Check className="w-5 h-5 inline mr-1" />}
-                      {term}
-                    </button>
-                  ))}
-                </div>
-              </div>
+        {/* ==================== TOP SECTION: Configuration ==================== */}
+        <div className="bg-gradient-to-br from-[#faf9f6] to-[#f5f3ef] border border-[#e8e4dc] rounded-xl p-4 space-y-4">
+          
+          {/* Program Selection - Pill Buttons */}
+          <div className="flex items-center gap-4">
+            <span className="text-xs font-bold text-[#432c9e] uppercase tracking-wider">Program</span>
+            <div className="flex gap-2">
+              {programs.map((program) => (
+                <button
+                  key={program}
+                  onClick={() => setSelectedProgram(program)}
+                  className={`flex items-center gap-1 px-3 py-2 rounded-full text-sm font-bold transition-colors ${
+                    selectedProgram === program
+                      ? 'bg-[#edeffe] border-2 border-[#432c9e] text-[#432c9e]'
+                      : 'bg-white border-2 border-transparent text-neutral-d1 hover:border-neutral-l3'
+                  }`}
+                >
+                  {selectedProgram === program && <Check className="w-4 h-4" />}
+                  <span>{program}</span>
+                </button>
+              ))}
             </div>
-            {/* LTV Display */}
-            <div className="flex items-center gap-4">
-              <div className="flex gap-3">
-                <div className="bg-white/20 rounded-lg px-4 py-2 text-center">
-                  <div className="text-white/70 text-[10px] uppercase">LTV</div>
-                  <div className="text-white text-2xl font-bold">{ltv}%</div>
-                </div>
-                <div className="bg-white/20 rounded-lg px-4 py-2 text-center">
-                  <div className="text-white/70 text-[10px] uppercase">CLTV</div>
-                  <div className="text-white text-2xl font-bold">{ltv}%</div>
-                </div>
-                <div className="bg-white/20 rounded-lg px-4 py-2 text-center">
-                  <div className="text-white/70 text-[10px] uppercase">HCLTV</div>
-                  <div className="text-white text-2xl font-bold">{ltv}%</div>
-                </div>
-              </div>
+            
+            <div className="w-px h-8 bg-neutral-l3 mx-2"></div>
+            
+            <span className="text-xs font-bold text-[#432c9e] uppercase tracking-wider">Term</span>
+            <div className="flex gap-2">
+              {terms.map((term) => (
+                <button
+                  key={term}
+                  onClick={() => setSelectedTerm(term)}
+                  className={`flex items-center gap-1 px-3 py-2 rounded-full text-sm font-bold transition-colors ${
+                    selectedTerm === term
+                      ? 'bg-[#edeffe] border-2 border-[#432c9e] text-[#432c9e]'
+                      : 'bg-white border-2 border-transparent text-neutral-d1 hover:border-neutral-l3'
+                  }`}
+                >
+                  {selectedTerm === term && <Check className="w-4 h-4" />}
+                  <span>{term}yr</span>
+                </button>
+              ))}
             </div>
           </div>
-          {/* LTV Slider */}
-          <div className="mt-4 flex items-center gap-4">
-            <span className="text-white/70 text-xs uppercase">Adjust LTV</span>
-            <input
-              type="range" min="0" max="100" value={ltv}
-              onChange={(e) => setLtv(parseInt(e.target.value))}
-              className="flex-1 h-2 rounded-full appearance-none cursor-pointer"
-              style={{ background: `linear-gradient(to right, white ${ltv}%, rgba(255,255,255,0.3) ${ltv}%)` }}
-            />
-          </div>
-        </div>
 
-        {/* Loan Inputs - Two Row Grid */}
-        <div className="bg-neutral-l5 rounded-lg p-3 space-y-2">
-          {/* Row 1 */}
-          <div className="grid grid-cols-8 gap-2">
+          {/* Input Fields Row */}
+          <div className="grid grid-cols-8 gap-3">
             <div>
-              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Loan Amt</label>
-              <input type="text" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)}
-                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Loan Amount</label>
+              <input 
+                type="text" 
+                value={loanAmount.toLocaleString()} 
+                onChange={(e) => setLoanAmount(parseInt(e.target.value.replace(/,/g, '')) || 0)}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white font-medium" 
+              />
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Debts</label>
-              <input type="text" disabled value={totalDebts.toLocaleString()}
-                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-neutral-l4 mt-0.5" />
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Property Value</label>
+              <input 
+                type="text" 
+                value={propertyValue.toLocaleString()} 
+                onChange={(e) => setPropertyValue(parseInt(e.target.value.replace(/,/g, '')) || 0)}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white font-medium" 
+              />
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Cashout</label>
-              <input type="text" value={cashout} onChange={(e) => setCashout(e.target.value)}
-                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">LTV</label>
+              <div className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-neutral-l5 font-bold text-[#432c9e]">
+                {ltv}%
+              </div>
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">DTI</label>
-              <input type="text" defaultValue="23.10%" className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Cash Out</label>
+              <input 
+                type="text" 
+                value={cashoutAmount.toLocaleString()} 
+                onChange={(e) => setCashoutAmount(parseInt(e.target.value.replace(/,/g, '')) || 0)}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white font-medium" 
+              />
             </div>
             <div>
               <label className="text-[10px] font-semibold text-neutral-d1 uppercase">FICO</label>
-              <input type="text" defaultValue="692" className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
+              <input 
+                type="text" 
+                value={fico} 
+                onChange={(e) => setFico(parseInt(e.target.value) || 0)}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white font-medium" 
+              />
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Reserves</label>
-              <input type="text" defaultValue="0" className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white" />
+              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">DTI %</label>
+              <input 
+                type="text" 
+                value={dti} 
+                onChange={(e) => setDti(parseInt(e.target.value) || 0)}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm mt-0.5 bg-white font-medium" 
+              />
             </div>
             <div>
               <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Occupancy</label>
-              <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white mt-0.5">
+              <select 
+                value={occupancy}
+                onChange={(e) => setOccupancy(e.target.value)}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white mt-0.5"
+              >
                 <option>Primary</option>
                 <option>Second Home</option>
                 <option>Investment</option>
               </select>
             </div>
-            <div>
-              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Prop Type</label>
-              <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white mt-0.5">
-                <option>Single Family</option>
-                <option>Condo</option>
-                <option>Townhouse</option>
-                <option>Multi-Family</option>
-              </select>
+            <div className="flex items-end">
+              <button 
+                onClick={handleSearchRates}
+                className="w-full px-4 py-2 bg-[#ff8300] hover:bg-[#e67600] text-white font-bold rounded-lg transition-colors shadow-md text-sm"
+              >
+                Search Rates
+              </button>
             </div>
           </div>
-          {/* Row 2 */}
-          <div className="flex items-end gap-2">
-            <div className="w-24">
-              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Units</label>
-              <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white mt-0.5">
-                <option>1 Unit</option>
-                <option>2 Units</option>
-                <option>3 Units</option>
-                <option>4 Units</option>
-              </select>
+
+          {/* Rate Selection Cards - Only show after search */}
+          {ratesLoaded && (
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-[#ff8300] rounded-full animate-pulse"></div>
+                  <span className="text-sm font-bold text-[#432c9e]">Select Your Rate</span>
+                </div>
+                <span className="text-xs text-neutral-l1">Step 2 of 3</span>
+              </div>
+              
+              <div className="grid grid-cols-5 gap-3">
+                {rateOptions.map((rate, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedRateIndex(index)}
+                    className={`relative p-4 rounded-xl border-2 transition-all ${
+                      selectedRateIndex === index
+                        ? 'border-[#ff8300] bg-[#fff8f0] shadow-lg scale-105'
+                        : 'border-neutral-l3 bg-white hover:border-[#432c9e]/30 hover:shadow'
+                    }`}
+                  >
+                    {rate.type === 'par' && (
+                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-[#ff8300] text-white text-[10px] font-bold rounded-full">
+                        PAR
+                      </div>
+                    )}
+                    <div className="text-center">
+                      <div className={`text-2xl font-bold ${selectedRateIndex === index ? 'text-[#ff8300]' : 'text-[#0f172b]'}`}>
+                        {formatCurrency(rate.payment)}
+                      </div>
+                      <div className={`text-lg font-semibold ${selectedRateIndex === index ? 'text-[#ff8300]' : 'text-[#432c9e]'}`}>
+                        {rate.rate.toFixed(3)}%
+                      </div>
+                      <div className="text-xs text-neutral-l1 mt-1">{rate.label}</div>
+                      {rate.sublabel && (
+                        <div className={`text-xs font-medium mt-0.5 ${rate.type === 'buydown' ? 'text-rose-500' : 'text-green-600'}`}>
+                          {rate.sublabel}
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="w-32">
-              <label className="text-[10px] font-semibold text-neutral-d1 uppercase">Interest Rate</label>
-              <input type="text" placeholder="Search first" disabled
-                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-neutral-l4 mt-0.5 text-neutral-l1" />
-            </div>
-            <div className="flex-1"></div>
-            <button className="px-6 py-2 bg-[#ff8300] hover:bg-[#e67600] text-white font-bold rounded-lg transition-colors whitespace-nowrap shadow-md">
-              Search Rates
-            </button>
-          </div>
+          )}
         </div>
 
-        {/* Present vs Proposed - 50% each */}
+        {/* ==================== BOTTOM SECTION: 50/50 Split ==================== */}
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <div className="bg-white border border-neutral-l3 rounded-lg overflow-hidden">
-              <div className="px-3 py-2 bg-gradient-to-r from-[#432c9e] to-[#6b5ce7] text-white">
-                <h3 className="font-bold text-sm">Present vs Proposed</h3>
+          
+          {/* LEFT 50%: Present vs Proposed Comparison */}
+          <div className="space-y-4">
+            {/* Comparison Table */}
+            <div className="bg-white border border-neutral-l3 rounded-xl overflow-hidden shadow-sm">
+              <div className="px-4 py-3 bg-gradient-to-r from-[#432c9e] to-[#6b5ce7] text-white">
+                <h3 className="font-bold text-sm">Present vs Proposed Comparison</h3>
               </div>
+              
               <table className="w-full text-sm">
                 <thead className="bg-neutral-l5">
                   <tr>
-                    <th className="px-3 py-1.5 text-left font-medium text-neutral-d2"></th>
-                    <th className="px-3 py-1.5 text-right font-medium bg-[#fff8f2] w-24">Present</th>
-                    <th className="px-3 py-1.5 text-right font-medium bg-[#edeffe] text-[#432c9e] w-24">Proposed</th>
+                    <th className="px-4 py-2 text-left font-semibold text-neutral-d2"></th>
+                    <th className="px-4 py-2 text-right font-semibold bg-[#fff8f2] w-28">Present</th>
+                    <th className="px-4 py-2 text-right font-semibold bg-[#edeffe] text-[#432c9e] w-28">Proposed</th>
                   </tr>
                 </thead>
                 <tbody>
+                  {/* Mortgage Section */}
                   <tr className="border-t border-neutral-l3">
-                    <td className="px-3 py-1.5 text-neutral-d1">P&I</td>
-                    <td className="px-3 py-1.5 text-right bg-[#fff8f2]/50">{formatCurrency(scenarios[0].pi)}</td>
-                    <td className="px-3 py-1.5 text-right bg-[#edeffe]/50 text-[#432c9e] font-medium">{formatCurrency(scenarios[selectedScenario]?.pi || 0)}</td>
-                  </tr>
-                  <tr className="border-t border-neutral-l3">
-                    <td className="px-3 py-1.5 text-neutral-d1">Taxes</td>
-                    <td className="px-3 py-1.5 text-right bg-[#fff8f2]/50">{formatCurrency(scenarios[0].taxes)}</td>
-                    <td className="px-3 py-1.5 text-right bg-[#edeffe]/50">{formatCurrency(scenarios[selectedScenario]?.taxes || 0)}</td>
+                    <td className="px-4 py-2 text-neutral-d1">P&I</td>
+                    <td className="px-4 py-2 text-right bg-[#fff8f2]/50">{formatCurrency(presentScenario.pi)}</td>
+                    <td className="px-4 py-2 text-right bg-[#edeffe]/50 font-medium text-[#432c9e]">{formatCurrency(proposedScenario.pi)}</td>
                   </tr>
                   <tr className="border-t border-neutral-l3">
-                    <td className="px-3 py-1.5 text-neutral-d1">Insurance</td>
-                    <td className="px-3 py-1.5 text-right bg-[#fff8f2]/50">{formatCurrency(scenarios[0].insurance)}</td>
-                    <td className="px-3 py-1.5 text-right bg-[#edeffe]/50">{formatCurrency(scenarios[selectedScenario]?.insurance || 0)}</td>
+                    <td className="px-4 py-2 text-neutral-d1">Taxes</td>
+                    <td className="px-4 py-2 text-right bg-[#fff8f2]/50">{formatCurrency(presentScenario.taxes)}</td>
+                    <td className="px-4 py-2 text-right bg-[#edeffe]/50">{formatCurrency(proposedScenario.taxes)}</td>
                   </tr>
                   <tr className="border-t border-neutral-l3">
-                    <td className="px-3 py-1.5 text-neutral-d1">MI/MIP</td>
-                    <td className="px-3 py-1.5 text-right bg-[#fff8f2]/50">{formatCurrency(scenarios[0].mi)}</td>
-                    <td className="px-3 py-1.5 text-right bg-[#edeffe]/50">{formatCurrency(scenarios[selectedScenario]?.mi || 0)}</td>
-                  </tr>
-                  <tr className="border-t-2 border-neutral-l2 bg-neutral-l5/50">
-                    <td className="px-3 py-1.5 font-semibold">Mortgage Total</td>
-                    <td className="px-3 py-1.5 text-right font-bold bg-[#fff8f2]/70">{formatCurrency(scenarios[0].pi + scenarios[0].taxes + scenarios[0].insurance + scenarios[0].mi)}</td>
-                    <td className="px-3 py-1.5 text-right font-bold bg-[#edeffe]/70 text-[#432c9e]">{formatCurrency((scenarios[selectedScenario]?.pi || 0) + (scenarios[selectedScenario]?.taxes || 0) + (scenarios[selectedScenario]?.insurance || 0) + (scenarios[selectedScenario]?.mi || 0))}</td>
+                    <td className="px-4 py-2 text-neutral-d1">Insurance</td>
+                    <td className="px-4 py-2 text-right bg-[#fff8f2]/50">{formatCurrency(presentScenario.insurance)}</td>
+                    <td className="px-4 py-2 text-right bg-[#edeffe]/50">{formatCurrency(proposedScenario.insurance)}</td>
                   </tr>
                   <tr className="border-t border-neutral-l3">
-                    <td className="px-3 py-1.5 text-neutral-d1">Debts Paid Off</td>
-                    <td className="px-3 py-1.5 text-right bg-[#fff8f2]/50 text-rose-600">{formatCurrency(scenarios[0].debts)}</td>
-                    <td className="px-3 py-1.5 text-right bg-[#edeffe]/50 text-green-600">$0 ✓</td>
+                    <td className="px-4 py-2 text-neutral-d1">MI/MIP</td>
+                    <td className="px-4 py-2 text-right bg-[#fff8f2]/50">{formatCurrency(presentScenario.mi)}</td>
+                    <td className="px-4 py-2 text-right bg-[#edeffe]/50">{formatCurrency(proposedScenario.mi)}</td>
                   </tr>
-                  {scenarios[selectedScenario]?.cashout > 0 && (
-                    <tr className="border-t border-neutral-l3">
-                      <td className="px-3 py-1.5 text-neutral-d1">Cash Out</td>
-                      <td className="px-3 py-1.5 text-right bg-[#fff8f2]/50 text-neutral-l1">—</td>
-                      <td className="px-3 py-1.5 text-right bg-[#edeffe]/50 font-bold text-[#432c9e]">{formatCurrency(scenarios[selectedScenario].cashout)}</td>
-                    </tr>
-                  )}
+                  <tr className="border-t-2 border-neutral-l2 bg-neutral-l5/70">
+                    <td className="px-4 py-2 font-bold text-neutral-d2">Mortgage Total</td>
+                    <td className="px-4 py-2 text-right font-bold bg-[#fff8f2]/70">{formatCurrency(presentScenario.mortgageTotal)}</td>
+                    <td className="px-4 py-2 text-right font-bold bg-[#edeffe]/70 text-[#432c9e]">{formatCurrency(proposedScenario.mortgageTotal)}</td>
+                  </tr>
+                  
+                  {/* Debts Being Paid Off */}
+                  <tr className="border-t-2 border-green-200 bg-green-50/50">
+                    <td className="px-4 py-2 font-semibold text-green-800">Debts Being Paid Off</td>
+                    <td className="px-4 py-2 text-right font-bold text-rose-600 bg-[#fff8f2]/50">{formatCurrency(totalDebtsPaidPayment)}</td>
+                    <td className="px-4 py-2 text-right font-bold text-green-600 bg-green-100">$0 ✓</td>
+                  </tr>
+                  
+                  {/* Debts NOT Being Paid Off */}
+                  <tr className="border-t border-amber-200 bg-amber-50/50">
+                    <td className="px-4 py-2 font-semibold text-amber-800">Debts NOT Paid Off</td>
+                    <td className="px-4 py-2 text-right font-medium text-amber-700 bg-[#fff8f2]/50">{formatCurrency(totalDebtsNotPaidPayment)}</td>
+                    <td className="px-4 py-2 text-right font-medium text-amber-700 bg-amber-100">{formatCurrency(totalDebtsNotPaidPayment)}</td>
+                  </tr>
+                  
+                  {/* TOTAL */}
                   <tr className="border-t-2 border-[#432c9e]">
-                    <td className="px-3 py-2 font-bold bg-neutral-l4">TOTAL</td>
-                    <td className="px-3 py-2 text-right font-bold text-lg bg-[#fff8f2]">{formatCurrency(scenarios[0].payment)}</td>
-                    <td className="px-3 py-2 text-right font-bold text-lg bg-[#edeffe] text-[#432c9e]">{formatCurrency(scenarios[selectedScenario]?.payment || 0)}</td>
+                    <td className="px-4 py-3 font-bold text-lg bg-neutral-l4">TOTAL MONTHLY</td>
+                    <td className="px-4 py-3 text-right font-bold text-xl bg-[#fff8f2]">{formatCurrency(presentScenario.total)}</td>
+                    <td className="px-4 py-3 text-right font-bold text-xl bg-[#edeffe] text-[#432c9e]">{formatCurrency(proposedScenario.total)}</td>
                   </tr>
-                  {scenarios[selectedScenario]?.savings !== 0 && (
-                    <tr className={scenarios[selectedScenario]?.savings > 0 ? 'bg-green-50' : 'bg-rose-50'}>
-                      <td className="px-3 py-2 font-bold">{scenarios[selectedScenario]?.savings > 0 ? '💰 Savings' : '⚠️ Increase'}</td>
-                      <td className="px-3 py-2"></td>
-                      <td className={`px-3 py-2 text-right font-bold text-lg ${scenarios[selectedScenario]?.savings > 0 ? 'text-green-600' : 'text-rose-600'}`}>
-                        {scenarios[selectedScenario]?.savings > 0 ? '' : '+'}{formatCurrency(Math.abs(scenarios[selectedScenario]?.savings || 0))}
-                      </td>
-                    </tr>
-                  )}
+                  
+                  {/* Savings Row */}
+                  <tr className={monthlySavings > 0 ? 'bg-green-100' : 'bg-rose-100'}>
+                    <td className="px-4 py-3 font-bold text-lg">
+                      {monthlySavings > 0 ? '💰 Monthly Savings' : '⚠️ Monthly Increase'}
+                    </td>
+                    <td className="px-4 py-3"></td>
+                    <td className={`px-4 py-3 text-right font-bold text-xl ${monthlySavings > 0 ? 'text-green-600' : 'text-rose-600'}`}>
+                      {monthlySavings > 0 ? '' : '+'}{formatCurrency(Math.abs(monthlySavings))}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
-              <div className="p-2 flex justify-end border-t border-neutral-l3">
-                <button className="px-4 py-1.5 bg-[#432c9e] text-white text-sm font-bold rounded hover:bg-[#362480] transition-colors">
-                  ✓ Present
-                </button>
+            </div>
+
+            {/* Cash Out Section */}
+            <div className="bg-white border border-neutral-l3 rounded-xl overflow-hidden shadow-sm">
+              <div className="px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-500 text-white flex items-center justify-between">
+                <h3 className="font-bold text-sm">Cash Out at Closing</h3>
+                <span className="text-xs bg-white/20 px-2 py-1 rounded">Based on {selectedRate?.label || 'Par Rate'}</span>
+              </div>
+              
+              <div className="p-4 space-y-4">
+                {/* Starting Cash */}
+                <div className="flex justify-between items-center py-2 border-b border-neutral-l3">
+                  <span className="text-sm font-medium text-neutral-d1">Starting Cash (from rate)</span>
+                  <span className="text-lg font-bold text-[#432c9e]">{formatCurrency(startingCash)}</span>
+                </div>
+                
+                {/* Discount Points */}
+                <div className="flex justify-between items-center py-2 border-b border-neutral-l3">
+                  <div>
+                    <span className="text-sm font-medium text-neutral-d1">Discount Points</span>
+                    <span className="text-xs text-neutral-l1 ml-2">({selectedRate?.points || 0} pts)</span>
+                  </div>
+                  <span className={`text-sm font-bold ${pointsValue >= 0 ? 'text-green-600' : 'text-rose-600'}`}>
+                    {pointsValue >= 0 ? '+' : ''}{formatCurrency(pointsValue)}
+                  </span>
+                </div>
+                
+                {/* Fees */}
+                <div className="py-2 border-b border-neutral-l3">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-neutral-d1">Fees ({feePercent}%)</span>
+                    <span className="text-sm font-bold text-rose-600">-{formatCurrency(feesAmount)}</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="1" 
+                    max="2" 
+                    step="0.1"
+                    value={feePercent}
+                    onChange={(e) => setFeePercent(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-neutral-l3 rounded-full appearance-none cursor-pointer accent-[#432c9e]"
+                  />
+                  <div className="flex justify-between text-xs text-neutral-l1 mt-1">
+                    <span>1%</span>
+                    <span>2%</span>
+                  </div>
+                </div>
+                
+                {/* Escrows */}
+                <div className="py-2 border-b border-neutral-l3">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-neutral-d1">Escrows (6 mo T&I)</span>
+                      <button
+                        onClick={() => setEscrowsEnabled(!escrowsEnabled)}
+                        className={`relative w-10 h-5 rounded-full transition-colors ${escrowsEnabled ? 'bg-[#432c9e]' : 'bg-neutral-l3'}`}
+                      >
+                        <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${escrowsEnabled ? 'translate-x-5' : 'translate-x-0.5'}`}></div>
+                      </button>
+                    </div>
+                    <span className={`text-sm font-bold ${escrowsEnabled ? 'text-rose-600' : 'text-neutral-l1 line-through'}`}>
+                      -{formatCurrency(escrowAmount)}
+                    </span>
+                  </div>
+                  {escrowsEnabled && (
+                    <p className="text-xs text-neutral-l1 mt-1">6 months × ({formatCurrency(monthlyTaxes)} taxes + {formatCurrency(monthlyInsurance)} ins)</p>
+                  )}
+                  {!escrowsEnabled && (
+                    <p className="text-xs text-amber-600 mt-1">⚠️ Impounds not required</p>
+                  )}
+                </div>
+                
+                {/* Final Cash */}
+                <div className="flex justify-between items-center pt-2">
+                  <span className="text-base font-bold text-neutral-d2">
+                    {cashToFromBorrower >= 0 ? 'Cash to Borrower' : 'Cash from Borrower'}
+                  </span>
+                  <span className={`text-2xl font-bold ${cashToFromBorrower >= 0 ? 'text-green-600' : 'text-rose-600'}`}>
+                    {formatCurrency(Math.abs(cashToFromBorrower))}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Right Side - Charts & Debts NOT Being Paid */}
+          {/* RIGHT 50%: Charts */}
           <div className="space-y-4">
-            {/* Charts Section */}
-            <div className="bg-white border border-neutral-l3 rounded-lg overflow-hidden">
-              <div className="px-3 py-2 bg-gradient-to-r from-stone-600 to-stone-500 text-white flex items-center gap-2">
+            {/* Chart Buttons */}
+            <div className="bg-white border border-neutral-l3 rounded-xl overflow-hidden shadow-sm">
+              <div className="px-4 py-3 bg-gradient-to-r from-stone-700 to-stone-600 text-white flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
-                <h3 className="font-bold text-sm">Quick Charts</h3>
+                <h3 className="font-bold text-sm">Presentation Charts</h3>
               </div>
+              
               <div className="p-4 grid grid-cols-2 gap-3">
                 <button
                   onClick={() => onSelectChart?.('debt-worksheet')}
-                  className="flex flex-col items-center justify-center p-4 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition-all group"
+                  className="flex items-center gap-3 p-4 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 hover:border-purple-400 rounded-xl transition-all group"
                 >
-                  <CreditCard className="w-8 h-8 text-purple-500 mb-2 group-hover:scale-110 transition-transform" />
-                  <span className="text-sm font-semibold text-purple-700">Debt Worksheet</span>
-                  <span className="text-[10px] text-purple-500">Consolidation breakdown</span>
+                  <div className="p-2 bg-purple-200 rounded-lg group-hover:bg-purple-300 transition-colors">
+                    <CreditCard className="w-6 h-6 text-purple-700" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-bold text-purple-800">Debt Worksheet</div>
+                    <div className="text-xs text-purple-600">Consolidation breakdown</div>
+                  </div>
                 </button>
+                
                 <button
                   onClick={() => onSelectChart?.('payment-savings')}
-                  className="flex flex-col items-center justify-center p-4 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg transition-all group"
+                  className="flex items-center gap-3 p-4 bg-teal-50 hover:bg-teal-100 border-2 border-teal-200 hover:border-teal-400 rounded-xl transition-all group"
                 >
-                  <TrendingUp className="w-8 h-8 text-teal-500 mb-2 group-hover:scale-110 transition-transform" />
-                  <span className="text-sm font-semibold text-teal-700">Payment Savings</span>
-                  <span className="text-[10px] text-teal-500">Monthly comparison</span>
+                  <div className="p-2 bg-teal-200 rounded-lg group-hover:bg-teal-300 transition-colors">
+                    <TrendingUp className="w-6 h-6 text-teal-700" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-bold text-teal-800">Payment Savings</div>
+                    <div className="text-xs text-teal-600">{formatCurrency(monthlySavings)}/mo saved</div>
+                  </div>
                 </button>
+                
                 <button
                   onClick={() => onSelectChart?.('cash-back')}
-                  className="flex flex-col items-center justify-center p-4 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-all group"
+                  className="flex items-center gap-3 p-4 bg-emerald-50 hover:bg-emerald-100 border-2 border-emerald-200 hover:border-emerald-400 rounded-xl transition-all group"
                 >
-                  <DollarSign className="w-8 h-8 text-emerald-500 mb-2 group-hover:scale-110 transition-transform" />
-                  <span className="text-sm font-semibold text-emerald-700">Cash Back</span>
-                  <span className="text-[10px] text-emerald-500">Cash at closing</span>
+                  <div className="p-2 bg-emerald-200 rounded-lg group-hover:bg-emerald-300 transition-colors">
+                    <DollarSign className="w-6 h-6 text-emerald-700" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-bold text-emerald-800">Cash Back</div>
+                    <div className="text-xs text-emerald-600">{formatCurrency(Math.abs(cashToFromBorrower))} at closing</div>
+                  </div>
                 </button>
+                
                 <button
                   onClick={() => onSelectChart?.('accelerated-payoff')}
-                  className="flex flex-col items-center justify-center p-4 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-lg transition-all group"
+                  className="flex items-center gap-3 p-4 bg-violet-50 hover:bg-violet-100 border-2 border-violet-200 hover:border-violet-400 rounded-xl transition-all group"
                 >
-                  <Clock className="w-8 h-8 text-violet-500 mb-2 group-hover:scale-110 transition-transform" />
-                  <span className="text-sm font-semibold text-violet-700">Accelerated Payoff</span>
-                  <span className="text-[10px] text-violet-500">Extra payment impact</span>
+                  <div className="p-2 bg-violet-200 rounded-lg group-hover:bg-violet-300 transition-colors">
+                    <Clock className="w-6 h-6 text-violet-700" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-bold text-violet-800">Accelerated Payoff</div>
+                    <div className="text-xs text-violet-600">Apply {formatCurrency(monthlySavings)} extra</div>
+                  </div>
                 </button>
               </div>
             </div>
 
-            {/* Debts NOT Being Paid Section */}
-            {accounts.filter(a => !a.willPay).length > 0 && (
-              <div className="bg-white border border-amber-200 rounded-lg overflow-hidden">
-                <div className="px-3 py-2 bg-amber-100">
-                  <h3 className="font-bold text-sm text-amber-800">Debts NOT Being Paid Off</h3>
-                </div>
-                <table className="w-full text-sm">
-                  <thead className="bg-amber-50">
-                    <tr>
-                      <th className="px-3 py-1.5 text-left font-semibold text-amber-700 text-xs">Creditor</th>
-                      <th className="px-3 py-1.5 text-right font-semibold text-amber-700 text-xs">Payment</th>
-                      <th className="px-3 py-1.5 text-right font-semibold text-amber-700 text-xs">Balance</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {accounts.filter(a => !a.willPay).map((debt, i) => (
-                      <tr key={i} className="border-t border-amber-100">
-                        <td className="px-3 py-1 text-stone-700 text-xs">{debt.creditor}</td>
-                        <td className="px-3 py-1 text-right text-stone-600 text-xs">${(parseFloat(String(debt.payment).replace(/[$,]/g, '')) || 0).toLocaleString()}</td>
-                        <td className="px-3 py-1 text-right text-stone-600 text-xs">${(parseFloat(String(debt.balance).replace(/[$,]/g, '')) || 0).toLocaleString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot className="bg-amber-100 border-t border-amber-200">
-                    <tr>
-                      <td className="px-3 py-1.5 font-bold text-amber-800 text-xs">Total</td>
-                      <td className="px-3 py-1.5 text-right font-bold text-amber-800 text-xs">${accounts.filter(a => !a.willPay).reduce((s, d) => s + (parseFloat(String(d.payment).replace(/[$,]/g, '')) || 0), 0).toLocaleString()}</td>
-                      <td className="px-3 py-1.5 text-right font-bold text-amber-800 text-xs">${accounts.filter(a => !a.willPay).reduce((s, d) => s + (parseFloat(String(d.balance).replace(/[$,]/g, '')) || 0), 0).toLocaleString()}</td>
-                    </tr>
-                  </tfoot>
-                </table>
+            {/* Debts Being Paid Off Detail */}
+            <div className="bg-white border border-green-200 rounded-xl overflow-hidden shadow-sm">
+              <div className="px-4 py-2 bg-green-100 flex items-center justify-between">
+                <h3 className="font-bold text-sm text-green-800">Debts Being Paid Off</h3>
+                <span className="text-xs font-bold text-green-700">{formatCurrency(totalDebtsPaidPayment)}/mo</span>
               </div>
-            )}
+              <table className="w-full text-xs">
+                <thead className="bg-green-50">
+                  <tr>
+                    <th className="px-3 py-1.5 text-left font-semibold text-green-700">Creditor</th>
+                    <th className="px-3 py-1.5 text-right font-semibold text-green-700">Payment</th>
+                    <th className="px-3 py-1.5 text-right font-semibold text-green-700">Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayDebtsPaid.map((debt, i) => (
+                    <tr key={i} className="border-t border-green-100">
+                      <td className="px-3 py-1.5 text-stone-700">{debt.creditor}</td>
+                      <td className="px-3 py-1.5 text-right text-stone-600">{formatCurrency(parseFloat(String(debt.payment).replace(/[$,]/g, '')) || 0)}</td>
+                      <td className="px-3 py-1.5 text-right text-stone-600">{formatCurrency(parseFloat(String(debt.balance).replace(/[$,]/g, '')) || 0)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Debts NOT Being Paid Off */}
+            <div className="bg-white border border-amber-200 rounded-xl overflow-hidden shadow-sm">
+              <div className="px-4 py-2 bg-amber-100 flex items-center justify-between">
+                <h3 className="font-bold text-sm text-amber-800">Debts NOT Being Paid Off</h3>
+                <span className="text-xs font-bold text-amber-700">{formatCurrency(totalDebtsNotPaidPayment)}/mo</span>
+              </div>
+              <table className="w-full text-xs">
+                <thead className="bg-amber-50">
+                  <tr>
+                    <th className="px-3 py-1.5 text-left font-semibold text-amber-700">Creditor</th>
+                    <th className="px-3 py-1.5 text-right font-semibold text-amber-700">Payment</th>
+                    <th className="px-3 py-1.5 text-right font-semibold text-amber-700">Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayDebtsNotPaid.map((debt, i) => (
+                    <tr key={i} className="border-t border-amber-100">
+                      <td className="px-3 py-1.5 text-stone-700">{debt.creditor}</td>
+                      <td className="px-3 py-1.5 text-right text-stone-600">{formatCurrency(parseFloat(String(debt.payment).replace(/[$,]/g, '')) || 0)}</td>
+                      <td className="px-3 py-1.5 text-right text-stone-600">{formatCurrency(parseFloat(String(debt.balance).replace(/[$,]/g, '')) || 0)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
+        {/* Present Button */}
+        <div className="flex justify-center pt-2">
+          <button className="px-8 py-3 bg-gradient-to-r from-[#432c9e] to-[#6b5ce7] text-white font-bold rounded-xl hover:shadow-lg transition-all text-lg">
+            ✓ Present This Comparison
+          </button>
+        </div>
       </div>
 
       {/* Loan Details Slide-out Panel */}
