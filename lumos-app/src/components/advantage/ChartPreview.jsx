@@ -595,6 +595,13 @@ export function ChartPreview({ chartType, data }) {
                 const originalTotalInterest = (originalPI * originalPayments) - loanAmt;
                 const interestSaved = originalTotalInterest - totalInterestWithExtra;
                 
+                // Handler for updating extra payment from input
+                const handleExtraPaymentChange = (newValue) => {
+                    const numValue = Math.max(0, Math.min(newValue, maxExtraPayment * 2)); // Allow up to 200%
+                    const newPercent = Math.round((numValue / maxExtraPayment) * 100);
+                    setAcceleratedPaymentPercent(newPercent);
+                };
+                
                 return (
                     <div className="h-full flex flex-col">
                         <div className="bg-gradient-to-r from-purple-600 to-purple-500 text-white px-6 py-4">
@@ -603,11 +610,38 @@ export function ChartPreview({ chartType, data }) {
                         </div>
                         
                         <div className="flex-1 overflow-auto p-6">
-                            {/* Extra Payment Amount */}
+                            {/* Extra Payment Amount - Editable */}
                             <div className="bg-purple-50 rounded-xl p-4 mb-6 text-center">
                                 <p className="text-sm text-purple-600 mb-1">Extra Monthly Payment Applied</p>
-                                <p className="text-3xl font-bold text-purple-700">${extraPayment.toLocaleString()}</p>
-                                <p className="text-xs text-purple-500 mt-1">{acceleratedPaymentPercent}% of your ${maxExtraPayment.toLocaleString()} savings</p>
+                                <div className="flex items-center justify-center gap-1">
+                                    <span className="text-3xl font-bold text-purple-700">$</span>
+                                    <input
+                                        type="number"
+                                        value={extraPayment}
+                                        onChange={(e) => handleExtraPaymentChange(parseInt(e.target.value) || 0)}
+                                        className="text-3xl font-bold text-purple-700 bg-transparent border-b-2 border-purple-300 focus:border-purple-500 outline-none w-24 text-center appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                        min="0"
+                                        max={maxExtraPayment * 2}
+                                    />
+                                </div>
+                                <p className="text-xs text-purple-500 mt-2">{acceleratedPaymentPercent}% of your ${maxExtraPayment.toLocaleString()} savings</p>
+                                
+                                {/* Quick adjustment buttons */}
+                                <div className="flex items-center justify-center gap-2 mt-3">
+                                    {[25, 50, 75, 100].map(pct => (
+                                        <button
+                                            key={pct}
+                                            onClick={() => setAcceleratedPaymentPercent(pct)}
+                                            className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
+                                                acceleratedPaymentPercent === pct 
+                                                    ? 'bg-purple-600 text-white' 
+                                                    : 'bg-white text-purple-600 border border-purple-300 hover:bg-purple-100'
+                                            }`}
+                                        >
+                                            {pct}%
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                             
                             {/* Visual Timeline Comparison */}
