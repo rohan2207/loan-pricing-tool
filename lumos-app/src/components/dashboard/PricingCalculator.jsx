@@ -790,18 +790,67 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
           </div>
         </div>
 
-        {/* Important Disclaimer Banner */}
-        <div className="flex gap-3 p-4 bg-[#fff4e5] border border-[#ff8401] rounded">
-          <div className="flex-shrink-0">
-            <CircleAlert className="w-6 h-6 text-[#ff8300]" />
+        {/* Important Disclaimer Banner - Compact */}
+        <div className="flex gap-2 px-3 py-2 bg-[#fff4e5] border border-[#ff8401] rounded text-xs">
+          <CircleAlert className="w-4 h-4 text-[#ff8300] flex-shrink-0 mt-0.5" />
+          <p className="text-[#ff8401]">
+            <span className="font-bold">Important:</span> Estimates only, not guaranteed rates. A formal mortgage application with credit pull is required for accurate pricing.
+          </p>
+        </div>
+
+        {/* Quick Chart Actions - Moved to top */}
+        <div className="bg-gradient-to-r from-stone-50 to-stone-100 border border-stone-200 rounded-lg px-3 py-2">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <BarChart3 className="w-3.5 h-3.5 text-stone-500" />
+              <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wide">Charts</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => onSelectChart?.('debt-worksheet')}
+                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all"
+              >
+                <CreditCard className="w-3 h-3" />
+                Debt
+              </button>
+              <button
+                onClick={() => onSelectChart?.('payment-savings')}
+                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-700 transition-all"
+              >
+                <TrendingUp className="w-3 h-3" />
+                Savings
+              </button>
+              <button
+                onClick={() => onSelectChart?.('cash-back')}
+                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700 transition-all"
+              >
+                <DollarSign className="w-3 h-3" />
+                Cash
+              </button>
+              <button
+                onClick={() => onSelectChart?.('accelerated-payoff')}
+                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all"
+              >
+                <Clock className="w-3 h-3" />
+                Payoff
+              </button>
+            </div>
           </div>
-          <div className="flex-1">
-            <p className="font-bold text-sm text-[#ff8401]">
-              Important: These are estimates only, not guaranteed rates or pricing.
-            </p>
-            <p className="text-sm text-[#ff8401] mt-1">
-              Estimates are based on consumer finance profile data and may not reflect current market conditions or complete borrower information. A formal mortgage application with credit pull is required for accurate pricing.
-            </p>
+        </div>
+
+        {/* LTV/CLTV Display - Prominent */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-gradient-to-br from-[#432c9e] to-[#6b5ce7] rounded-xl p-4 text-white text-center">
+            <p className="text-xs text-white/70 uppercase tracking-wide mb-1">LTV</p>
+            <p className="text-3xl font-bold">{ltv}%</p>
+          </div>
+          <div className="bg-gradient-to-br from-[#432c9e] to-[#6b5ce7] rounded-xl p-4 text-white text-center">
+            <p className="text-xs text-white/70 uppercase tracking-wide mb-1">CLTV</p>
+            <p className="text-3xl font-bold">{ltv}%</p>
+          </div>
+          <div className="bg-gradient-to-br from-[#432c9e] to-[#6b5ce7] rounded-xl p-4 text-white text-center">
+            <p className="text-xs text-white/70 uppercase tracking-wide mb-1">HCLTV</p>
+            <p className="text-3xl font-bold">{ltv}%</p>
           </div>
         </div>
 
@@ -1218,302 +1267,172 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
           )}
         </div>
 
-        {/* Quick Chart Actions */}
-        <div className="bg-gradient-to-r from-stone-50 to-stone-100 border border-stone-200 rounded-lg px-3 py-2">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <BarChart3 className="w-3.5 h-3.5 text-stone-500" />
-              <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wide">Charts</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => onSelectChart?.('debt-worksheet')}
-                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all"
-              >
-                <CreditCard className="w-3 h-3" />
-                Debt
-              </button>
-              <button
-                onClick={() => onSelectChart?.('payment-savings')}
-                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-700 transition-all"
-              >
-                <TrendingUp className="w-3 h-3" />
-                Savings
-              </button>
-              <button
-                onClick={() => onSelectChart?.('cash-back')}
-                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700 transition-all"
-              >
-                <DollarSign className="w-3 h-3" />
-                Cash
-              </button>
-              <button
-                onClick={() => onSelectChart?.('accelerated-payoff')}
-                className="flex items-center gap-1 px-2 py-1 bg-white border border-stone-200 rounded text-[11px] font-medium text-stone-600 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition-all"
-              >
-                <Clock className="w-3 h-3" />
-                Payoff
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Configurations Section */}
-        <div className="flex justify-between items-end">
-          <h2 className="text-sm font-bold text-[#0f172b] rounded px-2 py-1">Configurations</h2>
-          <div className="flex flex-col gap-1 rounded p-2">
-            <label className="text-xs text-[#45556c]">Product category</label>
-            <button 
-              type="button" 
-              disabled
-              className="flex h-10 w-40 items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <span>Refinance</span>
-              <ChevronDown className="h-4 w-4 opacity-50" />
-            </button>
-          </div>
-        </div>
-
-        {/* Configuration Cards */}
-        <div className="flex flex-col gap-3">
-          {/* Program Selection */}
-          <div className="p-4 bg-white border border-neutral-l3 rounded-t rounded">
-            <div className="flex flex-col gap-3">
-              <span className="text-sm font-medium text-[#200f51]">Program</span>
-              <div className="flex flex-wrap gap-2">
+        {/* Compact Configurations */}
+        <div className="bg-white border border-neutral-l3 rounded-lg p-4">
+          {/* Program & Term in one row */}
+          <div className="flex items-center gap-6 mb-4">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-semibold text-[#200f51] uppercase">Program</span>
+              <div className="flex gap-1">
                 {programs.map((program) => (
                   <button
                     key={program}
                     onClick={() => setSelectedProgram(program)}
-                    className={`flex items-center gap-1 px-3 py-2 rounded-full text-sm font-bold transition-colors cursor-pointer ${
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition-colors ${
                       selectedProgram === program
-                        ? 'bg-[#edeffe] border-2 border-[#432c9e] text-[#432c9e]'
-                        : 'bg-[#edeffe] border-0 text-[#432c9e] hover:bg-[#dbdbfc]'
+                        ? 'bg-[#432c9e] text-white'
+                        : 'bg-[#edeffe] text-[#432c9e] hover:bg-[#dbdbfc]'
                     }`}
                   >
-                    {selectedProgram === program && <Check className="w-5 h-5" />}
-                    <span>{program}</span>
+                    {selectedProgram === program && <Check className="w-3 h-3" />}
+                    {program}
                   </button>
                 ))}
               </div>
             </div>
-          </div>
-
-          {/* Term Selection */}
-          <div className="p-4 bg-white border border-neutral-l3 rounded">
-            <div className="flex flex-col gap-3">
-              <span className="text-sm font-medium text-[#200f51]">Term</span>
-              <div className="flex flex-wrap gap-2">
+            <div className="w-px h-6 bg-neutral-l3"></div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-semibold text-[#200f51] uppercase">Term</span>
+              <div className="flex gap-1">
                 {terms.map((term) => (
                   <button
                     key={term}
                     onClick={() => setSelectedTerm(term)}
-                    className={`flex items-center gap-1 px-3 py-2 rounded-full text-sm font-bold transition-colors cursor-pointer ${
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition-colors ${
                       selectedTerm === term
-                        ? 'bg-[#edeffe] border-2 border-[#432c9e] text-[#432c9e]'
-                        : 'bg-[#edeffe] border-0 text-[#432c9e] hover:bg-[#dbdbfc]'
+                        ? 'bg-[#432c9e] text-white'
+                        : 'bg-[#edeffe] text-[#432c9e] hover:bg-[#dbdbfc]'
                     }`}
                   >
-                    {selectedTerm === term && <Check className="w-5 h-5" />}
-                    <span>{term}</span>
+                    {selectedTerm === term && <Check className="w-3 h-3" />}
+                    {term}
                   </button>
                 ))}
               </div>
             </div>
+            <div className="w-px h-6 bg-neutral-l3"></div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-[#200f51] uppercase">Category</span>
+              <span className="px-2 py-1 bg-neutral-l5 rounded text-xs text-neutral-d1">Refinance</span>
+            </div>
           </div>
 
-          {/* LTV Slider */}
-          <div className="p-4 bg-white border border-neutral-l3 rounded">
-            <div className="flex flex-col gap-2 p-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-[#200f51]">LTV</span>
-                <div className="flex items-center gap-2">
-                  <button aria-label="Edit LTV" className="text-[#432c9e] hover:text-[#200f51] disabled:opacity-50">
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                  <span className="text-sm font-bold text-[#432c9e]">{ltv}%</span>
-                </div>
-              </div>
-              
-              {/* Custom Slider */}
-              <div className="relative h-[42px] cursor-pointer">
-                {/* Track background */}
-                <div 
-                  className="absolute left-0 right-0 h-[6px] rounded-full"
-                  style={{ background: 'rgb(223, 223, 223)', top: '5px' }}
-                ></div>
-                {/* Active track */}
-                <div 
-                  className="absolute left-0 h-[6px] rounded-full"
-                  style={{ background: 'rgb(67, 44, 158)', width: `${ltv}%`, top: '5px' }}
-                ></div>
-                {/* Thumb */}
-                <div 
-                  className="absolute"
-                  style={{ left: `${ltv}%`, transform: 'translateX(-50%)', top: '0px', zIndex: 10 }}
-                >
-                  <div 
-                    style={{
-                      width: '16px',
-                      height: '16px',
-                      borderRadius: '9999px',
-                      background: 'rgb(255, 255, 255)',
-                      border: '3px solid rgb(67, 44, 158)',
-                      boxShadow: 'rgb(67, 44, 158) 0px 0px 0px 2px',
-                      cursor: 'grab'
-                    }}
-                  ></div>
-                </div>
-                
-                {/* Tick marks */}
-                {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((tick) => (
-                  <div 
-                    key={tick}
-                    className="absolute flex flex-col items-center"
-                    style={{ left: `${tick}%`, transform: 'translateX(-50%)', top: '0px' }}
-                  >
-                    <div 
-                      style={{
-                        width: '8px',
-                        height: '8px',
-                        marginTop: '4px',
-                        borderRadius: '9999px',
-                        background: tick <= ltv ? 'rgb(67, 44, 158)' : 'rgb(223, 223, 223)',
-                        cursor: 'pointer'
-                      }}
-                      onClick={() => setLtv(tick)}
-                    ></div>
-                    <span 
-                      className="text-center mt-2"
-                      style={{ fontSize: '12px', fontWeight: 500, lineHeight: '18px', color: 'rgb(69, 85, 108)', minWidth: tick === 100 ? '22px' : '16px' }}
-                    >
-                      {tick}
-                    </span>
-                  </div>
-                ))}
-
-                {/* Invisible input for slider interaction */}
+          {/* LTV Slider - Compact */}
+          <div className="mb-4">
+            <div className="flex items-center gap-4">
+              <span className="text-xs font-semibold text-[#200f51] uppercase w-8">LTV</span>
+              <div className="flex-1 relative h-6">
                 <input
                   type="range"
                   min="0"
                   max="100"
                   value={ltv}
                   onChange={(e) => setLtv(parseInt(e.target.value))}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  className="w-full h-2 bg-neutral-l3 rounded-full appearance-none cursor-pointer accent-[#432c9e]"
+                  style={{
+                    background: `linear-gradient(to right, #432c9e ${ltv}%, #e5e5e5 ${ltv}%)`
+                  }}
                 />
               </div>
-            </div>
-
-            {/* Input Fields Grid */}
-            <div className="mt-4 grid grid-cols-4 gap-4">
-              <div className="flex flex-col gap-1 flex-1">
-                <label className="text-sm font-medium text-[#200f51]">Loan amount</label>
-                <input
-                  type="text"
-                  placeholder="Enter amount"
-                  value={loanAmount}
-                  onChange={(e) => setLoanAmount(e.target.value)}
-                  className="w-full px-3 py-2 border border-[#e3e0f0] rounded text-sm text-[#0f172b] placeholder:text-neutral-l2 disabled:opacity-50 disabled:bg-neutral-l5"
-                />
-              </div>
-              <div className="flex flex-col gap-1 flex-1">
-                <label className="text-sm font-medium text-[#200f51]">Debts</label>
-                <input
-                  type="text"
-                  placeholder="Value"
-                  disabled
-                  value={totalDebts.toLocaleString()}
-                  className="w-full px-3 py-2 border border-[#e3e0f0] rounded text-sm text-[#0f172b] placeholder:text-neutral-l2 disabled:opacity-50 disabled:bg-neutral-l5"
-                />
-              </div>
-              <div className="flex flex-col gap-1 flex-1">
-                <label className="text-sm font-medium text-[#200f51]">Cashout</label>
-                <input
-                  type="text"
-                  placeholder="Enter amount"
-                  value={cashout}
-                  onChange={(e) => setCashout(e.target.value)}
-                  className="w-full px-3 py-2 border border-[#e3e0f0] rounded text-sm text-[#0f172b] placeholder:text-neutral-l2 disabled:opacity-50 disabled:bg-neutral-l5"
-                />
-              </div>
-              <div className="flex flex-col gap-1 flex-1">
-                <label className="text-sm font-medium text-[#200f51]">Interest Rate</label>
-                <button
-                  type="button"
-                  disabled
-                  className="flex h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <span className="text-neutral-400">Search for rates first</span>
-                  <ChevronDown className="h-4 w-4 opacity-50" />
-                </button>
-                <div className="text-xs text-neutral-l1 mt-1"></div>
-              </div>
+              <span className="text-sm font-bold text-[#432c9e] w-12 text-right">{ltv}%</span>
             </div>
           </div>
 
-          {/* Advanced Options Section */}
-          <AdvancedOptionsSection title="Advanced Options">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">DTI Ratio</label>
-                <div className="flex items-center gap-1">
-                  <input
-                    type="text"
-                    defaultValue="23.10"
-                    className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm"
-                  />
-                  <span className="text-sm text-neutral-l1">%</span>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">FICO Score</label>
-                <input
-                  type="text"
-                  defaultValue="692"
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">Reserve Months</label>
-                <input
-                  type="text"
-                  defaultValue="0"
-                  className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">Occupancy</label>
-                <select className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-white">
-                  <option>Primary Residence</option>
-                  <option>Second Home</option>
-                  <option>Investment</option>
-                </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">Property Type</label>
-                <select className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-white">
-                  <option>Single Family</option>
-                  <option>Condo</option>
-                  <option>Townhouse</option>
-                  <option>Multi-Family</option>
-                </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-neutral-d1">Number of Units</label>
-                <select className="w-full px-3 py-2 border border-neutral-l3 rounded text-sm bg-white">
-                  <option>1 Unit</option>
-                  <option>2 Units</option>
-                  <option>3 Units</option>
-                  <option>4 Units</option>
-                </select>
-              </div>
+          {/* Input Fields - 6 column grid */}
+          <div className="grid grid-cols-6 gap-3">
+            <div className="space-y-1">
+              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Loan Amt</label>
+              <input
+                type="text"
+                value={loanAmount}
+                onChange={(e) => setLoanAmount(e.target.value)}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm"
+              />
             </div>
-            <div className="mt-4 pt-4 border-t border-neutral-l3">
-              <p className="text-xs text-neutral-l1">
-                For more detailed loan configurations including VA funding fee options, subordinate financing, and property details, click the <strong>"Loan Details"</strong> button above.
-              </p>
+            <div className="space-y-1">
+              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Debts</label>
+              <input
+                type="text"
+                disabled
+                value={totalDebts.toLocaleString()}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-neutral-l5"
+              />
             </div>
-          </AdvancedOptionsSection>
+            <div className="space-y-1">
+              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Cashout</label>
+              <input
+                type="text"
+                value={cashout}
+                onChange={(e) => setCashout(e.target.value)}
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-medium text-neutral-d1 uppercase">DTI</label>
+              <input
+                type="text"
+                defaultValue="23.10%"
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-medium text-neutral-d1 uppercase">FICO</label>
+              <input
+                type="text"
+                defaultValue="692"
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Reserves</label>
+              <input
+                type="text"
+                defaultValue="0"
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Second row of inputs */}
+          <div className="grid grid-cols-4 gap-3 mt-3">
+            <div className="space-y-1">
+              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Occupancy</label>
+              <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white">
+                <option>Primary Residence</option>
+                <option>Second Home</option>
+                <option>Investment</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Property Type</label>
+              <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white">
+                <option>Single Family</option>
+                <option>Condo</option>
+                <option>Townhouse</option>
+                <option>Multi-Family</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Units</label>
+              <select className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-white">
+                <option>1 Unit</option>
+                <option>2 Units</option>
+                <option>3 Units</option>
+                <option>4 Units</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-medium text-neutral-d1 uppercase">Interest Rate</label>
+              <button
+                type="button"
+                disabled
+                className="w-full px-2 py-1.5 border border-neutral-l3 rounded text-sm bg-neutral-l5 text-neutral-l1 text-left"
+              >
+                Search rates first
+              </button>
+            </div>
+          </div>
+        </div>
 
           {/* Search Rates Button */}
           <div className="flex justify-end mt-2">
