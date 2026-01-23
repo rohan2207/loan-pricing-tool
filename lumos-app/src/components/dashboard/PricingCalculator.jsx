@@ -215,10 +215,10 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
           {/* LTV Section */}
           <div className="border-2 border-[#e5e7eb] rounded-xl p-4 mb-4">
             <div className="flex items-center justify-between mb-4">
-              <label className="text-sm font-semibold text-[#1e1b4b]">LTV</label>
+              <label className="text-base font-bold text-[#0f172a]">LTV</label>
               <div className="flex items-center gap-2">
-                <Pencil className="w-4 h-4 text-[#432c9e]" />
-                <span className="text-lg font-bold text-[#432c9e]">{ltv}%</span>
+                <Pencil className="w-5 h-5 text-[#432c9e]" />
+                <span className="text-3xl font-bold text-[#432c9e]">{ltv}%</span>
               </div>
             </div>
             
