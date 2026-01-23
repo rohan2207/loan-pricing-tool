@@ -1214,7 +1214,6 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
               </button>
             </div>
           </div>
-        </div>
 
           {/* Search Rates Button */}
           <div className="flex justify-end mt-2">
