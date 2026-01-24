@@ -14,6 +14,7 @@
 - [ ] Program selection (Conventional, FHA, VA) with pill-style buttons
 - [ ] Term selection (30, 20, 15, 10 years) with pill-style buttons
 - [ ] Property Value - editable input field
+- [ ] Estimated Credit Score - editable input field (next to Property Value)
 - [ ] Occupancy selection (Primary, Second Home, Investment)
 - [ ] Property Type selection (Single Family, Condo, Townhouse, Multi-Family)
 - [ ] Number of Units selection (1-4)
