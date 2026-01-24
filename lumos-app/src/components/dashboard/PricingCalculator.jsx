@@ -25,6 +25,10 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
   const [estimatedFees, setEstimatedFees] = useState(3000);
   const [estimatedEscrows, setEstimatedEscrows] = useState(3420);
   
+  // Editable taxes and insurance (property-based, same for current & proposed)
+  const [monthlyTaxes, setMonthlyTaxes] = useState(450);
+  const [monthlyInsurance, setMonthlyInsurance] = useState(120);
+  
   // Rate selection state (appears after calculate)
   const [calculated, setCalculated] = useState(false);
   const [selectedRateIndex, setSelectedRateIndex] = useState(2); // Par rate default
@@ -39,8 +43,6 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
 
   // Monthly amounts - these would come from liabilities/borrower data
   const currentFullPayment = 2280; // Full payment from liabilities (may or may not include escrows)
-  const monthlyTaxes = 450;
-  const monthlyInsurance = 120;
   const monthlySubordinateLien = 350; // Second mortgage / HELOC
   const monthlyDebtsPaid = 4156; // Debts being paid off
   const monthlyDebtsNotPaid = 523; // Debts NOT being paid off
@@ -403,13 +405,23 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                   </div>
                   {escrowsEnabled && (
                     <>
-                      <div className="flex justify-between px-5 py-3">
+                      <div className="flex justify-between items-center px-5 py-3">
                         <span className="text-base text-[#111827] pl-4">Taxes</span>
-                        <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlyTaxes)}</span>
+                        <input
+                          type="text"
+                          value={monthlyTaxes.toLocaleString()}
+                          onChange={(e) => setMonthlyTaxes(parseInt(e.target.value.replace(/,/g, '')) || 0)}
+                          className="w-20 px-2 py-1 border-2 border-[#e5e7eb] rounded-lg text-base font-semibold text-[#0f172a] text-right focus:border-[#432c9e] focus:outline-none"
+                        />
                       </div>
-                      <div className="flex justify-between px-5 py-3">
+                      <div className="flex justify-between items-center px-5 py-3">
                         <span className="text-base text-[#111827] pl-4">Insurance</span>
-                        <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlyInsurance)}</span>
+                        <input
+                          type="text"
+                          value={monthlyInsurance.toLocaleString()}
+                          onChange={(e) => setMonthlyInsurance(parseInt(e.target.value.replace(/,/g, '')) || 0)}
+                          className="w-20 px-2 py-1 border-2 border-[#e5e7eb] rounded-lg text-base font-semibold text-[#0f172a] text-right focus:border-[#432c9e] focus:outline-none"
+                        />
                       </div>
                     </>
                   )}
