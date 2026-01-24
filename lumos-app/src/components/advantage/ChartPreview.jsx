@@ -67,6 +67,7 @@ export function ChartPreview({ chartType, data }) {
             case 'payment-savings':
                 // Extract payment breakdown from analysisData
                 const currentMortgagePI = analysisData.currentMortgagePI || 1710;
+                const currentSubordinateLien = analysisData.currentSubordinateLien || 0;
                 const currentEscrow = analysisData.currentEscrow || 570;
                 const currentMI = analysisData.currentMI || 0;
                 const debtsPaidOff = analysisData.debtsPaidOff || 0;
@@ -77,7 +78,7 @@ export function ChartPreview({ chartType, data }) {
                 const proposedMI = analysisData.proposedMI || 0;
                 
                 // Remaining debts appear on BOTH sides (they pay them now AND after refinance)
-                const currentTotalPayment = currentMortgagePI + currentEscrow + currentMI + debtsPaidOff + debtsRemaining;
+                const currentTotalPayment = currentMortgagePI + currentSubordinateLien + currentEscrow + currentMI + debtsPaidOff + debtsRemaining;
                 const proposedTotalPayment = proposedPI + proposedEscrow + proposedMI + debtsRemaining;
                 const savingsAmount = currentTotalPayment - proposedTotalPayment;
                 const annualSavingsAmount = savingsAmount * 12;
@@ -88,6 +89,7 @@ export function ChartPreview({ chartType, data }) {
                 
                 // Current stack heights
                 const currentMortgageHeight = currentMortgagePI * scale;
+                const currentSubordinateHeight = currentSubordinateLien * scale;
                 const currentEscrowHeight = currentEscrow * scale;
                 const currentMIHeight = currentMI * scale;
                 const debtsHeight = debtsPaidOff * scale;
@@ -119,6 +121,15 @@ export function ChartPreview({ chartType, data }) {
                                         >
                                             {currentMortgagePI > 0 && `$${currentMortgagePI.toLocaleString()}`}
                                         </div>
+                                        {/* Subordinate Lien */}
+                                        {currentSubordinateLien > 0 && (
+                                            <div 
+                                                className="bg-indigo-500 flex items-center justify-center text-white text-xs font-medium"
+                                                style={{ height: `${currentSubordinateHeight}px` }}
+                                            >
+                                                {currentSubordinateHeight > 20 && `$${currentSubordinateLien.toLocaleString()}`}
+                                            </div>
+                                        )}
                                         {/* Escrow */}
                                         {currentEscrow > 0 && (
                                             <div 
@@ -226,6 +237,12 @@ export function ChartPreview({ chartType, data }) {
                                     <div className="w-4 h-4 bg-stone-600 rounded"></div>
                                     <span className="text-xs text-stone-600">Mortgage P&I</span>
                                 </div>
+                                {currentSubordinateLien > 0 && (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 bg-indigo-500 rounded"></div>
+                                        <span className="text-xs text-stone-600">Subordinate Lien</span>
+                                    </div>
+                                )}
                                 <div className="flex items-center gap-2">
                                     <div className="w-4 h-4 bg-teal-500 rounded"></div>
                                     <span className="text-xs text-stone-600">Escrow (Taxes & Insurance)</span>
@@ -261,6 +278,14 @@ export function ChartPreview({ chartType, data }) {
                                     <div className="text-stone-600">Mortgage P&I</div>
                                     <div className="text-right text-stone-700">${currentMortgagePI.toLocaleString()}</div>
                                     <div className="text-right text-amber-600">${proposedPI.toLocaleString()}</div>
+                                    
+                                    {currentSubordinateLien > 0 && (
+                                        <>
+                                            <div className="text-stone-600">Subordinate Lien</div>
+                                            <div className="text-right text-stone-700">${currentSubordinateLien.toLocaleString()}</div>
+                                            <div className="text-right text-teal-600">$0 (Paid Off)</div>
+                                        </>
+                                    )}
                                     
                                     <div className="text-stone-600">Escrow</div>
                                     <div className="text-right text-stone-700">${currentEscrow.toLocaleString()}</div>

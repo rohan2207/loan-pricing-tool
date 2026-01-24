@@ -576,6 +576,7 @@ export function PricingCalculatorV2({ accounts = [], borrowerData = {}, onSelect
                 isTemplated: false,
                 // Payment breakdown - Current
                 currentMortgagePI: currentPI,
+                currentSubordinateLien: monthlySubordinateLien,
                 currentEscrow: escrowsEnabled ? (monthlyTaxes + monthlyInsurance) : 0,
                 currentMI: currentMI,
                 debtsPaidOff: monthlyDebtsPaid,
