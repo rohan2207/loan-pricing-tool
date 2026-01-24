@@ -320,9 +320,8 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
           {/* Rate Selection - Shows after Calculate */}
           {calculated && (
             <div className="mt-6 pt-6 border-t-2 border-[#e5e7eb]">
-              <div className="flex items-center justify-between mb-4">
+              <div className="mb-4">
                 <label className="text-base font-bold text-[#0f172a]">Select Your Rate</label>
-                <span className="text-sm text-[#6b7280]">Step 2 of 3</span>
               </div>
               
               <div className="flex gap-3">
