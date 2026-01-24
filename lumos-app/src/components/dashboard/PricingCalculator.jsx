@@ -37,7 +37,8 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
   const unitOptions = [1, 2, 3, 4];
   const ltvMarks = [0, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
 
-  // Monthly amounts
+  // Monthly amounts - these would come from liabilities/borrower data
+  const currentFullPayment = 2280; // Full payment from liabilities (may or may not include escrows)
   const monthlyTaxes = 450;
   const monthlyInsurance = 120;
   const monthlySubordinateLien = 350; // Second mortgage / HELOC
@@ -57,7 +58,11 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
   const discountPoints = selectedRate?.discountAmount || 0;
 
   // Current Finances calculations
-  const currentPI = 1710;
+  // If escrows enabled: current payment INCLUDES escrows, so P&I = payment - taxes - insurance
+  // If escrows disabled: current payment is JUST P&I (no escrows included)
+  const currentPI = escrowsEnabled 
+    ? currentFullPayment - monthlyTaxes - monthlyInsurance 
+    : currentFullPayment;
   const currentMI = 0;
   const currentMortgageTotal = currentPI + monthlySubordinateLien + (escrowsEnabled ? monthlyTaxes + monthlyInsurance : 0) + currentMI;
   const currentTotal = currentMortgageTotal + monthlyDebtsPaid + monthlyDebtsNotPaid;
