@@ -73,6 +73,9 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
   // Cash calculations
   const escrowAmount = escrowsEnabled ? estimatedEscrows : 0;
   const cashFromToBorrower = cashout - discountPoints - estimatedFees - escrowAmount;
+  
+  // Required loan amount to achieve desired cashout
+  const requiredLoanForCashout = cashout + estimatedFees + escrowAmount + Math.max(0, discountPoints);
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-US', { 
@@ -303,6 +306,11 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                 onChange={(e) => setCashout(parseInt(e.target.value.replace(/,/g, '')) || 0)}
                 className="w-full px-4 py-3 border-2 border-[#d1d5db] rounded-xl text-lg font-semibold text-[#0f172a] focus:border-[#432c9e] focus:outline-none transition-colors"
               />
+              {cashout > 0 && (
+                <p className="text-xs text-[#6b7280] mt-1.5">
+                  To receive {formatCurrency(cashout)}, loan needed: <span className="font-semibold text-[#432c9e]">{formatCurrency(requiredLoanForCashout)}</span>
+                </p>
+              )}
             </div>
           </div>
 
