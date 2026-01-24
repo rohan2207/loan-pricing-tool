@@ -35,26 +35,54 @@
 **So that** I can clearly present the financial benefits to my borrower
 
 **Acceptance Criteria:**
-- [ ] "Value Propositions" header with Escrows toggle
-- [ ] **Current Finances column** (orange-tinted):
-  - Principal & Interest, Subordinate Lien, Taxes, Insurance, Mortgage Insurance
-  - Mortgage Total row
-  - Monthly Debts (Paid Off), Monthly Debts (NOT Paid)
-  - Total Monthly row
-- [ ] **GoodLeap Opportunity column** (purple-tinted):
+
+### Header Section
+- [ ] "Value Propositions" header with prominent styling
+- [ ] **Escrows toggle** - switch to include/exclude escrows from calculations
+- [ ] When escrows OFF: removes Taxes & Insurance from comparison AND Escrows from Cash at Closing
+
+### Monthly Payment Comparison Table
+- [ ] **Current Finances column** (orange-tinted header `#fef6f0`):
+  - Principal & Interest (calculated from total payment minus escrows if enabled)
+  - Subordinate Lien (e.g., HELOC, 2nd mortgage)
+  - Taxes - **EDITABLE** input field (updates both columns)
+  - Insurance - **EDITABLE** input field (updates both columns)
+  - Mortgage Insurance
+  - **Mortgage Total** row (highlighted)
+  - Monthly Debts (Paid Off) - shown in red
+  - Monthly Debts (NOT Paid)
+  - **Total Monthly** row (bold, highlighted)
+
+- [ ] **GoodLeap Opportunity column** (purple-tinted header `#f5f3ff`):
   - Same line items as Current Finances
-  - Subordinate Lien shows "$0 ✓" 
-  - Monthly Debts (Paid Off) shows "$0 ✓"
-- [ ] Taxes, Insurance, Mortgage Insurance indented for visual hierarchy
-- [ ] **Monthly Savings Banner** - green when positive, red when negative
-- [ ] **Cash From/To Borrower section**:
-  - Cashout Amount
-  - Plus: Lender Credit (when applicable)
-  - Less: Discount Points (when applicable)
-  - Estimated Loan Fees - EDITABLE input
-  - Estimated Escrows - EDITABLE input (only when escrows enabled)
-  - Final Cash TO/FROM Borrower calculation
-- [ ] Escrows toggle removes Taxes & Insurance from comparison and Escrows from cash calculation when OFF
+  - Subordinate Lien shows "$0 ✓" (green, paid off)
+  - Monthly Debts (Paid Off) shows "$0 ✓" (green, paid off)
+  - Taxes/Insurance mirror values from Current (property-based)
+
+- [ ] Taxes, Insurance, Mortgage Insurance rows **indented** for visual hierarchy
+- [ ] All rows aligned with consistent `min-h-[48px]` and `items-center`
+
+### Monthly Savings Banner
+- [ ] Positioned below comparison table
+- [ ] **Green** background with TrendingDown icon when savings > 0
+- [ ] **Red** background with AlertTriangle icon when savings < 0
+- [ ] Large font for savings amount
+
+### Cash at Closing Section
+- [ ] "Cash From/To Borrower" sub-header (green-tinted `#f0fdf4`)
+- [ ] **Line items:**
+  - Cashout Amount (from configuration)
+  - Plus: Lender Credit (when credit selected, green text)
+  - Less: Discount Points (when buy-down selected, red text)
+  - **Estimated Loan Fees** - EDITABLE input field
+  - **Estimated Escrows** - EDITABLE input field with note "(6 months prepaids)"
+- [ ] Escrows row only visible when escrows toggle is ON
+- [ ] **Final Cash TO/FROM Borrower** - calculated total (green if positive, red if negative)
+
+### Inline Cash Goal Hint
+- [ ] Below Cashout field in Configuration panel
+- [ ] Shows: "To receive $X, loan needed: $Y"
+- [ ] Calculates required loan = Cashout + Fees + Escrows + Discount Points
 
 ---
 
@@ -86,6 +114,6 @@
 | Story | Points |
 |-------|--------|
 | Story 1: Loan Configuration Panel | 13 |
-| Story 2: Value Propositions Panel | 13 |
+| Story 2: Value Propositions Panel | 21 |
 | Story 3: Chart Highlights | 8 |
-| **TOTAL** | **34** |
+| **TOTAL** | **42** |
