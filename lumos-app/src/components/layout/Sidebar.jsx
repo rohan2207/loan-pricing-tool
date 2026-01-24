@@ -109,6 +109,11 @@ export function Sidebar({ currentView, onViewChange, activeQuickAction, onQuickA
                         active={currentView === 'pricing'} 
                         onClick={() => handleNavClick('pricing')} 
                     />
+                    <NavItem 
+                        label="Scenarios 2" 
+                        active={currentView === 'scenarios2'} 
+                        onClick={() => handleNavClick('scenarios2')} 
+                    />
                 </NavSection>
 
                 {/* Charts Section */}

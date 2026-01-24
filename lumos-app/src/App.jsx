@@ -20,6 +20,7 @@ import { ChartPreview } from './components/advantage/ChartPreview';
 import { ProposalPreview } from './components/advantage/ProposalPreview';
 import { GoodLeapAdvantageTabs } from './components/dashboard/GoodLeapAdvantageTabs';
 import { PricingCalculator } from './components/dashboard/PricingCalculator';
+import { PricingCalculatorV2 } from './components/dashboard/PricingCalculatorV2';
 import { PropertyTabs } from './components/dashboard/PropertyTabs';
 import { FigureView } from './components/dashboard/FigureView';
 import { Short1003View } from './components/dashboard/Short1003View';
@@ -339,6 +340,14 @@ function App() {
       case 'pricing':
         return (
           <PricingCalculator 
+            accounts={accounts}
+            borrowerData={borrowerData}
+            onSelectChart={handleQuickActionChange}
+          />
+        );
+      case 'scenarios2':
+        return (
+          <PricingCalculatorV2 
             accounts={accounts}
             borrowerData={borrowerData}
             onSelectChart={handleQuickActionChange}
