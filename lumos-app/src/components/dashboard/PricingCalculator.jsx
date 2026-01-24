@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Pencil, RefreshCw, ArrowRight, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Check, Pencil, RefreshCw, ArrowRight, ToggleLeft, ToggleRight, TrendingDown, AlertTriangle } from 'lucide-react';
 
 export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectChart }) {
   // Configuration state
@@ -477,8 +477,12 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
             {/* Savings Banner */}
             <div className={`mt-4 p-5 rounded-xl border-2 ${monthlySavings > 0 ? 'bg-green-50 border-green-200' : 'bg-rose-50 border-rose-200'}`}>
               <div className="flex justify-between items-center">
-                <span className={`text-lg font-bold ${monthlySavings > 0 ? 'text-green-800' : 'text-rose-800'}`}>
-                  {monthlySavings > 0 ? '💰 Monthly Savings' : '⚠️ Monthly Increase'}
+                <span className={`text-lg font-bold flex items-center gap-2 ${monthlySavings > 0 ? 'text-green-800' : 'text-rose-800'}`}>
+                  {monthlySavings > 0 ? (
+                    <><TrendingDown className="w-5 h-5" /> Monthly Savings</>
+                  ) : (
+                    <><AlertTriangle className="w-5 h-5" /> Monthly Increase</>
+                  )}
                 </span>
                 <span className={`text-3xl font-bold ${monthlySavings > 0 ? 'text-green-600' : 'text-rose-600'}`}>
                   {formatCurrency(Math.abs(monthlySavings))}
