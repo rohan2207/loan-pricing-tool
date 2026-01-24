@@ -93,19 +93,124 @@
 **So that** I can present compelling data visualizations to my borrower
 
 **Acceptance Criteria:**
-- [ ] **Chart Highlights section** with 2x2 grid of cards:
-  - Debt Consolidation (shows Total Paid Off value)
-  - Payment Savings (shows Monthly savings value)
-  - Cash Back (shows At Closing value)
-  - Accelerated Payoff (shows Years Saved value)
-- [ ] Clicking any card opens full chart view
+
+### Chart Access Points
+- [ ] **Chart Highlights section** on Pricing Scenarios page (2x2 grid of cards)
 - [ ] **Charts in Left Navigation** sidebar under "Charts" section
-- [ ] **Accelerated Payoff chart** includes:
-  - Editable extra payment input
-  - Quick-select percentage buttons (25%, 50%, 75%, 100%)
-  - Comparison table: "Proposed Loan" vs "Accelerated"
-  - Years saved and Interest saved calculations
+- [ ] Clicking any card opens full chart view in right panel
 - [ ] "TEMPLATED DATA - FOR TESTING ONLY" banner when using test data
+
+### Chart Cards (Quick Preview)
+| Card | Preview Value |
+|------|---------------|
+| Debt Consolidation | Total Paid Off |
+| Payment Savings | Monthly Savings |
+| Cash Back | At Closing Amount |
+| Accelerated Payoff | Years Saved |
+
+---
+
+### Chart: Debt Consolidation Worksheet ✅ DONE
+- [ ] Table listing all debts being paid off (Creditor, Type, Monthly Payment, Payoff Amount, Paid Off status)
+- [ ] Totals row showing combined monthly payment and total balance
+- [ ] "Peace-of-Mind Promise" section with guarantees
+
+### Chart: Blended Rate ✅ DONE
+- [ ] Comparison of blended rate across consolidated debts
+
+---
+
+### Chart: Payment Savings Comparison (PRIORITY)
+
+**Header:** Dark header "PAYMENT SAVINGS COMPARISON"
+
+**Stacked Bar Chart:**
+- [ ] **Current bar** showing stacked segments:
+  - Mortgage P&I (stone-600)
+  - Subordinate Lien (indigo-500)
+  - Escrow/Taxes & Insurance (teal-500)
+  - MI/MIP (purple-400, if applicable)
+  - Debts Being Paid Off (amber-500)
+  - Remaining Debts (stone-400)
+- [ ] **Proposed bar** showing stacked segments:
+  - New Mortgage P&I
+  - Escrow (same as current)
+  - MI/MIP (if applicable)
+  - Remaining Debts (same as current)
+- [ ] Annual Savings circle callout (teal border)
+- [ ] Monthly Savings circle callout
+
+**Legend:**
+- [ ] Color-coded legend for all bar segments
+- [ ] Only show legend items that have values > 0
+
+**Payment Breakdown Table:**
+- [ ] 3-column table: Item | Current | Proposed
+- [ ] All payment line items with values
+- [ ] Subordinate Lien shows "$0 (Paid Off)" in proposed
+- [ ] Other Debts shows "$0 (Paid Off)" in proposed
+- [ ] **TOTAL** row with bold styling
+
+---
+
+### Chart: Cash Back Calculator (PRIORITY)
+
+**Header:** Gradient header (teal) "CASH BACK"
+
+**Main Display:**
+- [ ] Large cash amount in center with money icon
+- [ ] "In Your Pocket" label
+- [ ] Subtitle: "After paying off debts → Cash to you"
+
+**Calculation Breakdown:**
+- [ ] Loan Amount (positive)
+- [ ] Less: Debts Paid Off (red, negative)
+- [ ] Less: Closing Costs (red, negative)
+- [ ] **Cash Back at Closing** = final amount
+
+**"What You Could Do With It" Section:**
+- [ ] 3x2 grid of use case cards:
+  - College Savings (blue)
+  - Home Improvements (teal)
+  - Vacation (purple)
+  - Savings & Investments (amber)
+  - Pay Off Other Bills (rose)
+  - Emergency Fund (stone)
+- [ ] Each card has icon and label
+
+**Footer disclaimer:** "Final cash back amount may vary..."
+
+---
+
+### Chart: Accelerated Payoff (PRIORITY)
+
+**Header:** Gradient header (purple) "ACCELERATED PAYOFF"
+
+**Extra Payment Input:**
+- [ ] **EDITABLE** dollar amount input field
+- [ ] Shows percentage of monthly savings being applied
+- [ ] **Quick-select buttons:** 25%, 50%, 75%, 100%
+- [ ] Buttons update the dollar amount based on max savings
+
+**Payoff Timeline Visual:**
+- [ ] "Without extra payments" bar (full width, 30 years)
+- [ ] "With $X/mo extra" bar (shorter width, calculated years)
+- [ ] Years displayed at end of each bar
+
+**Savings Highlights (2 cards):**
+- [ ] **Years Saved** - purple gradient card with Calendar icon
+- [ ] **Interest Saved** - teal gradient card with DollarSign icon (in $K format)
+
+**Comparison Table:**
+- [ ] 3-column: Item | Proposed Loan | Accelerated
+- [ ] **Loan Term** row (years)
+- [ ] **Total Interest** row (dollar amounts)
+- [ ] **You Save** row (highlighted in teal)
+
+**Calculations:**
+- [ ] Original term: 30 years
+- [ ] New term calculated using amortization with extra payment
+- [ ] Interest saved = Original total interest - New total interest
 
 ---
 
@@ -115,5 +220,14 @@
 |-------|--------|
 | Story 1: Loan Configuration Panel | 13 |
 | Story 2: Value Propositions Panel | 21 |
-| Story 3: Chart Highlights | 8 |
-| **TOTAL** | **42** |
+| Story 3: Chart Highlights | 21 |
+| **TOTAL** | **55** |
+
+### Story 3 Breakdown by Chart
+| Chart | Status | Points |
+|-------|--------|--------|
+| Debt Consolidation | ✅ Done | 3 |
+| Blended Rate | ✅ Done | 2 |
+| Payment Savings | Priority | 5 |
+| Cash Back | Priority | 5 |
+| Accelerated Payoff | Priority | 6 |
