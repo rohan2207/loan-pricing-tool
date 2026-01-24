@@ -405,7 +405,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                   </div>
                   {escrowsEnabled && (
                     <>
-                      <div className="flex justify-between items-center px-5 py-3">
+                      <div className="flex justify-between items-center px-5 py-3 min-h-[52px]">
                         <span className="text-base text-[#111827] pl-4">Taxes</span>
                         <input
                           type="text"
@@ -414,7 +414,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                           className="w-20 px-2 py-1 border-2 border-[#e5e7eb] rounded-lg text-base font-semibold text-[#0f172a] text-right focus:border-[#432c9e] focus:outline-none"
                         />
                       </div>
-                      <div className="flex justify-between items-center px-5 py-3">
+                      <div className="flex justify-between items-center px-5 py-3 min-h-[52px]">
                         <span className="text-base text-[#111827] pl-4">Insurance</span>
                         <input
                           type="text"
@@ -465,17 +465,17 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                   </div>
                   {escrowsEnabled && (
                     <>
-                      <div className="flex justify-between px-5 py-3">
+                      <div className="flex justify-between items-center px-5 py-3 min-h-[52px]">
                         <span className="text-base text-[#111827] pl-4">Taxes</span>
                         <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlyTaxes)}</span>
                       </div>
-                      <div className="flex justify-between px-5 py-3">
+                      <div className="flex justify-between items-center px-5 py-3 min-h-[52px]">
                         <span className="text-base text-[#111827] pl-4">Insurance</span>
                         <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlyInsurance)}</span>
                       </div>
                     </>
                   )}
-                  <div className="flex justify-between px-5 py-3">
+                  <div className="flex justify-between items-center px-5 py-3">
                     <span className="text-base text-[#111827] pl-4">Mortgage Insurance</span>
                     <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(proposedMI)}</span>
                   </div>
