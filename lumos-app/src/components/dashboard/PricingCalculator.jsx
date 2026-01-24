@@ -566,11 +566,43 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
           <div>
             <h3 className="text-xs font-bold text-[#6b7280] uppercase tracking-wider mb-4">Chart Highlights</h3>
             
+            {/* Chart data to pass to charts */}
+            {(() => {
+              const chartData = {
+                isTemplated: false,
+                // Payment breakdown - Current
+                currentMortgagePI: currentPI,
+                currentEscrow: escrowsEnabled ? (monthlyTaxes + monthlyInsurance) : 0,
+                currentMI: currentMI,
+                debtsPaidOff: monthlyDebtsPaid,
+                debtsRemaining: monthlyDebtsNotPaid,
+                // Payment breakdown - Proposed
+                proposedPI: proposedPI,
+                proposedEscrow: escrowsEnabled ? (monthlyTaxes + monthlyInsurance) : 0,
+                proposedMI: proposedMI,
+                // Savings
+                monthlySavings: monthlySavings,
+                annualSavings: monthlySavings * 12,
+                // Loan details
+                newLoanAmount: loanAmount,
+                amt: loanAmount,
+                cashout: cashout,
+                debtsPayoff: debts,
+                rate: selectedRate?.rate || 7.0,
+                // Cash back
+                cashBack: Math.abs(cashFromToBorrower),
+              };
+              
+              return (
             <div className="grid grid-cols-2 gap-3">
               {/* Debt Consolidation */}
-              <div className="border-2 border-[#e5e7eb] rounded-xl p-4 hover:border-[#432c9e]/50 transition-colors">
+              <div 
+                onClick={() => onSelectChart?.('debt-consolidation', chartData)}
+                className="border-2 border-[#e5e7eb] rounded-xl p-4 hover:border-[#432c9e]/50 transition-colors cursor-pointer"
+              >
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-bold text-[#1e1b4b]">Debt Consolidation</h4>
+                  <ArrowRight className="w-4 h-4 text-[#432c9e]" />
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-[#6b7280]">Total Paid Off</span>
@@ -580,7 +612,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
 
               {/* Payment Savings */}
               <div 
-                onClick={() => onSelectChart?.('payment-savings')}
+                onClick={() => onSelectChart?.('payment-savings', chartData)}
                 className="border-2 border-[#e5e7eb] rounded-xl p-4 hover:border-[#432c9e]/50 transition-colors cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-2">
@@ -595,7 +627,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
 
               {/* Cash Back */}
               <div 
-                onClick={() => onSelectChart?.('cash-back')}
+                onClick={() => onSelectChart?.('cash-back', chartData)}
                 className="border-2 border-[#e5e7eb] rounded-xl p-4 hover:border-[#432c9e]/50 transition-colors cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-2">
@@ -610,7 +642,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
 
               {/* Accelerated Payoff */}
               <div 
-                onClick={() => onSelectChart?.('accelerated-payoff')}
+                onClick={() => onSelectChart?.('accelerated-payoff', chartData)}
                 className="border-2 border-[#e5e7eb] rounded-xl p-4 hover:border-[#432c9e]/50 transition-colors cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-2">
@@ -623,6 +655,8 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                 </div>
               </div>
             </div>
+              );
+            })()}
           </div>
         </div>
       </div>

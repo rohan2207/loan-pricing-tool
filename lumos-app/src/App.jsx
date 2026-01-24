@@ -268,11 +268,18 @@ function App() {
     ? activeQuickAction.replace('ChartPreview:', '') 
     : null;
 
+  // Store chart data passed from pricing calculator
+  const [activeChartData, setActiveChartData] = useState(null);
+
   // Handle quick action change - supports AI tool IDs from config
-  const handleQuickActionChange = (action) => {
+  const handleQuickActionChange = (action, chartData = null) => {
     // Map AI tool IDs to quick action names
     const mappedAction = AI_TOOL_MAPPING[action] || action;
     setActiveQuickAction(mappedAction);
+    // Store chart data if provided (from PricingCalculator)
+    if (chartData) {
+      setActiveChartData(chartData);
+    }
   };
 
   // Flyover content based on activeQuickAction
@@ -312,15 +319,15 @@ function App() {
         return <GoodLeapAVM borrowerData={borrowerData} onClose={() => setActiveQuickAction(null)} />;
       case 'Sales Coach':
         return <SalesCoach accounts={accounts} borrowerData={borrowerData} onClose={() => setActiveQuickAction(null)} />;
-      // Chart tools with templated test data
+      // Chart tools - use activeChartData if available (from PricingCalculator), otherwise use template
       case 'Debt Worksheet Chart':
-        return <ChartPreview chartType="debt-consolidation" data={TEMPLATE_CHART_DATA} />;
+        return <ChartPreview chartType="debt-consolidation" data={activeChartData || TEMPLATE_CHART_DATA} />;
       case 'Payment Savings Chart':
-        return <ChartPreview chartType="payment-savings" data={TEMPLATE_CHART_DATA} />;
+        return <ChartPreview chartType="payment-savings" data={activeChartData || TEMPLATE_CHART_DATA} />;
       case 'Cash Back Chart':
-        return <ChartPreview chartType="cash-back" data={TEMPLATE_CHART_DATA} />;
+        return <ChartPreview chartType="cash-back" data={activeChartData || TEMPLATE_CHART_DATA} />;
       case 'Accelerated Payoff Chart':
-        return <ChartPreview chartType="accelerated-payoff" data={TEMPLATE_CHART_DATA} />;
+        return <ChartPreview chartType="accelerated-payoff" data={activeChartData || TEMPLATE_CHART_DATA} />;
       default:
         return null;
     }
