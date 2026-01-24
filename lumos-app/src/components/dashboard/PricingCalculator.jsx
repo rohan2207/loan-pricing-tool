@@ -395,17 +395,17 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                   <p className="text-xs text-[#b45309]">What you're paying now</p>
                 </div>
                 <div className="divide-y divide-[#e5e7eb]">
-                  <div className="flex justify-between px-5 py-3">
+                  <div className="flex justify-between items-center px-5 min-h-[48px]">
                     <span className="text-base text-[#111827]">Principal & Interest</span>
                     <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(currentPI)}</span>
                   </div>
-                  <div className="flex justify-between px-5 py-3">
+                  <div className="flex justify-between items-center px-5 min-h-[48px]">
                     <span className="text-base text-[#111827]">Subordinate Lien</span>
                     <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlySubordinateLien)}</span>
                   </div>
                   {escrowsEnabled && (
                     <>
-                      <div className="flex justify-between items-center px-5 py-3 min-h-[52px]">
+                      <div className="flex justify-between items-center px-5 min-h-[48px]">
                         <span className="text-base text-[#111827] pl-4">Taxes</span>
                         <input
                           type="text"
@@ -414,7 +414,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                           className="w-20 px-2 py-1 border-2 border-[#e5e7eb] rounded-lg text-base font-semibold text-[#0f172a] text-right focus:border-[#432c9e] focus:outline-none"
                         />
                       </div>
-                      <div className="flex justify-between items-center px-5 py-3 min-h-[52px]">
+                      <div className="flex justify-between items-center px-5 min-h-[48px]">
                         <span className="text-base text-[#111827] pl-4">Insurance</span>
                         <input
                           type="text"
@@ -425,23 +425,23 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                       </div>
                     </>
                   )}
-                  <div className="flex justify-between px-5 py-3">
+                  <div className="flex justify-between items-center px-5 min-h-[48px]">
                     <span className="text-base text-[#111827] pl-4">Mortgage Insurance</span>
                     <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(currentMI)}</span>
                   </div>
-                  <div className="flex justify-between px-5 py-3 bg-[#fef6f0]">
+                  <div className="flex justify-between items-center px-5 min-h-[48px] bg-[#fef6f0]">
                     <span className="text-base font-bold text-[#92400e]">Mortgage Total</span>
                     <span className="text-base font-bold text-[#92400e]">{formatCurrency(currentMortgageTotal)}</span>
                   </div>
-                  <div className="flex justify-between px-5 py-3">
+                  <div className="flex justify-between items-center px-5 min-h-[48px]">
                     <span className="text-base text-[#111827]">Monthly Debts (Paid Off)</span>
                     <span className="text-base font-semibold text-rose-600">{formatCurrency(monthlyDebtsPaid)}</span>
                   </div>
-                  <div className="flex justify-between px-5 py-3">
+                  <div className="flex justify-between items-center px-5 min-h-[48px]">
                     <span className="text-base text-[#111827]">Monthly Debts (NOT Paid)</span>
                     <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlyDebtsNotPaid)}</span>
                   </div>
-                  <div className="flex justify-between px-5 py-4 bg-[#fef6f0] border-t-2 border-[#f5e6d8]">
+                  <div className="flex justify-between items-center px-5 min-h-[52px] bg-[#fef6f0] border-t-2 border-[#f5e6d8]">
                     <span className="text-lg font-bold text-[#92400e]">Total Monthly</span>
                     <span className="text-xl font-bold text-[#92400e]">{formatCurrency(currentTotal)}</span>
                   </div>
@@ -455,43 +455,43 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                   <p className="text-xs text-[#6b5ce7]">Your new payment</p>
                 </div>
                 <div className="divide-y divide-[#e5e7eb]">
-                  <div className="flex justify-between px-5 py-3">
+                  <div className="flex justify-between items-center px-5 min-h-[48px]">
                     <span className="text-base text-[#111827]">Principal & Interest</span>
                     <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(proposedPI)}</span>
                   </div>
-                  <div className="flex justify-between px-5 py-3">
+                  <div className="flex justify-between items-center px-5 min-h-[48px]">
                     <span className="text-base text-[#111827]">Subordinate Lien</span>
                     <span className="text-base font-bold text-green-600">$0 ✓</span>
                   </div>
                   {escrowsEnabled && (
                     <>
-                      <div className="flex justify-between items-center px-5 py-3 min-h-[52px]">
+                      <div className="flex justify-between items-center px-5 min-h-[48px]">
                         <span className="text-base text-[#111827] pl-4">Taxes</span>
                         <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlyTaxes)}</span>
                       </div>
-                      <div className="flex justify-between items-center px-5 py-3 min-h-[52px]">
+                      <div className="flex justify-between items-center px-5 min-h-[48px]">
                         <span className="text-base text-[#111827] pl-4">Insurance</span>
                         <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlyInsurance)}</span>
                       </div>
                     </>
                   )}
-                  <div className="flex justify-between items-center px-5 py-3">
+                  <div className="flex justify-between items-center px-5 min-h-[48px]">
                     <span className="text-base text-[#111827] pl-4">Mortgage Insurance</span>
                     <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(proposedMI)}</span>
                   </div>
-                  <div className="flex justify-between px-5 py-3 bg-[#f5f3ff]">
+                  <div className="flex justify-between items-center px-5 min-h-[48px] bg-[#f5f3ff]">
                     <span className="text-base font-bold text-[#432c9e]">Mortgage Total</span>
                     <span className="text-base font-bold text-[#432c9e]">{formatCurrency(proposedMortgageTotal)}</span>
                   </div>
-                  <div className="flex justify-between px-5 py-3">
+                  <div className="flex justify-between items-center px-5 min-h-[48px]">
                     <span className="text-base text-[#111827]">Monthly Debts (Paid Off)</span>
                     <span className="text-base font-bold text-green-600">$0 ✓</span>
                   </div>
-                  <div className="flex justify-between px-5 py-3">
+                  <div className="flex justify-between items-center px-5 min-h-[48px]">
                     <span className="text-base text-[#111827]">Monthly Debts (NOT Paid)</span>
                     <span className="text-base font-semibold text-[#0f172a]">{formatCurrency(monthlyDebtsNotPaid)}</span>
                   </div>
-                  <div className="flex justify-between px-5 py-4 bg-[#f5f3ff] border-t-2 border-[#e9e5ff]">
+                  <div className="flex justify-between items-center px-5 min-h-[52px] bg-[#f5f3ff] border-t-2 border-[#e9e5ff]">
                     <span className="text-lg font-bold text-[#432c9e]">Total Monthly</span>
                     <span className="text-xl font-bold text-[#432c9e]">{formatCurrency(proposedTotal)}</span>
                   </div>
