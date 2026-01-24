@@ -538,7 +538,7 @@ export function PricingCalculator({ accounts = [], borrowerData = {}, onSelectCh
                 </div>
                 {escrowsEnabled && (
                   <div className="flex justify-between items-center px-5 py-3">
-                    <span className="text-base text-[#111827]">Estimated Escrows</span>
+                    <span className="text-base text-[#111827]">Estimated Escrows <span className="text-sm text-[#6b7280]">(6 months prepaids)</span></span>
                     <div className="flex items-center gap-1">
                       <span className="text-base text-rose-600">-</span>
                       <input
